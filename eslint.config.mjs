@@ -2,6 +2,7 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import astro from "eslint-plugin-astro";
+// @ts-expect-error — no type declarations shipped; safe to suppress in eslint config
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import globals from "globals";
 
