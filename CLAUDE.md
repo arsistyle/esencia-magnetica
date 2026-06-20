@@ -41,6 +41,10 @@ Defined in Stage 02 → [`docs/stages/stage-02/FUNDAMENTS.md`](docs/stages/stage
 - Products show **no prices** (affiliate model). Catalog is outbound-only — no product detail pages.
 - Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` before considering a change done.
 
+## TDD
+
+When creating any function, utility, or component, invoke the `superpowers:test-driven-development` skill before writing implementation code.
+
 ## Working with the plan
 
 When implementing a feature, read the matching stage's `FUNDAMENTS.md` first; it lists the goal, tasks, deliverables, and Definition of Done. Don't pull v1 scope from the Post-v1 backlog (newsletter, sponsored posts, Shein automation, product detail pages).
@@ -50,6 +54,7 @@ When implementing a feature, read the matching stage's `FUNDAMENTS.md` first; it
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 
 Rules:
+
 - For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
