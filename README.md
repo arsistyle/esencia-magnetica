@@ -1,43 +1,67 @@
-# Astro Starter Kit: Minimal
+# Esencia Magnética
 
-```sh
-pnpm create astro@latest -- --template minimal
+Fashion & lifestyle website for women 40–55+. Drives traffic to YouTube and monetizes through affiliate links.
+
+Built with **Astro** · **TypeScript** · **Tailwind CSS v4** · **Sanity CMS**.
+
+---
+
+## Requirements
+
+- [Node.js](https://nodejs.org/) v22 (run `nvm use` if you have nvm)
+- [pnpm](https://pnpm.io/) v11+
+
+## Setup
+
+```bash
+git clone https://github.com/arsistyle/esencia-magnetica.git
+cd esencia-magnetica
+cp .env.example .env   # fill in your keys
+pnpm install
+pnpm dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Open `http://localhost:4321`.
 
-## 🚀 Project Structure
+## Scripts
 
-Inside of your Astro project, you'll see the following folders and files:
+| Script            | Description                        |
+| ----------------- | ---------------------------------- |
+| `pnpm dev`        | Start dev server at localhost:4321 |
+| `pnpm build`      | Build static output to `dist/`     |
+| `pnpm preview`    | Preview the built output           |
+| `pnpm typecheck`  | TypeScript type check              |
+| `pnpm lint`       | Run ESLint                         |
+| `pnpm lint:fix`   | Run ESLint and auto-fix            |
+| `pnpm format`     | Format all files with Prettier     |
+| `pnpm test`       | Run unit tests (Vitest)            |
+| `pnpm test:watch` | Run Vitest in watch mode           |
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in your values.
+
+| Variable                    | Used in  | Description            |
+| --------------------------- | -------- | ---------------------- |
+| `PUBLIC_SANITY_PROJECT_ID`  | Stage 03 | Sanity project ID      |
+| `PUBLIC_SANITY_DATASET`     | Stage 03 | Sanity dataset name    |
+| `SANITY_API_READ_TOKEN`     | Stage 03 | Server-only read token |
+| `PUBLIC_GA4_MEASUREMENT_ID` | Stage 09 | Google Analytics 4 ID  |
+
+## Project Structure
+
+```
+src/
+├── components/   Reusable Astro components
+├── layouts/      Page layouts (BaseLayout.astro)
+├── lib/          TypeScript utilities
+├── pages/        Routes (file-based)
+├── styles/       Global CSS (Tailwind entry)
+└── content/      Content collections (Stage 03)
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Documentation
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- [Implementation Plan](docs/PLAN.md)
+- [Project Definition](docs/PROJECT.md)
+- [Brand & Audience](docs/ABOUT.md)
