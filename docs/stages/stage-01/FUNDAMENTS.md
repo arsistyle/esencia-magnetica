@@ -5,7 +5,8 @@
 **Goal:** A running Astro + TypeScript + Tailwind + shadcn project with linting, formatting, and CI, committed to the existing repo.
 
 ## Tasks
-1. Initialize Astro project (`pnpm create astro@latest`) with the TypeScript (strict) template inside the existing `esencia-magnetica` repo.
+
+1. Initialize Astro project (`pnpm create astro@latest`) with the TypeScript (strict) template.
 2. Add and configure Tailwind CSS via the official Astro integration.
 3. Install and configure shadcn/ui for Astro (React island setup: `@astrojs/react`, `tailwindcss-animate`, `components.json`).
 4. Set up project structure: `src/components`, `src/layouts`, `src/pages`, `src/lib`, `src/styles`, `src/content` or `src/sanity`.
@@ -17,7 +18,9 @@
 10. Write/extend `README.md` with local setup and run instructions.
 
 ## Deliverables
+
 Working `pnpm run dev`, green CI, committed scaffold.
 
 ## Definition of Done
+
 A fresh clone builds and runs with documented steps; CI passes on `main`.
