@@ -17,7 +17,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "prepare": "husky"
   },
   "dependencies": {
     "astro": "^6.4.7"
@@ -26,6 +27,15 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "sharp"
+    ]
+  },
+  "lint-staged": {
+    "*.{ts,astro}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,md,json}": [
+      "prettier --write"
     ]
   },
   "devDependencies": {
@@ -38,6 +48,8 @@
     "eslint-plugin-astro": "^1.7.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "prettier": "^3.8.4",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
