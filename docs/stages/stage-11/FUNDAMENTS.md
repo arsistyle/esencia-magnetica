@@ -5,6 +5,7 @@
 **Goal:** Verify quality before launch.
 
 ## Tasks
+
 1. Cross-browser/device testing (Chrome, Safari, Firefox; mobile + desktop).
 2. Lighthouse audits on Home, Blog listing, Post, Productos, Marca — target Performance ≥ 90, A11y ≥ 95, SEO ≥ 95.
 3. WCAG 2.1 AA pass: color contrast (gold-on-cream check), keyboard navigation, focus states, touch targets, reduced motion.
@@ -15,7 +16,9 @@
 8. Set up basic error monitoring / 404 handling review.
 
 ## Deliverables
+
 QA report, resolved issues.
 
 ## Definition of Done
+
 All target scores met; no broken links; brand owner sign-off on content.

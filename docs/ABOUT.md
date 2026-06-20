@@ -6,12 +6,13 @@ Esencia Magnética is a fashion and lifestyle brand focused on elegant, feminine
 
 ## Current Presence
 
-| Platform | URL | Status |
-|---|---|---|
-| Facebook Page | https://www.facebook.com/profile.php?id=61579741058238 | Active |
-| YouTube Channel | https://www.youtube.com/@EsenciaMagnetica | Active — strong performance |
+| Platform        | URL                                                    | Status                      |
+| --------------- | ------------------------------------------------------ | --------------------------- |
+| Facebook Page   | https://www.facebook.com/profile.php?id=61579741058238 | Active                      |
+| YouTube Channel | https://www.youtube.com/@EsenciaMagnetica              | Active — strong performance |
 
 ### YouTube Performance Highlights
+
 - YouTube Shorts averaging **90k+ views**
 - Retention rates between **90–200%**
 - Content style: practical outfit tips, styling by body type, occasion, and season
@@ -51,7 +52,7 @@ The new website will serve as the brand's owned-media hub:
 2. **Monetize via affiliates** — Embedded product links throughout editorial content
 3. **Cross-promote channels** — Drive traffic between YouTube, Facebook, and the site
 4. **Build an audience** — Email list, repeat visitors, SEO presence
-5. **Establish authority** — Position Esencia Magnética as *the* reference for 40–55+ fashion in Spanish-speaking markets
+5. **Establish authority** — Position Esencia Magnética as _the_ reference for 40–55+ fashion in Spanish-speaking markets
 
 ## Tech Decisions (TBD)
 
@@ -62,4 +63,4 @@ The new website will serve as the brand's owned-media hub:
 
 ---
 
-*Last updated: 2026-06-20*
+_Last updated: 2026-06-20_

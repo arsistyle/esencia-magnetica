@@ -25,6 +25,7 @@ Activate when user says: "handoff", "hand off", "pass this to", "continue later"
 ## Proactive Suggestions
 
 Consider suggesting a handoff when:
+
 - User says "I need to go" or "let's stop here"
 - A significant milestone is reached
 - You've been working for a long time with lots of context
@@ -33,8 +34,8 @@ Say: "Want me to create a handoff so you (or another agent) can continue later?"
 
 ## Commands
 
-| Command | Use When |
-|---------|----------|
-| `/handoff:create` | Full handoff with all context |
-| `/handoff:quick` | Minimal handoff, just essentials |
-| `/handoff:resume` | Continue from existing handoff |
+| Command           | Use When                         |
+| ----------------- | -------------------------------- |
+| `/handoff:create` | Full handoff with all context    |
+| `/handoff:quick`  | Minimal handoff, just essentials |
+| `/handoff:resume` | Continue from existing handoff   |

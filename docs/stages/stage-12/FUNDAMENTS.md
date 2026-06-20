@@ -5,6 +5,7 @@
 **Goal:** Ship v1 to production.
 
 ## Tasks
+
 1. Choose and configure hosting (e.g., Vercel/Netlify/Cloudflare Pages) for Astro static output.
 2. Configure production environment variables and Sanity production dataset.
 3. Set up the custom domain + HTTPS and ES/EN routing at the edge.
@@ -15,9 +16,11 @@
 8. Tag the `v1.0` release and document the deploy/rollback process.
 
 ## Deliverables
+
 Live production site, GSC verified, release tagged.
 
 ## Definition of Done
+
 Production site loads on the real domain, content publishing rebuilds the site, analytics + search console active.
 
 ---

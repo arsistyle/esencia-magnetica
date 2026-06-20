@@ -14,47 +14,50 @@
 
 ## Files Overview
 
-| File | Action | Purpose |
-|---|---|---|
-| `astro.config.mjs` | Create | Astro config: Tailwind v4 vite plugin + `@/*` alias |
-| `tsconfig.json` | Create | TypeScript strict + `@/*` path alias |
-| `src/styles/global.css` | Create | `@import "tailwindcss"` — Tailwind entry point |
-| `src/layouts/BaseLayout.astro` | Create | Base HTML shell (imports global.css) |
-| `src/pages/index.astro` | Create | Minimal home page using BaseLayout |
-| `src/lib/utils.ts` | Create | `cn()` class name utility |
-| `src/lib/utils.test.ts` | Create | Vitest unit tests for utils.ts |
-| `src/components/.gitkeep` | Create | Preserve empty components directory |
-| `src/content/.gitkeep` | Create | Preserve empty content directory |
-| `eslint.config.mjs` | Create | ESLint v9 flat config |
-| `.prettierrc` | Create | Prettier + astro + tailwind plugins |
-| `.prettierignore` | Create | Ignore dist/, .astro/ |
-| `vitest.config.ts` | Create | Vitest config |
-| `.husky/pre-commit` | Create | Runs lint-staged |
-| `.husky/pre-push` | Create | Runs typecheck + test |
-| `.nvmrc` | Create | Node version: `22` |
-| `.editorconfig` | Create | Editor settings |
-| `.env` | Create | Local secrets (gitignored) |
-| `.env.example` | Create | Documented required keys |
-| `README.md` | Create | Setup instructions |
-| `package.json` | Modify | Scripts + lint-staged config + prepare |
-| `CLAUDE.md` | Modify | TDD workflow rule |
+| File                           | Action | Purpose                                             |
+| ------------------------------ | ------ | --------------------------------------------------- |
+| `astro.config.mjs`             | Create | Astro config: Tailwind v4 vite plugin + `@/*` alias |
+| `tsconfig.json`                | Create | TypeScript strict + `@/*` path alias                |
+| `src/styles/global.css`        | Create | `@import "tailwindcss"` — Tailwind entry point      |
+| `src/layouts/BaseLayout.astro` | Create | Base HTML shell (imports global.css)                |
+| `src/pages/index.astro`        | Create | Minimal home page using BaseLayout                  |
+| `src/lib/utils.ts`             | Create | `cn()` class name utility                           |
+| `src/lib/utils.test.ts`        | Create | Vitest unit tests for utils.ts                      |
+| `src/components/.gitkeep`      | Create | Preserve empty components directory                 |
+| `src/content/.gitkeep`         | Create | Preserve empty content directory                    |
+| `eslint.config.mjs`            | Create | ESLint v9 flat config                               |
+| `.prettierrc`                  | Create | Prettier + astro + tailwind plugins                 |
+| `.prettierignore`              | Create | Ignore dist/, .astro/                               |
+| `vitest.config.ts`             | Create | Vitest config                                       |
+| `.husky/pre-commit`            | Create | Runs lint-staged                                    |
+| `.husky/pre-push`              | Create | Runs typecheck + test                               |
+| `.nvmrc`                       | Create | Node version: `22`                                  |
+| `.editorconfig`                | Create | Editor settings                                     |
+| `.env`                         | Create | Local secrets (gitignored)                          |
+| `.env.example`                 | Create | Documented required keys                            |
+| `README.md`                    | Create | Setup instructions                                  |
+| `package.json`                 | Modify | Scripts + lint-staged config + prepare              |
+| `CLAUDE.md`                    | Modify | TDD workflow rule                                   |
 
 ---
 
 ### Task 1: Scaffold Astro in a temp directory and merge to repo
 
 **Files:**
+
 - Create: `astro.config.mjs`, `tsconfig.json`, `src/pages/index.astro`, `public/favicon.svg`, `.gitignore`, `package.json`
 - Create: `src/components/.gitkeep`, `src/content/.gitkeep`
 
 - [ ] **Step 1.1: Create Astro scaffold in temp directory**
 
 Run in PowerShell:
+
 ```powershell
 pnpm create astro@latest "$env:USERPROFILE\astro-scaffold" --template minimal --no-install --no-git --typescript strict --yes
 ```
 
 Expected output ends with something like:
+
 ```
  next   Liftoff confirmed. Explore your project!
 ```
@@ -113,6 +116,7 @@ git commit -m "feat: scaffold Astro minimal project"
 ### Task 2: Configure TypeScript strict mode and path aliases
 
 **Files:**
+
 - Modify: `tsconfig.json`
 - Modify: `astro.config.mjs` (add Vite alias — Tailwind plugin added in Task 3)
 - Modify: `package.json` (add `typecheck` script)
@@ -143,23 +147,24 @@ pnpm add -D @astrojs/check typescript
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config'
-import path from 'path'
+import { defineConfig } from "astro/config";
+import path from "path";
 
 export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        '@': path.resolve('./src'),
+        "@": path.resolve("./src"),
       },
     },
   },
-})
+});
 ```
 
 - [ ] **Step 2.4: Add typecheck script to package.json**
 
 In `package.json`, add to `scripts`:
+
 ```json
 "typecheck": "astro check"
 ```
@@ -184,6 +189,7 @@ git commit -m "feat: configure TypeScript strict mode and @/* path alias"
 ### Task 3: Configure Tailwind v4 and create base layout
 
 **Files:**
+
 - Modify: `astro.config.mjs`
 - Create: `src/styles/global.css`
 - Create: `src/layouts/BaseLayout.astro`
@@ -201,20 +207,20 @@ Tailwind v4 uses a Vite plugin instead of PostCSS. No `tailwind.config.js` is ne
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve('./src'),
+        "@": path.resolve("./src"),
       },
     },
   },
-})
+});
 ```
 
 - [ ] **Step 3.3: Create src/styles/global.css**
@@ -229,17 +235,17 @@ This single line replaces the old `@tailwind base/components/utilities` directiv
 
 ```astro
 ---
-import '@/styles/global.css'
+import "@/styles/global.css";
 
 interface Props {
-  title: string
-  description?: string
+  title: string;
+  description?: string;
 }
 
 const {
   title,
-  description = 'Esencia Magnética — moda y estilo para mujeres 40+',
-} = Astro.props
+  description = "Esencia Magnética — moda y estilo para mujeres 40+",
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -261,11 +267,11 @@ const {
 
 ```astro
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro'
+import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Esencia Magnética">
-  <main class="min-h-screen flex items-center justify-center">
+  <main class="flex min-h-screen items-center justify-center">
     <h1 class="text-4xl font-bold">Esencia Magnética</h1>
   </main>
 </BaseLayout>
@@ -299,6 +305,7 @@ git commit -m "feat: configure Tailwind v4 and add base layout"
 ### Task 4: Configure ESLint v9
 
 **Files:**
+
 - Create: `eslint.config.mjs`
 - Modify: `package.json` (add lint scripts)
 
@@ -312,28 +319,29 @@ pnpm add -D eslint @eslint/js typescript-eslint eslint-plugin-astro eslint-plugi
 
 ```js
 // eslint.config.mjs
-import js from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import astro from 'eslint-plugin-astro'
-import jsxA11y from 'eslint-plugin-jsx-a11y'
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import astro from "eslint-plugin-astro";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   {
-    plugins: { 'jsx-a11y': jsxA11y },
+    plugins: { "jsx-a11y": jsxA11y },
     rules: jsxA11y.configs.recommended.rules,
   },
   {
-    ignores: ['dist/', '.astro/', 'node_modules/'],
+    ignores: ["dist/", ".astro/", "node_modules/"],
   },
-]
+];
 ```
 
 - [ ] **Step 4.3: Add lint scripts to package.json**
 
 In `scripts`:
+
 ```json
 "lint": "eslint .",
 "lint:fix": "eslint . --fix",
@@ -347,6 +355,7 @@ pnpm lint:fix
 ```
 
 Then verify clean:
+
 ```powershell
 pnpm lint
 ```
@@ -365,6 +374,7 @@ git commit -m "feat: configure ESLint v9 flat config with Astro and a11y rules"
 ### Task 5: Configure Prettier
 
 **Files:**
+
 - Create: `.prettierrc`
 - Create: `.prettierignore`
 - Modify: `package.json` (add format script)
@@ -403,6 +413,7 @@ pnpm-lock.yaml
 - [ ] **Step 5.4: Add format script to package.json**
 
 In `scripts`:
+
 ```json
 "format": "prettier --write ."
 ```
@@ -427,6 +438,7 @@ git commit -m "feat: configure Prettier with Astro and Tailwind plugins"
 ### Task 6: Create first utility and set up Vitest (TDD)
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/lib/utils.test.ts` (written first — TDD)
 - Create: `src/lib/utils.ts` (written after test)
@@ -441,19 +453,20 @@ pnpm add -D vitest @vitest/ui
 - [ ] **Step 6.2: Create vitest.config.ts**
 
 ```ts
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
+    environment: "node",
   },
-})
+});
 ```
 
 - [ ] **Step 6.3: Add test scripts to package.json**
 
 In `scripts`:
+
 ```json
 "test": "vitest run",
 "test:watch": "vitest",
@@ -465,22 +478,22 @@ In `scripts`:
 Create `src/lib/utils.test.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { cn } from './utils'
+import { describe, it, expect } from "vitest";
+import { cn } from "./utils";
 
-describe('cn', () => {
-  it('joins two class names with a space', () => {
-    expect(cn('foo', 'bar')).toBe('foo bar')
-  })
+describe("cn", () => {
+  it("joins two class names with a space", () => {
+    expect(cn("foo", "bar")).toBe("foo bar");
+  });
 
-  it('filters out null, undefined, and false', () => {
-    expect(cn('foo', null, undefined, false, 'bar')).toBe('foo bar')
-  })
+  it("filters out null, undefined, and false", () => {
+    expect(cn("foo", null, undefined, false, "bar")).toBe("foo bar");
+  });
 
-  it('returns empty string when all values are falsy', () => {
-    expect(cn(null, undefined, false)).toBe('')
-  })
-})
+  it("returns empty string when all values are falsy", () => {
+    expect(cn(null, undefined, false)).toBe("");
+  });
+});
 ```
 
 - [ ] **Step 6.5: Run tests to confirm they fail**
@@ -497,7 +510,7 @@ Create `src/lib/utils.ts`:
 
 ```ts
 export function cn(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(" ");
 }
 ```
 
@@ -508,6 +521,7 @@ pnpm test
 ```
 
 Expected:
+
 ```
 ✓ src/lib/utils.test.ts (3 tests)
 Test Files  1 passed (1)
@@ -526,6 +540,7 @@ git commit -m "feat: add Vitest and cn() utility with TDD tests"
 ### Task 7: Set up Husky and lint-staged
 
 **Files:**
+
 - Create: `.husky/pre-commit`
 - Create: `.husky/pre-push`
 - Modify: `package.json` (prepare script + lint-staged config)
@@ -547,6 +562,7 @@ Expected: `.husky/` directory created with a default `pre-commit` file and `prep
 - [ ] **Step 7.3: Replace .husky/pre-commit**
 
 Overwrite the generated file with exactly:
+
 ```sh
 pnpm exec lint-staged
 ```
@@ -554,6 +570,7 @@ pnpm exec lint-staged
 - [ ] **Step 7.4: Create .husky/pre-push**
 
 Create `.husky/pre-push` with exactly:
+
 ```sh
 pnpm typecheck && pnpm test
 ```
@@ -594,6 +611,7 @@ git commit -m "feat: configure Husky pre-commit (lint-staged) and pre-push (type
 ### Task 8: Configure environment files and editor settings
 
 **Files:**
+
 - Create: `.env`
 - Create: `.env.example`
 - Create: `.nvmrc`
@@ -673,6 +691,7 @@ git commit -m "feat: add .env.example, .nvmrc, and .editorconfig"
 ### Task 9: Add TDD rule to CLAUDE.md
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 - [ ] **Step 9.1: Add TDD section to CLAUDE.md**
@@ -697,6 +716,7 @@ git commit -m "docs: add TDD workflow rule to CLAUDE.md"
 ### Task 10: Write README.md
 
 **Files:**
+
 - Modify: `README.md` (replace Astro's default content)
 
 - [ ] **Step 10.1: Replace README.md with project documentation**
@@ -708,10 +728,12 @@ Write `README.md` with the following content (use literal backtick fences for co
 **Description:** "Fashion & lifestyle website for women 40–55+. Drives traffic to YouTube and monetizes through affiliate links. Built with Astro · TypeScript · Tailwind CSS v4 · Sanity CMS."
 
 **Requirements section** with:
+
 - Node.js v22 (use `nvm use` to switch)
 - pnpm v11+
 
 **Setup section** with these commands in a bash code block:
+
 ```bash
 git clone https://github.com/arsistyle/esencia-magnetica.git
 cd esencia-magnetica
@@ -719,32 +741,34 @@ cp .env.example .env
 pnpm install
 pnpm dev
 ```
+
 Followed by: "Open `http://localhost:4321`."
 
 **Scripts table:**
 
-| Script | Description |
-|---|---|
-| `pnpm dev` | Start dev server at localhost:4321 |
-| `pnpm build` | Build static output to `dist/` |
-| `pnpm preview` | Preview the built output |
-| `pnpm typecheck` | TypeScript type check |
-| `pnpm lint` | Run ESLint |
-| `pnpm lint:fix` | Run ESLint and auto-fix |
-| `pnpm format` | Format all files with Prettier |
-| `pnpm test` | Run unit tests (Vitest) |
-| `pnpm test:watch` | Run Vitest in watch mode |
+| Script            | Description                        |
+| ----------------- | ---------------------------------- |
+| `pnpm dev`        | Start dev server at localhost:4321 |
+| `pnpm build`      | Build static output to `dist/`     |
+| `pnpm preview`    | Preview the built output           |
+| `pnpm typecheck`  | TypeScript type check              |
+| `pnpm lint`       | Run ESLint                         |
+| `pnpm lint:fix`   | Run ESLint and auto-fix            |
+| `pnpm format`     | Format all files with Prettier     |
+| `pnpm test`       | Run unit tests (Vitest)            |
+| `pnpm test:watch` | Run Vitest in watch mode           |
 
 **Environment variables table:**
 
-| Variable | Used in | Description |
-|---|---|---|
-| `PUBLIC_SANITY_PROJECT_ID` | Stage 03 | Sanity project ID |
-| `PUBLIC_SANITY_DATASET` | Stage 03 | Sanity dataset name |
-| `SANITY_API_READ_TOKEN` | Stage 03 | Server-only read token |
-| `PUBLIC_GA4_MEASUREMENT_ID` | Stage 09 | Google Analytics 4 ID |
+| Variable                    | Used in  | Description            |
+| --------------------------- | -------- | ---------------------- |
+| `PUBLIC_SANITY_PROJECT_ID`  | Stage 03 | Sanity project ID      |
+| `PUBLIC_SANITY_DATASET`     | Stage 03 | Sanity dataset name    |
+| `SANITY_API_READ_TOKEN`     | Stage 03 | Server-only read token |
+| `PUBLIC_GA4_MEASUREMENT_ID` | Stage 09 | Google Analytics 4 ID  |
 
 **Project structure** as a code block:
+
 ```
 src/
 ├── components/   Reusable Astro components
@@ -756,6 +780,7 @@ src/
 ```
 
 **Documentation links:**
+
 - [Implementation Plan](docs/PLAN.md)
 - [Project Definition](docs/PROJECT.md)
 - [Brand & Audience](docs/ABOUT.md)
@@ -778,6 +803,7 @@ pnpm typecheck && pnpm lint:ci && pnpm test && pnpm build
 ```
 
 Expected:
+
 - `typecheck` → `0 errors, 0 warnings`
 - `lint:ci` → `0 errors, 0 warnings`
 - `test` → `3 passed`

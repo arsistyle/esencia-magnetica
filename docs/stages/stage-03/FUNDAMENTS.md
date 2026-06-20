@@ -5,6 +5,7 @@
 **Goal:** A deployed Sanity Studio with schemas covering posts, products, categories, and site settings, ready for the brand owner to publish.
 
 ## Tasks
+
 1. Create the Sanity project + dataset; install Studio (embedded in repo or separate folder).
 2. Model **localized fields** strategy for ES/EN (per-field localization or document-level — decide and document).
 3. Define schemas:
@@ -22,7 +23,9 @@
 9. Deploy the Studio and grant the brand owner access.
 
 ## Deliverables
+
 Deployed Studio, typed schemas, seed content.
 
 ## Definition of Done
+
 Brand owner can create a localized post and product; types are generated and importable in Astro.

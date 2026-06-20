@@ -7,6 +7,7 @@
 > Build against the Claude Design reference imported in [Stage 02](../stage-02/FUNDAMENTS.md).
 
 ## Tasks
+
 1. Build the layout: sticky left sidebar (~240px) + right grid.
 2. Sidebar — search box (lupa).
 3. Sidebar — CATEGORÍAS checkboxes (Todo active by default; Outfits/Tops/Pantalones/Vestidos/Zapatos/Bolsos/Accesorios/Peinados), from Sanity.
@@ -19,7 +20,9 @@
 10. Localize all catalog UI for EN.
 
 ## Deliverables
+
 `/productos` and `/en/productos`.
 
 ## Definition of Done
+
 Filters/sort/search/pagination work together; all product links are correctly attributed and open externally; disclosure present.

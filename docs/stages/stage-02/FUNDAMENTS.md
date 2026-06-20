@@ -5,6 +5,7 @@
 **Goal:** Brand tokens, typography, and base shadcn theme wired into Tailwind so all later UI is consistent.
 
 ## Tasks
+
 1. **Import the base design from Claude Design** (source of truth for layouts and visual system):
    - Connect the `claude_design` MCP connector (`https://api.anthropic.com/v1/design/mcp`). If it needs authorization, run `/design-login` (grants `user:design:read/write`).
    - Use the `claude_design` MCP tools to import the project: `https://claude.ai/design/p/658592d3-5da1-4cd3-81b6-c1576c694e23?file=ui_kits%2Fwebsite%2Findex.html` (entry file: `ui_kits/website/index.html`).
@@ -20,7 +21,9 @@
 9. Document tokens and usage in `docs/DESIGN-SYSTEM.md`.
 
 ## Deliverables
+
 Theme config, font setup, base components, styleguide page.
 
 ## Definition of Done
+
 Styleguide renders all tokens/components on-brand; no hardcoded hex values in components.
