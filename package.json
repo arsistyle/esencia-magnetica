@@ -21,7 +21,13 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "astro": "^6.4.7"
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/great-vibes": "^5.2.8",
+    "@fontsource/lato": "^5.2.7",
+    "astro": "^6.4.7",
+    "clsx": "^2.1.1",
+    "cva": "^0.0.0",
+    "tailwind-merge": "^3.6.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
