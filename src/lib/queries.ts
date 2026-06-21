@@ -58,3 +58,20 @@ export const authorsQuery = defineQuery(`
     _id, name, photo, role, bio
   }
 `);
+
+export const pageBySlugQuery = defineQuery(`
+  *[_type == "page" && slug.current == $slug && language == $lang][0]{
+    _id,
+    title,
+    slug,
+    template,
+    hero{
+      heading,
+      subheading,
+      image,
+      cta
+    },
+    body,
+    seo
+  }
+`);
