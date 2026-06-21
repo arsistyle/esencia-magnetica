@@ -1,1 +1,111 @@
+/* ─── Fonts (self-hosted via @fontsource) ────────── */
+@import "@fontsource/cormorant-garamond/400.css";
+@import "@fontsource/cormorant-garamond/400-italic.css";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/500-italic.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
+@import "@fontsource/lato/300.css";
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/400-italic.css";
+@import "@fontsource/lato/700.css";
+@import "@fontsource/lato/900.css";
+@import "@fontsource/great-vibes/400.css";
+
+/* ─── Tailwind ───────────────────────────────────── */
 @import "tailwindcss";
+
+/* ─── Design tokens ──────────────────────────────── */
+@theme {
+  /* Colors — generates bg-*, text-*, border-* utilities */
+  --color-cream: #f5f0eb;
+  --color-gold: #c4973a;
+  --color-olive: #3e3d2f;
+  --color-lavender: #ede6f2;
+  --color-rose-nude: #e8c9bc;
+  --color-cream-deep: #ece3d8;
+  --color-cream-card: #ffffff;
+  --color-gold-soft: #dcc089;
+  --color-gold-deep: #a87c28;
+  --color-olive-soft: #6e6c58;
+  --color-olive-faint: #9a9784;
+  --color-rose-deep: #d9ac9b;
+  --color-lavender-deep: #ddd0e8;
+  --color-line: #e3dace;
+  --color-line-strong: #cfc3b2;
+  --color-success: #5c7a4a;
+  --color-warning: #c4973a;
+  --color-danger: #b0573f;
+
+  /* Font families — generates font-serif, font-sans, font-script */
+  --font-serif: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Lato", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-script: "Great Vibes", "Brush Script MT", cursive;
+
+  /* Type scale — generates text-display, text-h1, … */
+  --text-display: clamp(3rem, 6vw, 5rem);
+  --text-h1: clamp(2.4rem, 4vw, 3.5rem);
+  --text-h2: clamp(1.9rem, 3vw, 2.6rem);
+  --text-h3: 1.6rem;
+  --text-h4: 1.3rem;
+  --text-lead: 1.25rem;
+  --text-body: 1.0625rem;
+  --text-small: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-overline: 0.75rem;
+
+  /* Line heights (overrides Tailwind defaults to match brand) */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* Letter spacing (overrides Tailwind defaults to match brand) */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.18em;
+
+  /* Radii — generates rounded-sm, rounded-pill, etc. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* Shadows — generates shadow-xs, shadow-gold, etc. */
+  --shadow-xs: 0 1px 2px rgba(62, 61, 47, 0.06);
+  --shadow-sm: 0 2px 8px rgba(62, 61, 47, 0.07);
+  --shadow-md: 0 8px 24px rgba(62, 61, 47, 0.09);
+  --shadow-lg: 0 18px 48px rgba(62, 61, 47, 0.12);
+  --shadow-gold: 0 8px 22px rgba(196, 151, 58, 0.28);
+
+  /* Easing & duration — generates ease-soft, duration-fast, etc. */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+}
+
+/* ─── Layout variables (plain CSS vars, no utility needed) */
+:root {
+  --container: 1200px;
+  --container-text: 720px;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+}
+
+/* ─── Base styles ────────────────────────────────── */
+html {
+  background-color: var(--color-cream);
+  color: var(--color-olive);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
