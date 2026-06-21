@@ -25,4 +25,9 @@ describe("cn", () => {
   it("allows caller to override a variant class", () => {
     expect(cn("rounded-lg px-4", "rounded-md")).toBe("px-4 rounded-md");
   });
+
+  it("keeps text-color and text-size classes together (brand font-size tokens)", () => {
+    // text-white (color) and text-body (brand font-size) must NOT be merged.
+    expect(cn("text-white text-body")).toBe("text-white text-body");
+  });
 });
