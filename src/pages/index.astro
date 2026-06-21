@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button.astro";
 import Badge from "@/components/ui/Badge.astro";
 import Card from "@/components/ui/Card.astro";
 import Input from "@/components/ui/Input.astro";
+import Checkbox from "@/components/ui/Checkbox.astro";
 ---
 
 <BaseLayout title="Smoke test">
@@ -83,6 +84,20 @@ import Input from "@/components/ui/Input.astro";
           hint="Required field"
           required
         />
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-bold">Checkboxes</h2>
+      <div class="max-w-md space-y-4">
+        <Checkbox label="Subscribe to newsletter" name="newsletter" />
+        <Checkbox label="I agree to the terms" name="terms" required />
+        <Checkbox
+          label="Notify me about new products"
+          name="notify"
+          checked={true}
+        />
+        <Checkbox label="Remember my preferences" name="remember" value="yes" />
       </div>
     </section>
   </div>
