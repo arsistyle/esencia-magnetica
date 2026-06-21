@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Button from "@/components/ui/Button.astro";
 import Badge from "@/components/ui/Badge.astro";
 import Card from "@/components/ui/Card.astro";
+import Input from "@/components/ui/Input.astro";
 ---
 
 <BaseLayout title="Smoke test">
@@ -56,6 +57,32 @@ import Card from "@/components/ui/Card.astro";
           <h3 class="mb-2 text-lg font-bold">Large Padding</h3>
           <p class="text-body">Card with generous padding and hover lift.</p>
         </Card>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-bold">Inputs</h2>
+      <div class="max-w-md space-y-6">
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          required
+        />
+        <Input
+          label="Full Name"
+          type="text"
+          placeholder="Enter your full name"
+          hint="We'll use this for personalized content"
+        />
+        <Input label="Search" type="text" placeholder="Search articles..." />
+        <Input
+          label="Message"
+          type="text"
+          placeholder="Your message here"
+          hint="Required field"
+          required
+        />
       </div>
     </section>
   </div>
