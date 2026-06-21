@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Button from "@/components/ui/Button.astro";
 import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
 ---
 
 <BaseLayout title="Smoke test">
@@ -31,6 +32,30 @@ import Badge from "@/components/ui/Badge.astro";
         <Badge tone="neutral">Neutral</Badge>
         <Badge size="sm">Small Gold</Badge>
         <Badge tone="olive" size="sm">Small Olive</Badge>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-bold">Cards</h2>
+      <div class="grid gap-6 md:grid-cols-2">
+        <Card>
+          <h3 class="mb-2 text-lg font-bold">Default Card</h3>
+          <p class="text-body">
+            Standard card with hover lift and medium padding.
+          </p>
+        </Card>
+        <Card hover={false}>
+          <h3 class="mb-2 text-lg font-bold">No Hover</h3>
+          <p class="text-body">This card has no hover effect.</p>
+        </Card>
+        <Card padding="sm">
+          <h3 class="mb-2 text-lg font-bold">Small Padding</h3>
+          <p class="text-body">Card with reduced padding.</p>
+        </Card>
+        <Card padding="lg" hover={true}>
+          <h3 class="mb-2 text-lg font-bold">Large Padding</h3>
+          <p class="text-body">Card with generous padding and hover lift.</p>
+        </Card>
       </div>
     </section>
   </div>
