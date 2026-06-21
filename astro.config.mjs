@@ -1,18 +1,33 @@
 // @ts-check
-import { defineConfig } from "astro/config";
-import tailwindcss from "@tailwindcss/vite";
-import { fileURLToPath } from "url";
-import path from "path";
+import {defineConfig} from 'astro/config'
+import tailwindcss from '@tailwindcss/vite'
+import {fileURLToPath} from 'url'
+import path from 'path'
+import {loadEnv} from 'vite'
+import sanity from '@sanity/astro'
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
+const {PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET} = loadEnv(
+  process.env.NODE_ENV ?? 'development',
+  process.cwd(),
+  '',
+)
 
 export default defineConfig({
+  integrations: [
+    sanity({
+      projectId: PUBLIC_SANITY_PROJECT_ID,
+      dataset: PUBLIC_SANITY_DATASET,
+      useCdn: false,
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "src"),
+        '@': path.resolve(__dirname, 'src'),
       },
     },
   },
-});
+})
