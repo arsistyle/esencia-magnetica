@@ -1,18 +1,37 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Button from "@/components/ui/Button.astro";
+import Badge from "@/components/ui/Badge.astro";
 ---
 
 <BaseLayout title="Smoke test">
-  <div class="flex flex-wrap items-center gap-4 p-8">
-    <Button>Primary</Button>
-    <Button variant="secondary">Secondary</Button>
-    <Button variant="ghost">Ghost</Button>
-    <Button variant="warm">Warm</Button>
-    <Button size="sm">Small</Button>
-    <Button size="lg">Large</Button>
-    <Button href="#" variant="secondary">Link Button</Button>
-    <Button disabled>Disabled</Button>
-    <Button class="w-full">Full width override</Button>
+  <div class="space-y-8 p-8">
+    <section>
+      <h2 class="mb-4 text-lg font-bold">Buttons</h2>
+      <div class="flex flex-wrap items-center gap-4">
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="warm">Warm</Button>
+        <Button size="sm">Small</Button>
+        <Button size="lg">Large</Button>
+        <Button href="#" variant="secondary">Link Button</Button>
+        <Button disabled>Disabled</Button>
+        <Button class="w-full">Full width override</Button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-4 text-lg font-bold">Badges</h2>
+      <div class="flex flex-wrap items-center gap-4">
+        <Badge>Gold (default)</Badge>
+        <Badge tone="olive">Olive</Badge>
+        <Badge tone="lavender">Lavender</Badge>
+        <Badge tone="rose">Rose</Badge>
+        <Badge tone="neutral">Neutral</Badge>
+        <Badge size="sm">Small Gold</Badge>
+        <Badge tone="olive" size="sm">Small Olive</Badge>
+      </div>
+    </section>
   </div>
 </BaseLayout>
