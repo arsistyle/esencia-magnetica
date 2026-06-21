@@ -36,6 +36,7 @@
   --color-success: #5c7a4a;
   --color-warning: #c4973a;
   --color-danger: #b0573f;
+  --color-white: #ffffff;
 
   /* Font families — generates font-serif, font-sans, font-script */
   --font-serif: "Cormorant Garamond", "Times New Roman", serif;
