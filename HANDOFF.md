@@ -1,46 +1,51 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-21  
-**Estado actual:** Stage 01 completado ✅ · Próximo: Stage 02
+**Estado actual:** Stage 02 completado ✅ · Próximo: Stage 03
 
 ---
 
 ## Dónde estamos
 
-Stage 01 (Project Setup & Foundations) terminado y pusheado a `origin/main`.
+Stage 01 y Stage 02 terminados y pusheados a `origin/main`.
 
-**Stack instalado:** Astro v6.4.8 · TypeScript strict · Tailwind v4 (vía `@tailwindcss/vite`) · ESLint v9 flat config · Prettier · Vitest 4.1.9 · Husky 9.1.7 + lint-staged.
-
-**Sin shadcn/ui todavía** — se añade solo cuando haya componentes complejos (YAGNI).
+**Stack:** Astro v6.4.8 · TypeScript strict · Tailwind v4 · ESLint v9 · Prettier · Vitest · Husky + lint-staged.
 
 ---
 
 ## Decisiones clave ya tomadas
 
-- `cn()` en `src/lib/utils.ts`: firma básica `(string | undefined | null | false)[]`. Reemplazar con `clsx + tailwind-merge` si se añade shadcn/cva.
+- **Sin shadcn/ui** — componentes como `.astro` puro con CVA (`class-variance-authority`). shadcn se reserva para interactividad real futura (React islands).
+- **CVA en `src/lib/ui/*.ts`**, nunca en frontmatter `.astro` — necesario para que Tailwind v4 escanee las clases correctamente.
+- **`cn()` en `src/lib/utils.ts`** — `clsx` + `extendTailwindMerge` con tokens font-size del brand registrados para que `text-white` y `text-body` coexistan.
+- **`leading-none` siempre después de `text-*`** en strings de CVA — tailwind-merge v3 usa composed class groups; si `leading-none` va antes de `text-{size}`, se elimina.
 - Husky en lugar de GitHub Actions por ahora; GA en Stage 12.
 - TDD enforced via regla en CLAUDE.md — invocar `superpowers:test-driven-development` antes de cualquier implementación.
 - Path alias `@/*` → `src/`.
 
 ---
 
-## Próximo paso: Stage 02 — Design System & Theme Tokens
+## Stage 02 — Design System (completado)
 
-Leer [`docs/stages/stage-02/FUNDAMENTS.md`](docs/stages/stage-02/FUNDAMENTS.md) antes de tocar código.
+Todos los entregables listos y pasando lint/typecheck/build:
 
-**Tokens de diseño ya definidos en CLAUDE.md:**
+| Entregable                               | Archivo                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| Tokens Tailwind v4 (`@theme`)            | `src/styles/global.css`                                                 |
+| Fuentes self-hosted (@fontsource)        | `src/styles/global.css`                                                 |
+| `cn()` con tailwind-merge extendido      | `src/lib/utils.ts`                                                      |
+| Button · Badge · Card · Input · Checkbox | `src/components/ui/`                                                    |
+| Variantes CVA                            | `src/lib/ui/buttonVariants.ts` · `badgeVariants.ts` · `cardVariants.ts` |
+| Styleguide dev-only                      | `src/pages/styleguide.astro` → `/styleguide`                            |
+| Documentación                            | `docs/DESIGN-SYSTEM.md`                                                 |
 
-| Token         | Valor     | Uso         |
-| ------------- | --------- | ----------- |
-| Warm Cream    | `#F5F0EB` | background  |
-| Aged Gold     | `#C4973A` | primary     |
-| Dark Olive    | `#3E3D2F` | text        |
-| Pale Lavender | `#EDE6F2` | accent-soft |
-| Rose Nude     | `#E8C9BC` | accent-warm |
+**Tamaños de botón:** sm=31px · md=35px · lg=46px (altura natural; usar `items-center` en flex containers que mezclen tamaños).
 
-Fuentes: Cormorant Garamond (headings serif) · Lato (body sans) · Great Vibes (script decorativo).
+---
 
-**Regla:** usar CSS variables / tokens — sin hex hardcodeados en componentes.
+## Próximo paso: Stage 03
+
+Leer [`docs/stages/stage-03/FUNDAMENTS.md`](docs/stages/stage-03/FUNDAMENTS.md) antes de tocar código.
 
 ---
 
@@ -59,7 +64,9 @@ pnpm run build       # build estático
 ## Archivos clave
 
 - `docs/PLAN.md` — 12 stages, orden de dependencias
-- `docs/stages/stage-02/FUNDAMENTS.md` — detalle del próximo stage
-- `src/lib/utils.ts` — utilidad `cn()`
-- `src/layouts/BaseLayout.astro` — layout base
+- `docs/DESIGN-SYSTEM.md` — tokens, componentes, uso
+- `src/styles/global.css` — @theme con todos los tokens
+- `src/lib/utils.ts` — `cn()` con tailwind-merge extendido
+- `src/lib/ui/` — variantes CVA de los primitivos
+- `src/components/ui/` — Button, Badge, Card, Input, Checkbox
 - `CLAUDE.md` — convenciones del repo (leer siempre)
