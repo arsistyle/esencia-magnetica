@@ -1,0 +1,7 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": ["src/pages/styleguide.astro"],
+    "ignoreValues": []
+  }
+}

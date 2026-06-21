@@ -1,0 +1,177 @@
+---
+import "@/styles/global.css";
+import Button from "@/components/ui/Button.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
+import Input from "@/components/ui/Input.astro";
+import Checkbox from "@/components/ui/Checkbox.astro";
+
+if (import.meta.env.PROD) return Astro.redirect("/");
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Esencia Magnética — Styleguide</title>
+  </head>
+  <body class="bg-cream text-olive mx-auto max-w-5xl space-y-16 p-8">
+    <header>
+      <h1 class="text-h1 text-gold font-serif">Esencia Magnética</h1>
+      <p class="text-lead text-olive-soft mt-2">Design System — Styleguide</p>
+    </header>
+
+    <!-- COLORS -->
+    <section>
+      <h2 class="text-h2 mb-6 font-serif">Colors</h2>
+      <div class="grid grid-cols-5 gap-3">
+        {
+          [
+            { name: "cream", label: "Cream" },
+            { name: "gold", label: "Gold" },
+            { name: "olive", label: "Olive" },
+            { name: "lavender", label: "Lavender" },
+            { name: "rose-nude", label: "Rose Nude" },
+            { name: "cream-deep", label: "Cream Deep" },
+            { name: "cream-card", label: "Cream Card" },
+            { name: "gold-soft", label: "Gold Soft" },
+            { name: "gold-deep", label: "Gold Deep" },
+            { name: "olive-soft", label: "Olive Soft" },
+            { name: "olive-faint", label: "Olive Faint" },
+            { name: "rose-deep", label: "Rose Deep" },
+            { name: "lavender-deep", label: "Lavender Deep" },
+            { name: "line", label: "Line" },
+            { name: "line-strong", label: "Line Strong" },
+            { name: "success", label: "Success" },
+            { name: "warning", label: "Warning" },
+            { name: "danger", label: "Danger" },
+            { name: "white", label: "White" },
+          ].map(({ name, label }) => (
+            <div class="flex flex-col gap-1">
+              <div class={`bg-${name} border-line h-12 rounded-md border`} />
+              <span class="text-caption text-olive-faint">{label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- TYPOGRAPHY -->
+    <section>
+      <h2 class="text-h2 mb-6 font-serif">Typography</h2>
+      <div class="space-y-4">
+        <p class="text-display font-serif">Display — Cormorant Garamond</p>
+        <p class="text-h1 font-serif">H1 — Cormorant Garamond</p>
+        <p class="text-h2 font-serif">H2 — Cormorant Garamond</p>
+        <p class="text-h3 font-serif">H3 — Cormorant Garamond</p>
+        <p class="text-h4 font-serif">H4 — Cormorant Garamond</p>
+        <p class="text-lead font-sans">Lead — Lato 1.25rem</p>
+        <p class="text-body font-sans">Body — Lato 1.0625rem</p>
+        <p class="text-small font-sans">Small — Lato 0.9375rem</p>
+        <p class="text-caption text-olive-soft font-sans">
+          Caption — Lato 0.8125rem
+        </p>
+        <p
+          class="text-overline text-olive-soft font-sans tracking-wider uppercase"
+        >
+          Overline — Lato 0.75rem
+        </p>
+        <p class="font-script text-h2 text-gold">Script — Great Vibes</p>
+      </div>
+    </section>
+
+    <!-- RADII -->
+    <section>
+      <h2 class="text-h2 mb-6 font-serif">Radii</h2>
+      <div class="flex flex-wrap items-end gap-4">
+        {
+          [
+            { cls: "rounded-sm", label: "sm — 4px" },
+            { cls: "rounded-md", label: "md — 8px" },
+            { cls: "rounded-lg", label: "lg — 14px" },
+            { cls: "rounded-xl", label: "xl — 22px" },
+            { cls: "rounded-pill", label: "pill — 999px" },
+          ].map(({ cls, label }) => (
+            <div class="flex flex-col items-center gap-1">
+              <div class={`${cls} bg-gold-soft h-16 w-16`} />
+              <span class="text-caption text-olive-faint">{label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- SHADOWS -->
+    <section>
+      <h2 class="text-h2 mb-6 font-serif">Shadows</h2>
+      <div class="flex flex-wrap gap-6">
+        {
+          [
+            { cls: "shadow-xs", label: "xs" },
+            { cls: "shadow-sm", label: "sm" },
+            { cls: "shadow-md", label: "md" },
+            { cls: "shadow-lg", label: "lg" },
+            { cls: "shadow-gold", label: "gold" },
+          ].map(({ cls, label }) => (
+            <div class="flex flex-col items-center gap-2">
+              <div class={`${cls} bg-cream-card h-20 w-20 rounded-lg`} />
+              <span class="text-caption text-olive-faint">{label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section>
+      <h2 class="text-h2 mb-8 font-serif">Components</h2>
+
+      <!-- Buttons -->
+      <h3 class="text-h4 mb-4 font-sans">Button</h3>
+      <div class="mb-8 flex flex-wrap gap-3">
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="warm">Warm</Button>
+        <Button size="sm">Small</Button>
+        <Button size="lg">Large</Button>
+        <Button href="#" variant="secondary">Link</Button>
+        <Button disabled>Disabled</Button>
+      </div>
+
+      <!-- Badges -->
+      <h3 class="text-h4 mb-4 font-sans">Badge</h3>
+      <div class="mb-8 flex flex-wrap gap-3">
+        <Badge>Gold</Badge>
+        <Badge tone="olive">Olive</Badge>
+        <Badge tone="lavender">Lavender</Badge>
+        <Badge tone="rose">Rose</Badge>
+        <Badge tone="neutral">Neutral</Badge>
+        <Badge size="sm">Small</Badge>
+      </div>
+
+      <!-- Cards -->
+      <h3 class="text-h4 mb-4 font-sans">Card</h3>
+      <div class="mb-8 grid grid-cols-3 gap-4">
+        <Card><p class="text-body">Default card (hover)</p></Card>
+        <Card hover={false}><p class="text-body">No hover</p></Card>
+        <Card padding="lg"><p class="text-body">Large padding</p></Card>
+      </div>
+
+      <!-- Inputs -->
+      <h3 class="text-h4 mb-4 font-sans">Input</h3>
+      <div class="mb-8 grid grid-cols-2 gap-4">
+        <Input label="Email" type="email" required />
+        <Input label="Name" hint="Your full name" />
+      </div>
+
+      <!-- Checkboxes -->
+      <h3 class="text-h4 mb-4 font-sans">Checkbox</h3>
+      <div class="mb-8 flex flex-col gap-2">
+        <Checkbox label="Accept terms" name="terms" value="yes" />
+        <Checkbox label="Subscribe to newsletter" name="newsletter" checked />
+      </div>
+    </section>
+  </body>
+</html>
