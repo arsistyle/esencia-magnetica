@@ -1,9 +1,18 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Button from "@/components/ui/Button.astro";
 ---
 
-<BaseLayout title="Esencia Magnética">
-  <main class="flex min-h-screen items-center justify-center">
-    <h1 class="text-4xl font-bold">Esencia Magnética</h1>
-  </main>
+<BaseLayout title="Smoke test">
+  <div class="flex flex-wrap items-center gap-4 p-8">
+    <Button>Primary</Button>
+    <Button variant="secondary">Secondary</Button>
+    <Button variant="ghost">Ghost</Button>
+    <Button variant="warm">Warm</Button>
+    <Button size="sm">Small</Button>
+    <Button size="lg">Large</Button>
+    <Button href="#" variant="secondary">Link Button</Button>
+    <Button disabled>Disabled</Button>
+    <Button class="w-full">Full width override</Button>
+  </div>
 </BaseLayout>

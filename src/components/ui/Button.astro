@@ -1,0 +1,63 @@
+---
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const button = cva(
+  "inline-flex items-center justify-center gap-2 font-sans font-bold uppercase tracking-wide rounded-pill transition-all duration-base ease-soft cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-gold text-white border border-gold shadow-gold hover:bg-gold-deep hover:border-gold-deep",
+        secondary:
+          "bg-transparent text-olive border border-line-strong hover:bg-cream-deep",
+        ghost:
+          "bg-transparent text-gold border border-transparent hover:bg-cream-deep",
+        warm: "bg-rose-nude text-olive border border-rose-nude hover:bg-rose-deep",
+      },
+      size: {
+        sm: "px-4 py-2 text-small",
+        md: "px-6 py-3 text-body",
+        lg: "px-8 py-4 text-lead",
+      },
+    },
+    defaultVariants: { variant: "primary", size: "md" },
+  },
+);
+
+type ButtonVariants = VariantProps<typeof button>;
+
+interface Props extends ButtonVariants {
+  class?: string;
+  href?: string;
+  disabled?: boolean;
+  target?: string;
+  rel?: string;
+  type?: "button" | "submit" | "reset";
+}
+
+const {
+  variant,
+  size,
+  class: className,
+  href,
+  disabled = false,
+  target,
+  rel,
+  type = "button",
+} = Astro.props;
+
+const classes = cn(button({ variant, size }), className);
+---
+
+{
+  href ? (
+    <a href={href} class={classes} target={target} rel={rel}>
+      <slot />
+    </a>
+  ) : (
+    <button class={classes} disabled={disabled} type={type}>
+      <slot />
+    </button>
+  )
+}
