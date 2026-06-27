@@ -1,0 +1,83 @@
+---
+// src/components/blog/PostHero.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import type { SanityImageSource } from "@sanity/image-url";
+import { urlFor } from "@/lib/sanity";
+import Badge from "@/components/ui/Badge.astro";
+import { formatPostDate, readingTime } from "@/lib/blog/postViewModel";
+
+interface Props {
+  post: {
+    title: string;
+    publishedAt: string;
+    coverImage?: unknown;
+    category?: { name: Record<string, string> };
+    authors?: Array<{ name: string }>;
+    body?: unknown[];
+  };
+  lang: Locale;
+}
+
+const { post, lang } = Astro.props;
+const t = useTranslations(lang);
+const imgSrc = post.coverImage
+  ? urlFor(post.coverImage as SanityImageSource)
+      .width(1400)
+      .height(700)
+      .url()
+  : null;
+const date = formatPostDate(post.publishedAt, lang);
+const mins = post.body ? readingTime(post.body) : null;
+const categoryName =
+  (post.category?.name as Record<string, string> | undefined)?.[lang] ??
+  (post.category?.name as Record<string, string> | undefined)?.es ??
+  "";
+---
+
+<header
+  class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_0]"
+>
+  <div class="mb-6 flex flex-wrap items-center gap-3">
+    {categoryName && <Badge tone="neutral">{categoryName}</Badge>}
+    <span class="text-caption text-olive-faint font-sans">{date}</span>
+    {
+      mins && (
+        <span class="text-caption text-olive-faint font-sans">
+          {mins} {t("blog.minutes")}
+        </span>
+      )
+    }
+  </div>
+  <h1
+    class="text-h1 text-olive mb-6 max-w-[800px] font-serif leading-tight font-semibold"
+  >
+    {post.title}
+  </h1>
+  {
+    post.authors?.length ? (
+      <div class="mb-8 flex flex-wrap items-center gap-2">
+        <span class="text-caption text-olive-faint font-sans">
+          {t("blog.by")}
+        </span>
+        {post.authors.map((author) => (
+          <span class="text-small text-olive-soft font-sans">
+            {author.name}
+          </span>
+        ))}
+      </div>
+    ) : null
+  }
+</header>
+{
+  imgSrc && (
+    <div class="mx-auto max-w-[var(--container)] [padding:0_var(--gutter)_var(--space-8)]">
+      <img
+        src={imgSrc}
+        alt={post.title}
+        loading="eager"
+        class="aspect-[2/1] w-full rounded-lg object-cover"
+      />
+    </div>
+  )
+}
