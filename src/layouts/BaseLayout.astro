@@ -1,27 +1,68 @@
 ---
+// src/layouts/BaseLayout.astro
 import "@/styles/global.css";
+import Navbar from "@/components/Navbar.astro";
+import Footer from "@/components/Footer.astro";
+import { useTranslations, getLocalizedUrl } from "@/i18n";
+import type { Locale } from "@/types/index";
 
 interface Props {
   title: string;
   description?: string;
+  lang?: Locale;
+  ogImage?: string;
 }
 
 const {
   title,
   description = "Esencia Magnética — moda y estilo para mujeres 40+",
+  lang = "es",
+  ogImage,
 } = Astro.props;
+
+const t = useTranslations(lang);
+const currentPath = Astro.url.pathname;
+
+// Canonical and hreflang URLs (relative; full URL needs site in prod)
+const esUrl = lang === "es" ? currentPath : getLocalizedUrl("es", currentPath);
+const enUrl = lang === "en" ? currentPath : getLocalizedUrl("en", currentPath);
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <title>{title}</title>
+    <title>{title} — Esencia Magnética</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- hreflang alternates -->
+    <link rel="alternate" hreflang="es" href={esUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={esUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={`${title} — Esencia Magnética`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
   </head>
   <body>
-    <slot />
+    <!-- Skip link (accessibility) -->
+    <a
+      href="#main-content"
+      class="focus:bg-gold sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[9999] focus:rounded-br-md focus:px-4 focus:py-2 focus:text-white"
+    >
+      {t("common.skip")}
+    </a>
+
+    <Navbar lang={lang} currentPath={currentPath} />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
   </body>
 </html>
