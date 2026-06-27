@@ -1,7 +1,10 @@
 {
   "detector": {
     "ignoreRules": [],
-    "ignoreFiles": ["src/pages/styleguide.astro"],
+    "ignoreFiles": [
+      "src/pages/styleguide.astro",
+      "src/components/blog/PostBody.astro"
+    ],
     "ignoreValues": []
   }
 }

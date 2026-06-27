@@ -1,0 +1,143 @@
+---
+// src/components/blog/PostBody.astro
+// ponytail: @portabletext/to-html — no existe renderer PT nativo en Astro sin React
+import {
+  toHTML,
+  type PortableTextTypeComponentOptions,
+  type PortableTextMarkComponentOptions,
+  type PortableTextBlockComponent,
+} from "@portabletext/to-html";
+import type { SanityImageSource } from "@sanity/image-url";
+import { urlFor } from "@/lib/sanity";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/types/index";
+
+type Body = Parameters<typeof toHTML>[0];
+
+interface Props {
+  body: Body;
+  lang: Locale;
+}
+
+const { body, lang } = Astro.props;
+const t = useTranslations(lang);
+
+const html = toHTML(body, {
+  components: {
+    types: {
+      image: ({
+        value,
+      }: PortableTextTypeComponentOptions<Record<string, unknown>>) => {
+        const src = urlFor(value as SanityImageSource)
+          .width(900)
+          .url();
+        const alt = String(value.alt ?? "");
+        return `<img src="${src}" alt="${alt}" loading="lazy" class="w-full rounded-md my-6" />`;
+      },
+      youtubeEmbed: ({
+        value,
+      }: PortableTextTypeComponentOptions<Record<string, unknown>>) => {
+        const vid = String(value.videoId ?? "");
+        const thumb = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+        const label = t("post.play");
+        return [
+          `<div class="yt-facade relative aspect-video cursor-pointer overflow-hidden rounded-md my-8" data-vid="${vid}">`,
+          `<img src="${thumb}" alt="${label}" loading="lazy" class="h-full w-full object-cover" />`,
+          `<button class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors" aria-label="${label}">`,
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="h-16 w-16 drop-shadow" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>`,
+          `</button></div>`,
+        ].join("");
+      },
+      productList: ({
+        value,
+      }: PortableTextTypeComponentOptions<Record<string, unknown>>) => {
+        const products =
+          (value.products as Record<string, unknown>[] | undefined) ?? [];
+        if (!products.length) return "";
+        const items = products
+          .map((p) => {
+            const imgSrc = p.image
+              ? urlFor(p.image as SanityImageSource)
+                  .width(400)
+                  .height(400)
+                  .url()
+              : "";
+            const img = imgSrc
+              ? `<img src="${imgSrc}" alt="${String(p.name ?? "")}" loading="lazy" class="aspect-square w-full rounded-md object-cover" />`
+              : `<div class="aspect-square w-full rounded-md bg-lavender"></div>`;
+            const store = p.store
+              ? `<span class="font-sans text-overline font-bold uppercase tracking-wider text-olive-faint">${String(p.store)}</span>`
+              : "";
+            return [
+              `<a href="${String(p.affiliateUrl ?? "#")}" rel="sponsored nofollow noopener" target="_blank" class="group flex flex-col gap-3">`,
+              img,
+              store,
+              `<span class="font-serif text-olive transition-colors group-hover:text-gold">${String(p.name ?? "")}</span>`,
+              `<span class="font-sans text-small text-gold">${t("blog.view")}</span>`,
+              `</a>`,
+            ].join("");
+          })
+          .join("");
+        return [
+          `<section class="my-10 border-t border-line pt-8">`,
+          `<h2 class="mb-6 font-serif text-h3 font-semibold text-olive">${t("blog.related")}</h2>`,
+          `<div class="grid grid-cols-2 gap-6 sm:grid-cols-3">${items}</div>`,
+          `</section>`,
+        ].join("");
+      },
+    },
+    marks: {
+      link: ({
+        children,
+        value,
+      }: PortableTextMarkComponentOptions<{
+        _type: string;
+        href?: string;
+        isAffiliate?: boolean;
+      }>) => {
+        const href = String(value?.href ?? "");
+        const isExternal = href.startsWith("http");
+        const rel = value?.isAffiliate
+          ? "sponsored nofollow noopener"
+          : isExternal
+            ? "noopener"
+            : undefined;
+        return [
+          `<a href="${href}"`,
+          rel ? ` rel="${rel}"` : "",
+          isExternal ? ` target="_blank"` : "",
+          `>${children}</a>`,
+        ].join("");
+      },
+    },
+    block: {
+      h2: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
+        `<h2 class="mt-10 mb-4 font-serif text-h2 font-semibold leading-tight text-olive">${children}</h2>`,
+      h3: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
+        `<h3 class="mt-8 mb-3 font-serif text-h3 font-semibold leading-tight text-olive">${children}</h3>`,
+      blockquote: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
+        `<blockquote class="my-6 border-l-4 border-gold pl-6 text-lead italic text-olive-soft">${children}</blockquote>`,
+      normal: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
+        `<p class="mb-4 text-body leading-relaxed text-olive">${children}</p>`,
+    },
+  },
+});
+---
+
+<div class="post-body" set:html={html} />
+
+<script>
+  document.querySelectorAll<HTMLElement>(".yt-facade").forEach((el) => {
+    el.addEventListener("click", () => {
+      const videoId = el.dataset.vid;
+      if (!videoId) return;
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+      iframe.allow = "autoplay; encrypted-media";
+      iframe.allowFullscreen = true;
+      iframe.style.cssText =
+        "position:absolute;inset:0;width:100%;height:100%;border:0";
+      el.replaceChildren(iframe);
+    });
+  });
+</script>
