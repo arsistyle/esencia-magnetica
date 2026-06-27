@@ -1,0 +1,47 @@
+---
+// src/components/home/HomeHero.astro
+import type { Locale } from "@/types/index";
+import { useTranslations, getLocalizedUrl } from "@/i18n";
+import Button from "@/components/ui/Button.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const blogHref = lang === "es" ? "/blog" : getLocalizedUrl("en", "/blog");
+const catalogHref =
+  lang === "es" ? "/productos" : getLocalizedUrl("en", "/productos");
+---
+
+<section
+  class="[padding:var(--space-9)_var(--gutter)_var(--space-8)] text-center"
+>
+  <div class="mx-auto max-w-[900px]">
+    <div
+      class="font-script text-gold mb-3 [font-size:clamp(2.4rem,5vw,64px)] leading-none"
+    >
+      {t("home.welcome")}
+    </div>
+    <h1
+      class="m-0 mb-8 font-serif [font-size:clamp(3rem,8vw,110px)] leading-none font-semibold tracking-tight"
+    >
+      {t("home.headline")}
+    </h1>
+    <p
+      class="text-olive-soft mx-auto mt-0 mb-10 max-w-[620px] text-[20px] leading-normal"
+    >
+      {t("home.lead")}
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href={blogHref} variant="primary" size="lg">
+        {t("home.cta.blog")}
+      </Button>
+      <Button href={catalogHref} variant="secondary" size="lg">
+        {t("home.cta.catalog")}
+      </Button>
+    </div>
+  </div>
+</section>
