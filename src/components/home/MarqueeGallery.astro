@@ -14,91 +14,102 @@ const BASE_GRADS = [
 // Offset row 2 so the rows don't mirror each other
 const ROW2_GRADS = [...BASE_GRADS.slice(3), ...BASE_GRADS.slice(0, 3)];
 
-// Duplicate for seamless -50% translateX loop
-const rows = [
-  { dir: "left", tiles: [...BASE_GRADS, ...BASE_GRADS] },
-  { dir: "right", tiles: [...ROW2_GRADS, ...ROW2_GRADS] },
-];
+// ponytail: triple content — reference approach; seamless at any viewport width
+const row1 = [...BASE_GRADS, ...BASE_GRADS, ...BASE_GRADS];
+const row2 = [...ROW2_GRADS, ...ROW2_GRADS, ...ROW2_GRADS];
 ---
 
 <section aria-hidden="true" class="overflow-hidden">
-  {
-    rows.map(({ dir, tiles }) => (
-      <div class="h-[300px] w-full overflow-hidden">
-        <div class:list={["mq-track", dir]}>
-          {tiles.map((bg) => (
-            <div class="mq-tile" style={`background: ${bg}`} />
-          ))}
-        </div>
-      </div>
-    ))
-  }
+  <div class="h-[300px] w-full overflow-hidden">
+    <div class="mq-track" style="will-change: transform">
+      {row1.map((bg) => <div class="mq-tile" style={`background: ${bg}`} />)}
+    </div>
+  </div>
+  <div class="h-[300px] w-full overflow-hidden">
+    <div class="mq-track" style="will-change: transform">
+      {row2.map((bg) => <div class="mq-tile" style={`background: ${bg}`} />)}
+    </div>
+  </div>
 </section>
 
 <style>
-  @keyframes em-marquee-left {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @keyframes em-marquee-right {
-    from {
-      transform: translateX(-50%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
   .mq-track {
     display: flex;
     width: max-content;
     height: 100%;
-  }
-  .mq-track.left {
-    animation: em-marquee-left var(--mq-duration, 48s) linear infinite;
-  }
-  .mq-track.right {
-    animation: em-marquee-right var(--mq-duration, 48s) linear infinite;
   }
   .mq-tile {
     flex: none;
     height: 100%;
     aspect-ratio: 3 / 4;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .mq-track.left,
-    .mq-track.right {
-      animation: none;
-    }
-  }
 </style>
 
 <script>
-  // ponytail: rAF decay loop — velocity capped at 20px/frame, duration floor 10s
-  let velocity = 0;
-  let prevY = window.scrollY;
-  let duration = 48;
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const tracks = document.querySelectorAll<HTMLElement>(".mq-track");
+    const leftTrack = tracks[0];
+    const rightTrack = tracks[1];
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      velocity = Math.min(10, Math.abs(window.scrollY - prevY));
-      prevY = window.scrollY;
-    },
-    { passive: true },
-  );
+    if (leftTrack && rightTrack) {
+      const SET_SIZE = 8; // tiles per set (one repeat of BASE_GRADS)
+      const BASE_SPEED = 0.6; // px per rAF frame (~60 fps target)
+      const SCROLL_FACTOR = 0.08; // scroll velocity → speed multiplier
+      const FRICTION = 0.92; // velocity decay per frame
 
-  function tick() {
-    velocity *= 0.92; // exponential decay back to idle speed
-    duration = Math.max(36, 48 - velocity * 1.2); // ponytail: max 1.33× boost (48s→36s)
-    document.documentElement.style.setProperty(
-      "--mq-duration",
-      `${duration.toFixed(1)}s`,
-    );
-    requestAnimationFrame(tick);
+      // wrapValue(x, min=-setWidth, max=0) — keeps x in [-setWidth, 0)
+      const wrap = (x: number, sw: number): number =>
+        ((((x + sw) % sw) + sw) % sw) - sw;
+
+      const measureSet = (track: HTMLElement): number => {
+        let w = 0;
+        for (let i = 0; i < SET_SIZE; i++) {
+          w += (track.children[i] as HTMLElement).getBoundingClientRect().width;
+        }
+        return w || 1;
+      };
+
+      let swL = measureSet(leftTrack);
+      let swR = measureSet(rightTrack);
+
+      // Both rows start at -setWidth (showing set 2, with set 1 buffered left)
+      let xL = -swL;
+      let xR = -swR;
+      let scrollVel = 0;
+      let lastY = window.scrollY;
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          scrollVel += Math.abs(window.scrollY - lastY);
+          lastY = window.scrollY;
+        },
+        { passive: true },
+      );
+
+      // Re-measure on resize; clamp positions to new range
+      const ro = new ResizeObserver(() => {
+        swL = measureSet(leftTrack);
+        swR = measureSet(rightTrack);
+        xL = wrap(xL, swL);
+        xR = wrap(xR, swR);
+      });
+      ro.observe(leftTrack.parentElement!);
+
+      function tick() {
+        scrollVel *= FRICTION;
+        const speed = BASE_SPEED + scrollVel * SCROLL_FACTOR;
+
+        xL -= speed; // row 1: moves left
+        xL = wrap(xL, swL);
+        xR += speed; // row 2: moves right
+        xR = wrap(xR, swR);
+
+        leftTrack.style.transform = `translateX(${xL.toFixed(2)}px)`;
+        rightTrack.style.transform = `translateX(${xR.toFixed(2)}px)`;
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
   }
-  requestAnimationFrame(tick);
 </script>
