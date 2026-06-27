@@ -1,10 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HomeHero from "@/components/home/HomeHero.astro";
-import MarqueeGallery from "@/components/home/MarqueeGallery.astro";
+import MarqueeRow from "@/components/home/MarqueeRow.astro";
+import { ROW1_ITEMS, ROW2_ITEMS } from "@/lib/home/marqueeItems";
 ---
 
 <BaseLayout title="Bienvenida" lang="es">
   <HomeHero lang="es" />
-  <MarqueeGallery />
+  <MarqueeRow direction="left" items={ROW1_ITEMS} />
+  <MarqueeRow direction="right" items={ROW2_ITEMS} />
 </BaseLayout>

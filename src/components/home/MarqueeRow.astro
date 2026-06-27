@@ -1,0 +1,115 @@
+---
+// src/components/home/MarqueeRow.astro
+// Independent marquee row. Pass direction and items (images with gradient fallback).
+// Multiple instances on the same page each run their own animation loop.
+import type { MarqueeItem } from "@/lib/home/marqueeItems";
+
+interface Props {
+  direction?: "left" | "right";
+  items: MarqueeItem[];
+}
+
+const { direction = "left", items } = Astro.props;
+// ponytail: triple content — seamless wrap at any viewport width
+const tiles = [...items, ...items, ...items];
+---
+
+<div
+  class="h-[300px] w-full overflow-hidden"
+  data-marquee
+  data-direction={direction}
+  data-set-size={items.length}
+  aria-hidden="true"
+>
+  <div class="mq-track" style="will-change: transform">
+    {
+      tiles.map(({ bg, src, alt }) => (
+        <div class="mq-tile" style={`background: ${bg}`}>
+          {src && (
+            <img
+              src={src}
+              alt={alt ?? ""}
+              loading="lazy"
+              class="h-full w-full object-cover"
+            />
+          )}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .mq-track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+  }
+  .mq-tile {
+    flex: none;
+    height: 100%;
+    aspect-ratio: 3 / 4;
+  }
+</style>
+
+<script>
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // One script handles every MarqueeRow instance on the page
+    document
+      .querySelectorAll<HTMLElement>("[data-marquee]")
+      .forEach((container) => {
+        const direction = container.dataset.direction as "left" | "right";
+        const setSize = parseInt(container.dataset.setSize ?? "8", 10);
+        const track = container.querySelector<HTMLElement>(".mq-track");
+        if (!track) return;
+
+        // Reassign to a new const so TypeScript preserves the non-null type in closures
+        const el: HTMLElement = track;
+
+        const BASE_SPEED = 0.6; // px per rAF frame (~60 fps target)
+        const SCROLL_FACTOR = 0.08; // scroll velocity → extra speed
+        const FRICTION = 0.92; // velocity decay per frame
+
+        // wrapValue(x, -setWidth, 0) — keeps position in [-setWidth, 0)
+        const wrap = (x: number, sw: number): number =>
+          ((((x + sw) % sw) + sw) % sw) - sw;
+
+        const measureSet = (): number => {
+          let w = 0;
+          for (let i = 0; i < setSize; i++) {
+            w += (el.children[i] as HTMLElement).getBoundingClientRect().width;
+          }
+          return w || 1;
+        };
+
+        let sw = measureSet();
+        let x = -sw; // start at -setWidth (showing set 2)
+        let scrollVel = 0;
+        let lastY = window.scrollY;
+
+        window.addEventListener(
+          "scroll",
+          () => {
+            scrollVel += Math.abs(window.scrollY - lastY);
+            lastY = window.scrollY;
+          },
+          { passive: true },
+        );
+
+        const ro = new ResizeObserver(() => {
+          sw = measureSet();
+          x = wrap(x, sw);
+        });
+        ro.observe(container);
+
+        function tick() {
+          scrollVel *= FRICTION;
+          const speed = BASE_SPEED + scrollVel * SCROLL_FACTOR;
+          x = direction === "left" ? wrap(x - speed, sw) : wrap(x + speed, sw);
+          el.style.transform = `translateX(${x.toFixed(2)}px)`;
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+  }
+</script>
