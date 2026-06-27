@@ -1,0 +1,104 @@
+---
+// src/components/home/MarqueeGallery.astro
+const BASE_GRADS = [
+  "linear-gradient(135deg, var(--color-rose-nude), var(--color-lavender))",
+  "linear-gradient(135deg, var(--color-cream-deep), var(--color-gold-soft))",
+  "linear-gradient(135deg, var(--color-lavender), var(--color-cream))",
+  "linear-gradient(135deg, var(--color-gold-soft), var(--color-rose-nude))",
+  "linear-gradient(135deg, var(--color-rose-nude), var(--color-cream))",
+  "linear-gradient(135deg, var(--color-lavender), var(--color-rose-nude))",
+  "linear-gradient(135deg, var(--color-cream), var(--color-gold-soft))",
+  "linear-gradient(135deg, var(--color-cream-deep), var(--color-rose-nude))",
+];
+
+// Offset row 2 so the rows don't mirror each other
+const ROW2_GRADS = [...BASE_GRADS.slice(3), ...BASE_GRADS.slice(0, 3)];
+
+// Duplicate for seamless -50% translateX loop
+const rows = [
+  { dir: "left", tiles: [...BASE_GRADS, ...BASE_GRADS] },
+  { dir: "right", tiles: [...ROW2_GRADS, ...ROW2_GRADS] },
+];
+---
+
+<section aria-hidden="true" class="overflow-hidden">
+  {
+    rows.map(({ dir, tiles }) => (
+      <div class="h-[300px] w-full overflow-hidden">
+        <div class:list={["mq-track", dir]}>
+          {tiles.map((bg) => (
+            <div class="mq-tile" style={`background: ${bg}`} />
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  @keyframes em-marquee-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes em-marquee-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  .mq-track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+  }
+  .mq-track.left {
+    animation: em-marquee-left var(--mq-duration, 48s) linear infinite;
+  }
+  .mq-track.right {
+    animation: em-marquee-right var(--mq-duration, 48s) linear infinite;
+  }
+  .mq-tile {
+    flex: none;
+    height: 100%;
+    aspect-ratio: 3 / 4;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mq-track.left,
+    .mq-track.right {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // ponytail: rAF decay loop — velocity capped at 20px/frame, duration floor 10s
+  let velocity = 0;
+  let prevY = window.scrollY;
+  let duration = 48;
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      velocity = Math.min(20, Math.abs(window.scrollY - prevY));
+      prevY = window.scrollY;
+    },
+    { passive: true },
+  );
+
+  function tick() {
+    velocity *= 0.92; // exponential decay back to idle speed
+    duration = Math.max(10, 48 - velocity * 1.9);
+    document.documentElement.style.setProperty(
+      "--mq-duration",
+      `${duration.toFixed(1)}s`,
+    );
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+</script>
