@@ -9,6 +9,7 @@ import { formatPostDate, readingTime } from "@/lib/blog/postViewModel";
 interface Props {
   post: {
     title: string;
+    slug?: { current: string };
     publishedAt: string;
     excerpt?: string;
     coverImage?: unknown;
@@ -84,6 +85,7 @@ const authorNames = post.authors?.map((a) => a.name).join(", ") ?? "";
         src={imgSrc}
         alt={post.title}
         loading="eager"
+        transition:name={`post-image-${post.slug?.current ?? ""}`}
         class="aspect-video w-full rounded-xl object-cover shadow-md"
       />
     </div>

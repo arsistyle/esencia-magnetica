@@ -47,6 +47,7 @@ const categoryName =
         src={imgSrc}
         alt={post.title}
         loading="lazy"
+        transition:name={`post-image-${post.slug.current}`}
         class="aspect-video w-full rounded-t-lg object-cover"
       />
     ) : (

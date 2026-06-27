@@ -49,7 +49,8 @@ const categoryName =
           src={imgSrc}
           alt={post.title}
           loading="eager"
-          class="aspect-video w-full rounded-t-lg object-cover transition-transform duration-500 group-hover:scale-[1.02] lg:aspect-auto lg:h-full lg:rounded-l-lg lg:rounded-tr-none"
+          transition:name={`post-image-${post.slug.current}`}
+          class="aspect-video w-full rounded-t-lg object-cover transition-transform duration-500 group-hover:scale-[1.02] lg:rounded-l-lg lg:rounded-tr-none"
         />
       ) : (
         <div class="bg-lavender aspect-video w-full rounded-t-lg lg:aspect-auto lg:h-full lg:rounded-l-lg lg:rounded-tr-none" />

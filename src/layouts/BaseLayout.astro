@@ -1,6 +1,7 @@
 ---
 // src/layouts/BaseLayout.astro
 import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import { SEO } from "astro-seo";
 import Navbar from "@/components/Navbar.astro";
 import Footer from "@/components/Footer.astro";
@@ -54,6 +55,7 @@ const canonicalUrl = canonical ?? `${siteBase}${currentPath}`;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ClientRouter />
     <SEO
       title={title}
       titleTemplate="%s — Esencia Magnética"
