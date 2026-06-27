@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 import { loadEnv } from 'vite'
 import sanity from '@sanity/astro'
-import node from '@astrojs/node'
+import cloudflare from '@astrojs/cloudflare'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
@@ -17,7 +17,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 export default defineConfig({
   output: 'static',
-  adapter: node({ mode: 'standalone' }),
+  adapter: cloudflare(),
   site: 'https://esencia-magnetica.com',
   i18n: {
     defaultLocale: 'es',
