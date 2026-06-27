@@ -1,5 +1,5 @@
 ---
-// src/pages/en/blog/index.astro
+// src/pages/blog/index.astro
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -28,7 +28,7 @@ interface PostItem {
   category?: { name: Record<string, string>; slug: { current: string } };
 }
 
-const lang: Locale = "en";
+const lang: Locale = "es";
 const t = useTranslations(lang);
 
 const categoria = Astro.url.searchParams.get("categoria") ?? "";
