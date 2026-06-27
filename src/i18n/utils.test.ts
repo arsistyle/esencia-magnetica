@@ -54,3 +54,38 @@ describe("getLocalizedUrl", () => {
   it("unknown EN path falls back to /", () =>
     expect(getLocalizedUrl("es", "/en/unknown")).toBe("/"));
 });
+
+describe("home page keys", () => {
+  it("returns ES home.welcome", () => {
+    const t = useTranslations("es");
+    expect(t("home.welcome")).toBe("Bienvenida");
+  });
+  it("returns EN home.welcome", () => {
+    const t = useTranslations("en");
+    expect(t("home.welcome")).toBe("Welcome");
+  });
+  it("returns ES home.headline", () => {
+    const t = useTranslations("es");
+    expect(t("home.headline")).toBe("El estilo no tiene edad. Tiene esencia.");
+  });
+  it("returns EN home.headline", () => {
+    const t = useTranslations("en");
+    expect(t("home.headline")).toBe("Style has no age. It has essence.");
+  });
+  it("returns ES home.cta.blog", () => {
+    const t = useTranslations("es");
+    expect(t("home.cta.blog")).toBe("Ir al blog");
+  });
+  it("returns EN home.cta.blog", () => {
+    const t = useTranslations("en");
+    expect(t("home.cta.blog")).toBe("Go to the blog");
+  });
+  it("returns ES home.cta.catalog", () => {
+    const t = useTranslations("es");
+    expect(t("home.cta.catalog")).toBe("Ir al catálogo");
+  });
+  it("returns EN home.cta.catalog", () => {
+    const t = useTranslations("en");
+    expect(t("home.cta.catalog")).toBe("Go to the catalogue");
+  });
+});

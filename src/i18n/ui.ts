@@ -20,6 +20,12 @@ export const ui = {
     "404.title": "Página no encontrada",
     "404.body": "La página que buscas no existe o ha sido movida.",
     "404.cta": "Volver al inicio",
+    "home.welcome": "Bienvenida",
+    "home.headline": "El estilo no tiene edad. Tiene esencia.",
+    "home.lead":
+      "Moda práctica, looks reales y consejos accionables para mujeres que saben lo que quieren.",
+    "home.cta.blog": "Ir al blog",
+    "home.cta.catalog": "Ir al catálogo",
   },
   en: {
     "nav.home": "Home",
@@ -42,6 +48,12 @@ export const ui = {
     "404.body":
       "The page you are looking for does not exist or has been moved.",
     "404.cta": "Back to home",
+    "home.welcome": "Welcome",
+    "home.headline": "Style has no age. It has essence.",
+    "home.lead":
+      "Practical fashion, real looks and actionable advice for women who know what they want.",
+    "home.cta.blog": "Go to the blog",
+    "home.cta.catalog": "Go to the catalogue",
   },
 } as const;
 
