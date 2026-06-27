@@ -1,0 +1,84 @@
+---
+// src/components/blog/BlogFilters.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import { Search } from "@lucide/astro";
+
+interface Category {
+  _id: string;
+  name: Record<string, string>;
+  slug: { current: string };
+}
+
+interface Props {
+  categories: Category[];
+  activeCategoria: string;
+  activeQ: string;
+  lang: Locale;
+}
+
+const { categories, activeCategoria, activeQ, lang } = Astro.props;
+const t = useTranslations(lang);
+const basePath = lang === "es" ? "/blog" : "/en/blog";
+
+function chipHref(categoria: string): string {
+  const params = new URLSearchParams();
+  if (categoria) params.set("categoria", categoria);
+  if (activeQ) params.set("q", activeQ);
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+const chipBase =
+  "rounded-pill px-4 py-1.5 text-small font-sans font-bold uppercase tracking-wider transition-colors";
+const chipActive = "bg-gold text-white";
+const chipIdle =
+  "bg-cream-deep text-olive-soft hover:bg-cream-card hover:text-olive";
+---
+
+<div class="flex flex-col gap-4">
+  <div class="flex flex-wrap gap-2">
+    <a
+      href={chipHref("")}
+      class:list={[chipBase, !activeCategoria ? chipActive : chipIdle]}
+    >
+      {t("blog.all")}
+    </a>
+    {
+      categories.map((cat) => {
+        const name = cat.name?.[lang] ?? cat.name?.es ?? "";
+        const isActive = activeCategoria === cat.slug.current;
+        return (
+          <a
+            href={chipHref(cat.slug.current)}
+            class:list={[chipBase, isActive ? chipActive : chipIdle]}
+          >
+            {name}
+          </a>
+        );
+      })
+    }
+  </div>
+
+  <form method="GET" action={basePath} class="relative">
+    {
+      activeCategoria && (
+        <input type="hidden" name="categoria" value={activeCategoria} />
+      )
+    }
+    <label for="blog-search" class="sr-only">
+      {t("blog.search.placeholder")}
+    </label>
+    <Search
+      class="text-olive-faint absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2"
+    />
+    <input
+      id="blog-search"
+      type="search"
+      name="q"
+      value={activeQ}
+      placeholder={t("blog.search.placeholder")}
+      class="rounded-pill border-line bg-cream-card text-body text-olive placeholder:text-olive-faint focus:border-gold w-full border py-2.5 pr-4 pl-11 focus:outline-none"
+    />
+  </form>
+</div>
