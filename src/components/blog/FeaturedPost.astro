@@ -28,7 +28,7 @@ const href =
     : `/en/blog/${post.slug.current}`;
 const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
   width: 1200,
-  height: 800,
+  height: 675,
 });
 const date = formatPostDate(post.publishedAt, lang);
 const mins = Math.max(1, post.readTime ?? 1);
@@ -40,23 +40,21 @@ const categoryName =
 
 <a
   href={href}
-  class="group rounded-radius-lg border-line bg-cream-card grid grid-cols-1 overflow-hidden border shadow-sm transition-all duration-300 hover:shadow-md lg:grid-cols-[1.5fr_1fr]"
+  class="group rounded-radius-lg border-line bg-cream-card flex flex-col overflow-hidden border shadow-sm transition-all duration-300 hover:shadow-md"
 >
-  <div class="overflow-hidden">
-    {
-      imgSrc ? (
-        <img
-          src={imgSrc}
-          alt={post.title}
-          loading="eager"
-          class="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] lg:h-full lg:min-h-80"
-        />
-      ) : (
-        <div class="bg-lavender h-64 w-full lg:h-full lg:min-h-80" />
-      )
-    }
-  </div>
-  <div class="flex flex-col justify-center gap-4 p-8">
+  {
+    imgSrc ? (
+      <img
+        src={imgSrc}
+        alt={post.title}
+        loading="eager"
+        class="rounded-t-radius-lg aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+      />
+    ) : (
+      <div class="bg-lavender rounded-t-radius-lg aspect-video w-full" />
+    )
+  }
+  <div class="flex flex-col gap-4 p-8">
     <div class="flex flex-wrap items-center gap-3">
       <Badge tone="rose">{t("blog.featured")}</Badge>
       {
@@ -75,9 +73,7 @@ const categoryName =
     </h2>
     {
       post.excerpt && (
-        <p class="text-small text-olive-soft lg:text-body leading-normal">
-          {post.excerpt}
-        </p>
+        <p class="text-body text-olive-soft leading-normal">{post.excerpt}</p>
       )
     }
     <p class="text-caption text-olive-faint">
