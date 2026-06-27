@@ -1,0 +1,77 @@
+---
+// src/components/blog/FeaturedPost.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import { urlFor } from "@/lib/sanity";
+import Badge from "@/components/ui/Badge.astro";
+import Button from "@/components/ui/Button.astro";
+import { formatPostDate } from "@/lib/blog/postViewModel";
+
+interface Props {
+  post: {
+    _id: string;
+    title: string;
+    slug: { current: string };
+    excerpt?: string;
+    publishedAt: string;
+    coverImage?: unknown;
+    category?: { name: Record<string, string>; slug: { current: string } };
+  };
+  lang: Locale;
+}
+
+const { post, lang } = Astro.props;
+const t = useTranslations(lang);
+const href =
+  lang === "es"
+    ? `/blog/${post.slug.current}`
+    : `/en/blog/${post.slug.current}`;
+const imgSrc = post.coverImage
+  ? urlFor(post.coverImage as Parameters<typeof urlFor>[0])
+      .width(1200)
+      .height(600)
+      .url()
+  : null;
+const date = formatPostDate(post.publishedAt, lang);
+const categoryName =
+  (post.category?.name as Record<string, string> | undefined)?.[lang] ??
+  (post.category?.name as Record<string, string> | undefined)?.es ??
+  "";
+---
+
+<article
+  class="border-line grid grid-cols-1 overflow-hidden rounded-lg border lg:grid-cols-2"
+>
+  <a href={href} class="block overflow-hidden">
+    {
+      imgSrc ? (
+        <img
+          src={imgSrc}
+          alt={post.title}
+          loading="eager"
+          class="h-64 w-full object-cover transition-transform duration-500 hover:scale-105 lg:h-full"
+        />
+      ) : (
+        <div class="bg-lavender h-64 w-full lg:h-full" />
+      )
+    }
+  </a>
+  <div class="flex flex-col justify-center gap-4 p-8">
+    <div class="flex flex-wrap items-center gap-3">
+      <Badge tone="gold">{t("blog.featured")}</Badge>
+      {categoryName && <Badge tone="neutral">{categoryName}</Badge>}
+    </div>
+    <h2 class="text-h1 text-olive font-serif leading-tight font-semibold">
+      <a href={href} class="hover:text-gold transition-colors">{post.title}</a>
+    </h2>
+    <p class="text-caption text-olive-faint font-sans">{date}</p>
+    {
+      post.excerpt && (
+        <p class="text-lead text-olive-soft leading-normal">{post.excerpt}</p>
+      )
+    }
+    <div class="mt-2">
+      <Button href={href} variant="primary">{t("blog.read")}</Button>
+    </div>
+  </div>
+</article>
