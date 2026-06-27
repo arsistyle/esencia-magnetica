@@ -85,7 +85,7 @@ const rows = [
   window.addEventListener(
     "scroll",
     () => {
-      velocity = Math.min(20, Math.abs(window.scrollY - prevY));
+      velocity = Math.min(10, Math.abs(window.scrollY - prevY));
       prevY = window.scrollY;
     },
     { passive: true },
@@ -93,7 +93,7 @@ const rows = [
 
   function tick() {
     velocity *= 0.92; // exponential decay back to idle speed
-    duration = Math.max(10, 48 - velocity * 1.9);
+    duration = Math.max(36, 48 - velocity * 1.2); // ponytail: max 1.33× boost (48s→36s)
     document.documentElement.style.setProperty(
       "--mq-duration",
       `${duration.toFixed(1)}s`,
