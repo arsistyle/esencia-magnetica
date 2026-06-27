@@ -1,0 +1,35 @@
+---
+// src/pages/404.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { useTranslations } from "@/i18n";
+
+// Astro 404 is served without locale context; default to ES.
+const lang = "es" as const;
+const t = useTranslations(lang);
+---
+
+<BaseLayout title={t("404.title")} lang={lang}>
+  <section
+    class="flex flex-col items-center justify-center [padding:var(--space-9)_var(--gutter)] text-center"
+  >
+    <p
+      class="font-script text-gold mb-6 text-[clamp(4rem,10vw,7rem)] leading-none"
+    >
+      404
+    </p>
+    <h1 class="text-h1 text-olive mb-4 font-serif leading-tight font-semibold">
+      {t("404.title")}
+    </h1>
+    <p
+      class="text-body text-olive-soft mb-8 max-w-[var(--container-text)] leading-normal"
+    >
+      {t("404.body")}
+    </p>
+    <a
+      href="/"
+      class="bg-gold rounded-pill shadow-gold hover:bg-gold-deep duration-base ease-soft inline-flex items-center gap-2 px-6 py-3 font-sans text-[14px] font-bold tracking-wide text-white uppercase no-underline transition-colors"
+    >
+      {t("404.cta")}
+    </a>
+  </section>
+</BaseLayout>
