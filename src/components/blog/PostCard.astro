@@ -3,8 +3,6 @@
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
 import { urlFor } from "@/lib/sanity";
-import Badge from "@/components/ui/Badge.astro";
-import { ArrowRight } from "@lucide/astro";
 import { formatPostDate } from "@/lib/blog/postViewModel";
 
 interface Props {
@@ -15,6 +13,7 @@ interface Props {
     excerpt?: string;
     publishedAt: string;
     coverImage?: unknown;
+    readTime?: number;
     category?: { name: Record<string, string>; slug: { current: string } };
   };
   lang: Locale;
@@ -33,39 +32,40 @@ const imgSrc = post.coverImage
       .url()
   : null;
 const date = formatPostDate(post.publishedAt, lang);
+const mins = Math.max(1, post.readTime ?? 1);
 const categoryName =
   (post.category?.name as Record<string, string> | undefined)?.[lang] ??
   (post.category?.name as Record<string, string> | undefined)?.es ??
   "";
 ---
 
-<article class="flex flex-col gap-4">
-  <a href={href} class="block overflow-hidden rounded-md">
-    {
-      imgSrc ? (
-        <img
-          src={imgSrc}
-          alt={post.title}
-          loading="lazy"
-          class="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105"
-        />
-      ) : (
-        <div class="bg-lavender aspect-square w-full" />
-      )
-    }
-  </a>
-  <div class="flex flex-col gap-2">
+<a
+  href={href}
+  class="group rounded-radius-lg border-line bg-cream-card flex flex-col overflow-hidden border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+>
+  {
+    imgSrc ? (
+      <img
+        src={imgSrc}
+        alt={post.title}
+        loading="lazy"
+        class="aspect-square w-full object-cover"
+      />
+    ) : (
+      <div class="bg-lavender aspect-square w-full" />
+    )
+  }
+  <div class="flex flex-col gap-3 p-5">
     {
       categoryName && (
-        <Badge tone="neutral" size="sm">
+        <span class="text-overline text-gold font-sans font-bold tracking-wider uppercase">
           {categoryName}
-        </Badge>
+        </span>
       )
     }
     <h2 class="text-h4 text-olive font-serif leading-tight font-semibold">
-      <a href={href} class="hover:text-gold transition-colors">{post.title}</a>
+      {post.title}
     </h2>
-    <p class="text-caption text-olive-faint font-sans">{date}</p>
     {
       post.excerpt && (
         <p class="text-small text-olive-soft line-clamp-3 leading-normal">
@@ -73,12 +73,9 @@ const categoryName =
         </p>
       )
     }
-    <a
-      href={href}
-      class="text-small text-gold hover:text-gold-deep flex items-center gap-1 font-sans font-bold transition-colors"
-    >
-      {t("blog.read")}
-      <ArrowRight class="h-4 w-4" />
-    </a>
+    <p class="text-caption text-olive-faint mt-auto">
+      {date} · {mins}
+      {t("blog.minutes")}
+    </p>
   </div>
-</article>
+</a>

@@ -30,14 +30,14 @@ function chipHref(categoria: string): string {
 }
 
 const chipBase =
-  "rounded-pill px-4 py-1.5 text-small font-sans font-bold uppercase tracking-wider transition-colors";
-const chipActive = "bg-gold text-white";
+  "rounded-pill border px-[18px] py-2 text-small font-sans transition-colors";
+const chipActive = "border-olive bg-olive font-bold text-cream";
 const chipIdle =
-  "bg-cream-deep text-olive-soft hover:bg-cream-card hover:text-olive";
+  "border-line-strong bg-transparent text-olive-soft hover:border-olive hover:text-olive";
 ---
 
-<div class="flex flex-col gap-4">
-  <div class="flex flex-wrap gap-2">
+<div class="flex flex-col items-center gap-5">
+  <div class="flex flex-wrap justify-center gap-2">
     <a
       href={chipHref("")}
       class:list={[chipBase, !activeCategoria ? chipActive : chipIdle]}
@@ -60,7 +60,7 @@ const chipIdle =
     }
   </div>
 
-  <form method="GET" action={basePath} class="relative">
+  <form method="GET" action={basePath} class="relative w-full max-w-[420px]">
     {
       activeCategoria && (
         <input type="hidden" name="categoria" value={activeCategoria} />
@@ -70,7 +70,7 @@ const chipIdle =
       {t("blog.search.placeholder")}
     </label>
     <Search
-      class="text-olive-faint absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2"
+      class="text-olive-faint absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
     />
     <input
       id="blog-search"
@@ -78,7 +78,9 @@ const chipIdle =
       name="q"
       value={activeQ}
       placeholder={t("blog.search.placeholder")}
-      class="rounded-pill border-line bg-cream-card text-body text-olive placeholder:text-olive-faint focus:border-gold w-full border py-2.5 pr-4 pl-11 focus:outline-none"
+      class="border-line-strong text-body text-olive placeholder:text-olive-faint focus:border-gold w-full border-0 border-b bg-transparent py-3 pr-4 pl-10 focus:outline-none"
     />
   </form>
+
+  <div class="border-line w-full border-b"></div>
 </div>

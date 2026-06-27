@@ -40,6 +40,11 @@ export const ui = {
     "blog.view": "Ver producto",
     "blog.by": "Por",
     "blog.minutes": "min de lectura",
+    "blog.headline": "Historias de estilo",
+    "blog.lead":
+      "Looks reales, consejos accionables y la inspiración para llevarlos a tu día a día.",
+    "blog.shop": "Compra el look",
+    "blog.shop.subtitle": "Las piezas de este post",
     "post.play": "Reproducir video",
   },
   en: {
@@ -83,6 +88,11 @@ export const ui = {
     "blog.view": "View product",
     "blog.by": "By",
     "blog.minutes": "min read",
+    "blog.headline": "Style stories",
+    "blog.lead":
+      "Real looks, actionable advice and the inspiration to carry them into your everyday.",
+    "blog.shop": "Shop the look",
+    "blog.shop.subtitle": "The pieces from this post",
     "post.play": "Play video",
   },
 } as const;

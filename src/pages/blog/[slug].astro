@@ -1,0 +1,23 @@
+---
+// src/pages/blog/[slug].astro
+export const prerender = false;
+
+import BlogPostLayout from "@/layouts/BlogPostLayout.astro";
+import { sanityClient } from "sanity:client";
+import { postBySlugQuery } from "@/lib/queries";
+import type { Locale } from "@/types/index";
+
+const lang: Locale = "es";
+const { slug } = Astro.params;
+
+if (!slug) return Astro.redirect("/blog");
+
+const post = await sanityClient.fetch(postBySlugQuery, { slug, lang });
+
+if (!post) return new Response(null, { status: 404 });
+
+const esUrl = `/blog/${slug}`;
+const enUrl = `/en/blog/${slug}`;
+---
+
+<BlogPostLayout post={post} lang={lang} esUrl={esUrl} enUrl={enUrl} />

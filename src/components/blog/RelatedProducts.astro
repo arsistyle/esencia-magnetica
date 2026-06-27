@@ -4,6 +4,7 @@ import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
 import type { SanityImageSource } from "@sanity/image-url";
 import { urlFor } from "@/lib/sanity";
+import Badge from "@/components/ui/Badge.astro";
 import { ExternalLink } from "@lucide/astro";
 
 interface Product {
@@ -25,50 +26,60 @@ const t = useTranslations(lang);
 
 {
   products.length > 0 && (
-    <section class="border-line mt-12 border-t pt-10">
-      <h2 class="text-h3 text-olive mb-6 font-serif font-semibold">
-        {t("blog.related")}
-      </h2>
-      <div class="grid grid-cols-2 gap-6 sm:grid-cols-3">
-        {products.map((product) => {
-          const imgSrc = product.image
-            ? urlFor(product.image as SanityImageSource)
-                .width(400)
-                .height(400)
-                .url()
-            : null;
-          return (
-            <a
-              href={product.affiliateUrl ?? "#"}
-              rel="sponsored nofollow noopener"
-              target="_blank"
-              class="group flex flex-col gap-3"
-            >
-              {imgSrc ? (
-                <img
-                  src={imgSrc}
-                  alt={product.name ?? ""}
-                  loading="lazy"
-                  class="aspect-square w-full rounded-md object-cover"
-                />
-              ) : (
-                <div class="bg-lavender aspect-square w-full rounded-md" />
-              )}
-              {product.store && (
-                <span class="text-overline text-olive-faint font-sans font-bold tracking-wider uppercase">
-                  {product.store}
+    <section class="bg-cream-deep mt-12 py-12">
+      <div class="mx-auto max-w-[var(--container)] px-[var(--gutter)]">
+        <div class="mb-8 text-center">
+          <Badge tone="rose" class="mb-3">
+            {t("blog.shop")}
+          </Badge>
+          <h2 class="text-h3 text-olive font-serif font-semibold">
+            {t("blog.shop.subtitle")}
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3">
+          {products.map((product) => {
+            const imgSrc = product.image
+              ? urlFor(product.image as SanityImageSource)
+                  .width(400)
+                  .height(400)
+                  .url()
+              : null;
+            return (
+              <a
+                href={product.affiliateUrl ?? "#"}
+                rel="sponsored nofollow noopener"
+                target="_blank"
+                class="group flex flex-col gap-3"
+              >
+                {imgSrc ? (
+                  <img
+                    src={imgSrc}
+                    alt={product.name ?? ""}
+                    loading="lazy"
+                    class="rounded-radius-md aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <div class="rounded-radius-md bg-lavender aspect-square w-full" />
+                )}
+                {product.store && (
+                  <span class="text-overline text-olive-faint font-sans font-bold tracking-wider uppercase">
+                    {product.store}
+                  </span>
+                )}
+                <span class="text-olive group-hover:text-gold font-serif transition-colors">
+                  {product.name}
                 </span>
-              )}
-              <span class="text-olive group-hover:text-gold font-serif transition-colors">
-                {product.name}
-              </span>
-              <span class="text-small text-gold flex items-center gap-1 font-sans">
-                {t("blog.view")}
-                <ExternalLink class="h-3 w-3" />
-              </span>
-            </a>
-          );
-        })}
+                <span class="text-small text-gold flex items-center gap-1 font-sans">
+                  {t("blog.view")}
+                  <ExternalLink class="h-3 w-3" />
+                </span>
+              </a>
+            );
+          })}
+        </div>
+        <p class="text-caption text-olive-faint mt-8 text-center">
+          {t("footer.affiliate")}
+        </p>
       </div>
     </section>
   )

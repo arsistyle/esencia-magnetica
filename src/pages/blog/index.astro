@@ -15,6 +15,7 @@ import {
 } from "@/lib/queries";
 import { POSTS_PER_PAGE } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
+import Badge from "@/components/ui/Badge.astro";
 import type { Locale } from "@/types/index";
 
 interface PostItem {
@@ -25,6 +26,7 @@ interface PostItem {
   publishedAt: string;
   featured?: boolean;
   coverImage?: unknown;
+  readTime?: number;
   category?: { name: Record<string, string>; slug: { current: string } };
 }
 
@@ -63,9 +65,17 @@ const gridPosts = featured
   <div
     class="mx-auto max-w-[var(--container)] [padding:var(--space-9)_var(--gutter)]"
   >
-    <h1 class="text-h1 text-olive mb-8 font-serif leading-tight font-semibold">
-      {t("nav.blog")}
-    </h1>
+    <div class="mb-10 text-center">
+      <Badge tone="gold" class="mb-4">{t("nav.blog")}</Badge>
+      <h1
+        class="text-h1 text-olive mb-4 font-serif leading-tight font-semibold"
+      >
+        {t("blog.headline")}
+      </h1>
+      <p class="text-lead text-olive-soft mx-auto max-w-[640px]">
+        {t("blog.lead")}
+      </p>
+    </div>
     <BlogFilters
       categories={categories}
       activeCategoria={categoria}

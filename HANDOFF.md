@@ -1,15 +1,15 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-27  
-**Estado actual:** Stage 05 completado ✅ · Próximo: Stage 06
+**Estado actual:** Stage 06 completado ✅ · Próximo: Stage 07
 
 ---
 
 ## Dónde estamos
 
-Stages 01–05 terminados y pusheados a `origin/main`.
+Stages 01–06 terminados y listos para commit a `origin/main`.
 
-**Stack:** Astro v6.4.8 · TypeScript strict · Tailwind v4 · ESLint v9 · Prettier · Vitest · Husky + lint-staged · Sanity v6 · `@sanity/document-internationalization` · `@sanity/astro`.
+**Stack:** Astro v6.4.8 · TypeScript strict · Tailwind v4 · ESLint v9 · Prettier · Vitest · Husky + lint-staged · Sanity v6 · `@sanity/document-internationalization` · `@sanity/astro` · `@astrojs/cloudflare` · `astro-seo`.
 
 **Repos:**
 
@@ -44,7 +44,7 @@ Stages 01–05 terminados y pusheados a `origin/main`.
 
 ### i18n / Layout (Stage 04)
 
-- **i18n architecture:** `src/i18n/ui.ts` (22 keys ES+EN) + `src/i18n/utils.ts` (puro) + `src/i18n/index.ts` (barrel).
+- **i18n architecture:** `src/i18n/ui.ts` (36 keys ES+EN) + `src/i18n/utils.ts` (puro) + `src/i18n/index.ts` (barrel).
 - **astro.config.mjs:** bloque `i18n: { defaultLocale: 'es', locales: ['es', 'en'] }`.
 - **ROUTE_PAIRS estático** en `getLocalizedUrl` — `/productos` ↔ `/en/products`, `/marca` ↔ `/en/brand` no son transformaciones algorítmicas.
 - **LangToggle:** locale activo = `<span aria-current="true">` (no interactivo), locale inactivo = `<a href>`.
@@ -53,13 +53,83 @@ Stages 01–05 terminados y pusheados a `origin/main`.
 
 ### Home Page (Stage 05)
 
-- **`MarqueeRow.astro` es independiente por fila** — no hay un componente "gallery" contenedor. Las páginas montan dos instancias `<MarqueeRow>` separadas.
-- **Animación pixel-based** (adaptada de `docs/refs/MediaMarquee.tsx`): posiciones en px con `getBoundingClientRect()`, contenido triplicado, velocidad de scroll acumulada con `FRICTION=0.92`, función `wrapValue(x, -setWidth, 0)`. Sin GSAP, sin React.
-- **`height` prop configurable** en `MarqueeRow` (default `"300px"`). Los tiles no tienen `aspect-ratio` fijo — las imágenes usan `height: 100%; width: auto` para respetar su aspecto natural.
-- **`MarqueeItem`:** `{ bg, src?, alt?, aspectRatio? }` — `bg` es el degradado CSS que sirve de placeholder de carga. Cuando vengan imágenes de Sanity, se pasan como `src`.
-- **`src/lib/home/marqueeItems.ts`** — items placeholder con degradados de brand. Reemplazar con fetch de Sanity cuando lleguen las imágenes.
-- **`document.querySelectorAll`** (no `window.document`) — Prettier parte `window.document` en línea propia y ESLint lanza `no-unused-expressions`.
-- **`docs/refs/` excluido** de TypeScript en `tsconfig.json` — contiene `MediaMarquee.tsx` (React/GSAP de referencia) que no debe compilarse.
+- **`MarqueeRow.astro` es independiente por fila** — no hay un componente "gallery" contenedor.
+- **Animación pixel-based:** posiciones en px con `getBoundingClientRect()`, contenido triplicado, velocidad con `FRICTION=0.92`, `wrapValue(x, -setWidth, 0)`. Sin GSAP, sin React.
+- **`height` prop configurable** en `MarqueeRow` (default `"300px"`).
+- **`document.querySelectorAll`** (no `window.document`) — ESLint lanza `no-unused-expressions` con `window.document`.
+
+### Blog (Stage 06)
+
+- **`output: 'static'` + `prerender = false` por página** — `output: 'hybrid'` fue eliminado en Astro v6. Las páginas del blog usan `export const prerender = false` para ser SSR.
+- **Adapter:** `@astrojs/cloudflare` (v14.0.1) para Cloudflare Pages.
+- **Filtros server-side:** todos los filtros del blog (categoría, búsqueda, página) son queryParams de URL leídos en servidor, sin client-side JS.
+- **GROQ listing query:** incluye `"readTime": round(length(pt::text(body)) / 1000)` para estimación de lectura sin traer body completo.
+- **`@portabletext/to-html`** para renderizar Portable Text sin React (evita islands).
+- **YouTube façade:** thumbnail → `replaceChildren(iframe)` on click. Usar `replaceChildren()` en lugar de `innerHTML = ""` — hook de seguridad bloquea innerHTML.
+- **SEO:** plugin `astro-seo` con `hrefLang` (camelCase, NO `hreflang`).
+- **Imágenes Sanity:** `SanityImageSource` de `@sanity/image-url` para tipado (no `Parameters<typeof urlFor>[0]` — el parser Astro JSX lo parte).
+- **Design del blog:** respeta Claude Design proyecto `658592d3-5da1-4cd3-81b6-c1576c694e23`. PostCard como `<a>` completa con hover lift, categoría en texto dorado uppercase, FeaturedPost con grid `1.5fr 1fr`, BlogFilters con FilterTag olive-active y search underline.
+
+### Build conocido (pendiente)
+
+- **`pnpm run build` falla** con: `rollupOptions.input should not be an html file when building for SSR`. Es una incompatibilidad entre `@astrojs/cloudflare@14.0.1` y Vite 7.3.5. **El dev server funciona correctamente.** Resolver actualizando el adapter cuando haya un patch compatible.
+
+---
+
+## Stage 06 — Blog: Listing + Post Detail (completado)
+
+### Archivos creados / modificados
+
+| Entregable                                             | Archivo                                      |
+| ------------------------------------------------------ | -------------------------------------------- |
+| Keys i18n blog (14+4 keys ES+EN)                       | `src/i18n/ui.ts`                             |
+| Queries GROQ listado + conteo                          | `src/lib/queries.ts`                         |
+| `formatPostDate()` + `readingTime()` + 5 tests         | `src/lib/blog/postViewModel.ts` + `.test.ts` |
+| PostCard — card completa como `<a>`, categoría dorada  | `src/components/blog/PostCard.astro`         |
+| BlogFilters — FilterTag olive-active, search underline | `src/components/blog/BlogFilters.astro`      |
+| FeaturedPost — grid 1.5fr/1fr, Badge rose              | `src/components/blog/FeaturedPost.astro`     |
+| PostGrid — 3 cols responsive, estado vacío             | `src/components/blog/PostGrid.astro`         |
+| BlogPagination — active con underline dorado           | `src/components/blog/BlogPagination.astro`   |
+| YouTubeEmbed — façade thumbnail→iframe                 | `src/components/blog/YouTubeEmbed.astro`     |
+| PostBody — Portable Text → HTML sin React              | `src/components/blog/PostBody.astro`         |
+| PostHero — centrado, Badge gold, hero 16:9             | `src/components/blog/PostHero.astro`         |
+| RelatedProducts — bg-cream-deep, Badge rose            | `src/components/blog/RelatedProducts.astro`  |
+| FacebookComments — placeholder                         | `src/components/blog/FacebookComments.astro` |
+| BlogPostLayout — template de post detail               | `src/layouts/BlogPostLayout.astro`           |
+| BaseLayout — refactor con astro-seo                    | `src/layouts/BaseLayout.astro`               |
+| Blog listing ES (prerender=false)                      | `src/pages/blog/index.astro`                 |
+| Blog listing EN (prerender=false)                      | `src/pages/en/blog/index.astro`              |
+| Post detail ES (prerender=false)                       | `src/pages/blog/[slug].astro`                |
+| Post detail EN (prerender=false)                       | `src/pages/en/blog/[slug].astro`             |
+
+### Keys i18n blog añadidas
+
+```
+blog.description · blog.all · blog.search.placeholder · blog.featured
+blog.empty · blog.empty.search · blog.read · blog.pagination.prev
+blog.pagination.next · blog.related · blog.view · blog.by · blog.minutes
+post.play · blog.headline · blog.lead · blog.shop · blog.shop.subtitle
+```
+
+### Verificación UI (dev server)
+
+| Vista                                                             | Resultado                     |
+| ----------------------------------------------------------------- | ----------------------------- |
+| `/blog` — header centrado, Badge "Blog", h1 "Historias de estilo" | ✅                            |
+| FilterTags — "Todo" active olive, otros outlined                  | ✅                            |
+| Search — underline only, centrado                                 | ✅                            |
+| PostCard — categoría dorada uppercase, date·readTime              | ✅                            |
+| `/en/blog` — "Style stories", EN completo                         | ✅                            |
+| `/blog/[slug]` — Badge gold centrado, excerpt lead                | ✅                            |
+| `lint` + `typecheck` + `tests` (42/42)                            | ✅                            |
+| `build`                                                           | ⚠️ (ver nota de build arriba) |
+
+### Problema de datos de prueba en Sanity
+
+Los datos de prueba tienen:
+
+- **`publishedAt` vacío** → muestra "Invalid Date" en cards/PostHero. Editar el post en Studio y añadir la fecha.
+- **Slugs de categorías sin `.current`** → los chips de filtro no generan URL con `?categoria=`. Editar cada `blogCategory` en Studio y pulsar "Generate" en el campo slug.
 
 ---
 
@@ -75,37 +145,27 @@ Stages 01–05 terminados y pusheados a `origin/main`.
 | Styleguide dev-only                      | `src/pages/styleguide.astro` → `/styleguide`                            |
 | Documentación                            | `docs/DESIGN-SYSTEM.md`                                                 |
 
-**Tamaños de botón:** sm=31px · md=35px · lg=46px.
-
 ---
 
 ## Stage 03 — Sanity CMS (completado)
 
 ### Studio (`E:\esencia-magnetica-studio`)
 
-| Archivo                   | Descripción                                                                  |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| `sanity.config.ts`        | Plugins: document-i18n (post/product/page), structureTool, vision            |
-| `sanity.cli.ts`           | TypeGen habilitado (`typegen: { enabled: true }`)                            |
-| `schemaTypes/objects/`    | blockContent, coverImage, seo, youtubeEmbed, productList                     |
-| `schemaTypes/singletons/` | blogCategory, productCategory, siteSettings                                  |
-| `schemaTypes/documents/`  | post, product, author, brand, **page**                                       |
-| `structure/index.ts`      | Desk con Páginas, Posts, Productos, Autores, Marca, Ajustes                  |
-| `seed.ts`                 | Seed inicial — correr con `$env:SANITY_TOKEN="token"; pnpm exec tsx seed.ts` |
+| Archivo                   | Descripción                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| `sanity.config.ts`        | Plugins: document-i18n (post/product/page), structureTool, vision |
+| `schemaTypes/objects/`    | blockContent, coverImage, seo, youtubeEmbed, productList          |
+| `schemaTypes/singletons/` | blogCategory, productCategory, siteSettings                       |
+| `schemaTypes/documents/`  | post, product, author, brand, page                                |
+| `seed.ts`                 | Seed inicial — `$env:SANITY_TOKEN="token"; pnpm exec tsx seed.ts` |
 
-**Tipos de página disponibles (`page.template`):** `home`, `blog`, `products`, `about`, `default`
+### Astro
 
-### Astro (`E:\esencia-magnetica`)
-
-| Archivo                     | Descripción                                                                                                                    |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `astro.config.mjs`          | @sanity/astro integration con apiVersion pinned a 2025-01-01                                                                   |
-| `tsconfig.json`             | `"types": ["@sanity/astro/module"]`, `"exclude": ["dist", "docs/refs"]`                                                        |
-| `.env.local`                | `PUBLIC_SANITY_PROJECT_ID=dtktkh9h` · `PUBLIC_SANITY_DATASET=production` (no commitear)                                        |
-| `.env.example`              | Placeholders para nuevos devs                                                                                                  |
-| `src/lib/sanity.ts`         | `urlFor()` helper con `createImageUrlBuilder`                                                                                  |
-| `src/lib/queries.ts`        | 9 queries GROQ con `defineQuery`: posts, post by slug, products, categories, siteSettings, brand, authors, **pageBySlugQuery** |
-| `src/types/sanity.types.ts` | TypeGen output — actualizar tras cambios de schema en Studio                                                                   |
+| Archivo                     | Descripción                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `src/lib/sanity.ts`         | `urlFor()` helper                                            |
+| `src/lib/queries.ts`        | Todas las queries GROQ                                       |
+| `src/types/sanity.types.ts` | TypeGen output — actualizar tras cambios de schema en Studio |
 
 ---
 
@@ -115,43 +175,28 @@ Stages 01–05 terminados y pusheados a `origin/main`.
 | ---------------------------- | ------------------------------------- |
 | Tipos base (Locale, SeoMeta) | `src/types/index.ts`                  |
 | Constantes (NAV_ITEMS, etc.) | `src/lib/constants.ts`                |
-| Strings i18n (22 keys ES+EN) | `src/i18n/ui.ts`                      |
+| Strings i18n                 | `src/i18n/ui.ts`                      |
 | Utilidades i18n + 37 tests   | `src/i18n/utils.ts` + `utils.test.ts` |
-| Barrel i18n                  | `src/i18n/index.ts`                   |
 | Footer organism              | `src/components/Footer.astro`         |
 | Navbar organism              | `src/components/Navbar.astro`         |
 | BaseLayout template          | `src/layouts/BaseLayout.astro`        |
-| 404 on-brand                 | `src/pages/404.astro`                 |
-| Wrappers EN                  | `src/pages/en/` (4 páginas)           |
 
 ---
 
 ## Stage 05 — Home Page (completado)
 
-| Entregable                          | Archivo                                |
-| ----------------------------------- | -------------------------------------- |
-| Keys i18n home (ES+EN, 5 keys)      | `src/i18n/ui.ts`                       |
-| HomeHero organism                   | `src/components/home/HomeHero.astro`   |
-| MarqueeRow organism (independiente) | `src/components/home/MarqueeRow.astro` |
-| Items placeholder del marquee       | `src/lib/home/marqueeItems.ts`         |
-| Home ES                             | `src/pages/index.astro`                |
-| Home EN                             | `src/pages/en/index.astro`             |
-
-**Keys i18n añadidas:** `home.welcome` · `home.headline` · `home.lead` · `home.cta.blog` · `home.cta.catalog`
-
-**MarqueeRow props:**
-
-```
-<MarqueeRow direction="left" | "right" height="300px" items={MarqueeItem[]} />
-```
-
-**Integrar imágenes de Sanity (futuro):** reemplazar `ROW1_ITEMS` / `ROW2_ITEMS` en las páginas con un fetch GROQ y pasar `{ bg, src, alt }` por item.
+| Entregable                          | Archivo                                    |
+| ----------------------------------- | ------------------------------------------ |
+| HomeHero organism                   | `src/components/home/HomeHero.astro`       |
+| MarqueeRow organism (independiente) | `src/components/home/MarqueeRow.astro`     |
+| Items placeholder del marquee       | `src/lib/home/marqueeItems.ts`             |
+| Home ES + EN                        | `src/pages/index.astro` + `en/index.astro` |
 
 ---
 
-## Próximo paso: Stage 06
+## Próximo paso: Stage 07
 
-Leer [`docs/stages/stage-06/FUNDAMENTS.md`](docs/stages/stage-06/FUNDAMENTS.md) antes de tocar código.
+Leer [`docs/stages/stage-07/FUNDAMENTS.md`](docs/stages/stage-07/FUNDAMENTS.md) antes de tocar código.
 
 ---
 
@@ -173,8 +218,8 @@ $env:SANITY_TOKEN="tu-token"; pnpm exec tsx seed.ts
 pnpm run dev         # servidor local
 pnpm run lint        # ESLint
 pnpm run typecheck   # tsc
-pnpm run test        # Vitest
-pnpm run build       # build estático
+pnpm run test        # Vitest (42 tests)
+pnpm run build       # ⚠️ falla por bug @astrojs/cloudflare@14 + Vite 7
 
 # Studio (E:\esencia-magnetica-studio)
 pnpm dev             # Studio en localhost:3333
@@ -187,12 +232,13 @@ pnpm exec tsc --noEmit  # typecheck del studio
 
 - `docs/PLAN.md` — 12 stages, orden de dependencias
 - `docs/DESIGN-SYSTEM.md` — tokens, componentes, uso
-- `docs/stages/stage-05/FUNDAMENTS.md` — spec de Stage 05
-- `src/styles/global.css` — @theme con todos los tokens + `--space-*` en `:root`
+- `src/styles/global.css` — @theme con todos los tokens
 - `src/lib/utils.ts` — `cn()` con tailwind-merge extendido
 - `src/lib/ui/` — variantes CVA de los primitivos
 - `src/components/ui/` — Button, Badge, Card, Input, Checkbox
+- `src/components/blog/` — todos los componentes del blog
+- `src/layouts/` — BaseLayout, BlogPostLayout
 - `src/lib/queries.ts` — todas las queries GROQ
 - `src/types/sanity.types.ts` — tipos TypeGen (actualizar al cambiar schemas)
-- `src/i18n/ui.ts` — todas las strings de UI (ES+EN)
+- `src/i18n/ui.ts` — todas las strings de UI ES+EN (36 keys)
 - `CLAUDE.md` — convenciones del repo (leer siempre)

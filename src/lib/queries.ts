@@ -82,7 +82,8 @@ export const postsFilteredQuery = defineQuery(`
     && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
   ] | order(publishedAt desc) [$offset...$end] {
     _id, title, slug, excerpt, publishedAt, featured,
-    coverImage, "category": category->{ name, slug }
+    coverImage, "category": category->{ name, slug },
+    "readTime": round(length(pt::text(body)) / 1000)
   }
 `);
 

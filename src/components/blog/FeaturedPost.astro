@@ -4,7 +4,6 @@ import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
 import { urlFor } from "@/lib/sanity";
 import Badge from "@/components/ui/Badge.astro";
-import Button from "@/components/ui/Button.astro";
 import { formatPostDate } from "@/lib/blog/postViewModel";
 
 interface Props {
@@ -15,6 +14,7 @@ interface Props {
     excerpt?: string;
     publishedAt: string;
     coverImage?: unknown;
+    readTime?: number;
     category?: { name: Record<string, string>; slug: { current: string } };
   };
   lang: Locale;
@@ -29,49 +29,62 @@ const href =
 const imgSrc = post.coverImage
   ? urlFor(post.coverImage as Parameters<typeof urlFor>[0])
       .width(1200)
-      .height(600)
+      .height(800)
       .url()
   : null;
 const date = formatPostDate(post.publishedAt, lang);
+const mins = Math.max(1, post.readTime ?? 1);
 const categoryName =
   (post.category?.name as Record<string, string> | undefined)?.[lang] ??
   (post.category?.name as Record<string, string> | undefined)?.es ??
   "";
 ---
 
-<article
-  class="border-line grid grid-cols-1 overflow-hidden rounded-lg border lg:grid-cols-2"
+<a
+  href={href}
+  class="group rounded-radius-lg border-line bg-cream-card grid grid-cols-1 overflow-hidden border shadow-sm transition-all duration-300 hover:shadow-md lg:grid-cols-[1.5fr_1fr]"
 >
-  <a href={href} class="block overflow-hidden">
+  <div class="overflow-hidden">
     {
       imgSrc ? (
         <img
           src={imgSrc}
           alt={post.title}
           loading="eager"
-          class="h-64 w-full object-cover transition-transform duration-500 hover:scale-105 lg:h-full"
+          class="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] lg:h-full lg:min-h-80"
         />
       ) : (
-        <div class="bg-lavender h-64 w-full lg:h-full" />
+        <div class="bg-lavender h-64 w-full lg:h-full lg:min-h-80" />
       )
     }
-  </a>
+  </div>
   <div class="flex flex-col justify-center gap-4 p-8">
     <div class="flex flex-wrap items-center gap-3">
-      <Badge tone="gold">{t("blog.featured")}</Badge>
-      {categoryName && <Badge tone="neutral">{categoryName}</Badge>}
+      <Badge tone="rose">{t("blog.featured")}</Badge>
+      {
+        categoryName && (
+          <span class="text-overline text-gold font-sans font-bold tracking-wider uppercase">
+            {categoryName}
+          </span>
+        )
+      }
     </div>
-    <h2 class="text-h1 text-olive font-serif leading-tight font-semibold">
-      <a href={href} class="hover:text-gold transition-colors">{post.title}</a>
+    <h2
+      class="text-h2 text-olive font-serif leading-tight font-semibold"
+      style="font-size: clamp(1.6rem, 3vw, 2.4rem);"
+    >
+      {post.title}
     </h2>
-    <p class="text-caption text-olive-faint font-sans">{date}</p>
     {
       post.excerpt && (
-        <p class="text-lead text-olive-soft leading-normal">{post.excerpt}</p>
+        <p class="text-small text-olive-soft lg:text-body leading-normal">
+          {post.excerpt}
+        </p>
       )
     }
-    <div class="mt-2">
-      <Button href={href} variant="primary">{t("blog.read")}</Button>
-    </div>
+    <p class="text-caption text-olive-faint">
+      {date} · {mins}
+      {t("blog.minutes")}
+    </p>
   </div>
-</article>
+</a>

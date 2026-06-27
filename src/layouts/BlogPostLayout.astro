@@ -3,6 +3,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import PostHero from "@/components/blog/PostHero.astro";
 import PostBody from "@/components/blog/PostBody.astro";
+import RelatedProducts from "@/components/blog/RelatedProducts.astro";
 import FacebookComments from "@/components/blog/FacebookComments.astro";
 import { urlFor } from "@/lib/sanity";
 import type { Locale } from "@/types/index";
@@ -10,6 +11,14 @@ import type { SanityImageSource } from "@sanity/image-url";
 import { toHTML } from "@portabletext/to-html";
 
 type PortableTextBody = Parameters<typeof toHTML>[0];
+
+interface Product {
+  _id: string;
+  name?: string;
+  image?: unknown;
+  affiliateUrl?: string;
+  store?: string;
+}
 
 interface Props {
   post: {
@@ -53,6 +62,15 @@ const categoryName =
   (post.category?.name as Record<string, string> | undefined)?.es;
 
 const postBody = (post.body ?? []) as PortableTextBody;
+
+const products = (post.body ?? [])
+  .filter(
+    (b): b is Record<string, unknown> =>
+      typeof b === "object" &&
+      b !== null &&
+      (b as Record<string, unknown>)._type === "productList",
+  )
+  .flatMap((b) => (b.products as Product[] | undefined) ?? []);
 ---
 
 <BaseLayout
@@ -76,5 +94,6 @@ const postBody = (post.body ?? []) as PortableTextBody;
       <PostBody body={postBody} lang={lang} />
     </div>
   </div>
+  <RelatedProducts products={products} lang={lang} />
   <FacebookComments />
 </BaseLayout>

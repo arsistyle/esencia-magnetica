@@ -34,7 +34,7 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
       {currentPage > 1 && (
         <a
           href={pageUrl(currentPage - 1)}
-          class="rounded-pill text-small text-olive-soft hover:text-gold flex items-center gap-1 px-4 py-2 font-sans transition-colors"
+          class="text-small text-olive-soft hover:text-gold flex items-center gap-1 px-3 py-2 font-sans transition-colors"
           aria-label={t("blog.pagination.prev")}
         >
           <ChevronLeft class="h-4 w-4" />
@@ -45,7 +45,7 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
         {pages.map((page) =>
           page === currentPage ? (
             <span
-              class="rounded-pill bg-gold text-small flex h-9 w-9 items-center justify-center font-bold text-white"
+              class="border-gold text-small text-gold border-b-2 px-3 py-2 font-bold"
               aria-current="page"
             >
               {page}
@@ -53,7 +53,7 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
           ) : (
             <a
               href={pageUrl(page)}
-              class="rounded-pill text-small text-olive-soft hover:bg-cream-deep hover:text-olive flex h-9 w-9 items-center justify-center font-sans transition-colors"
+              class="text-small text-olive-soft hover:text-gold border-b-2 border-transparent px-3 py-2 font-sans transition-colors"
             >
               {page}
             </a>
@@ -63,7 +63,7 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
       {currentPage < totalPages && (
         <a
           href={pageUrl(currentPage + 1)}
-          class="rounded-pill text-small text-olive-soft hover:text-gold flex items-center gap-1 px-4 py-2 font-sans transition-colors"
+          class="text-small text-olive-soft hover:text-gold flex items-center gap-1 px-3 py-2 font-sans transition-colors"
           aria-label={t("blog.pagination.next")}
         >
           {t("blog.pagination.next")}
