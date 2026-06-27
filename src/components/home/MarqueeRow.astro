@@ -60,7 +60,7 @@ const tiles = [...items, ...items, ...items];
 <script>
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     // One script handles every MarqueeRow instance on the page
-    document
+    window.document
       .querySelectorAll<HTMLElement>("[data-marquee]")
       .forEach((container) => {
         const direction = container.dataset.direction as "left" | "right";
