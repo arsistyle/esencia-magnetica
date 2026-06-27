@@ -75,3 +75,20 @@ export const pageBySlugQuery = defineQuery(`
     seo
   }
 `);
+
+export const postsFilteredQuery = defineQuery(`
+  *[_type == "post" && language == $lang
+    && ($categoria == "" || category->slug.current == $categoria)
+    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
+  ] | order(publishedAt desc) [$offset...$end] {
+    _id, title, slug, excerpt, publishedAt, featured,
+    coverImage, "category": category->{ name, slug }
+  }
+`);
+
+export const postsCountQuery = defineQuery(`
+  count(*[_type == "post" && language == $lang
+    && ($categoria == "" || category->slug.current == $categoria)
+    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
+  ])
+`);
