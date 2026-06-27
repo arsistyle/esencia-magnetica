@@ -88,4 +88,16 @@ describe("home page keys", () => {
     const t = useTranslations("en");
     expect(t("home.cta.catalog")).toBe("Go to the catalogue");
   });
+  it("returns ES home.lead", () => {
+    const t = useTranslations("es");
+    expect(t("home.lead")).toBe(
+      "Moda práctica, looks reales y consejos accionables para mujeres que saben lo que quieren.",
+    );
+  });
+  it("returns EN home.lead", () => {
+    const t = useTranslations("en");
+    expect(t("home.lead")).toBe(
+      "Practical fashion, real looks and actionable advice for women who know what they want.",
+    );
+  });
 });
