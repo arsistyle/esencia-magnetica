@@ -1,0 +1,80 @@
+---
+// src/layouts/BlogPostLayout.astro
+import BaseLayout from "./BaseLayout.astro";
+import PostHero from "@/components/blog/PostHero.astro";
+import PostBody from "@/components/blog/PostBody.astro";
+import FacebookComments from "@/components/blog/FacebookComments.astro";
+import { urlFor } from "@/lib/sanity";
+import type { Locale } from "@/types/index";
+import type { SanityImageSource } from "@sanity/image-url";
+import { toHTML } from "@portabletext/to-html";
+
+type PortableTextBody = Parameters<typeof toHTML>[0];
+
+interface Props {
+  post: {
+    title: string;
+    slug?: { current: string };
+    excerpt?: string;
+    publishedAt: string;
+    coverImage?: unknown;
+    body?: unknown[];
+    category?: { name: Record<string, string> };
+    authors?: Array<{ name: string }>;
+    seo?: {
+      title?: string;
+      description?: string;
+      image?: unknown;
+    };
+  };
+  lang: Locale;
+  esUrl: string;
+  enUrl: string;
+}
+
+const { post, lang, esUrl, enUrl } = Astro.props;
+
+const ogImage = post.seo?.image
+  ? urlFor(post.seo.image as SanityImageSource)
+      .width(1200)
+      .url()
+  : post.coverImage
+    ? urlFor(post.coverImage as SanityImageSource)
+        .width(1200)
+        .url()
+    : undefined;
+
+const siteBase = Astro.site?.toString().replace(/\/$/, "") ?? "";
+const canonicalPath = lang === "es" ? esUrl : enUrl;
+const canonical = `${siteBase}${canonicalPath}`;
+
+const categoryName =
+  (post.category?.name as Record<string, string> | undefined)?.[lang] ??
+  (post.category?.name as Record<string, string> | undefined)?.es;
+
+const postBody = (post.body ?? []) as PortableTextBody;
+---
+
+<BaseLayout
+  title={post.seo?.title ?? post.title}
+  description={post.seo?.description ?? post.excerpt}
+  ogImage={ogImage}
+  lang={lang}
+  canonical={canonical}
+  alternates={{ es: esUrl, en: enUrl }}
+  article={{
+    publishedTime: post.publishedAt,
+    authors: post.authors?.map((a) => a.name),
+    section: categoryName,
+  }}
+>
+  <PostHero post={post} lang={lang} />
+  <div
+    class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"
+  >
+    <div class="mx-auto max-w-[720px]">
+      <PostBody body={postBody} lang={lang} />
+    </div>
+  </div>
+  <FacebookComments />
+</BaseLayout>
