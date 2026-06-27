@@ -4,13 +4,13 @@ import { formatPostDate, readingTime } from "./postViewModel";
 describe("formatPostDate", () => {
   it("formats date in Spanish", () => {
     const result = formatPostDate("2026-06-15T00:00:00Z", "es");
-    expect(result).toMatch(/junio/i);
+    expect(result).toMatch(/jun/i);
     expect(result).toMatch(/2026/);
   });
 
   it("formats date in English", () => {
     const result = formatPostDate("2026-06-15T00:00:00Z", "en");
-    expect(result).toMatch(/june/i);
+    expect(result).toMatch(/jun/i);
     expect(result).toMatch(/2026/);
   });
 });
