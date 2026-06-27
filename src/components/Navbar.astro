@@ -1,0 +1,191 @@
+---
+// src/components/Navbar.astro
+import type { Locale } from "@/types/index";
+import { useTranslations, getLocalizedUrl } from "@/i18n";
+import { NAV_ITEMS } from "@/lib/constants";
+import type { UiKey } from "@/i18n/ui";
+import { Menu, X } from "@lucide/astro";
+
+interface Props {
+  lang: Locale;
+  currentPath: string;
+}
+
+const { lang, currentPath } = Astro.props;
+const t = useTranslations(lang);
+
+const logoHref = lang === "es" ? "/" : "/en";
+const altLang: Locale = lang === "es" ? "en" : "es";
+const langSwitchHref = getLocalizedUrl(altLang, currentPath);
+
+function navHref(esHref: string): string {
+  return lang === "es" ? esHref : getLocalizedUrl("en", esHref);
+}
+
+function isActive(esHref: string): boolean {
+  const href = navHref(esHref);
+  if (esHref === "/") return currentPath === href;
+  return currentPath === href || currentPath.startsWith(href + "/");
+}
+---
+
+<header
+  class="border-line bg-cream/[0.88] sticky top-0 z-50 border-b backdrop-blur-[10px]"
+>
+  <!-- Main bar -->
+  <div
+    class="flex items-center justify-between gap-8 [padding:18px_var(--gutter)]"
+  >
+    <!-- Wordmark -->
+    <a
+      href={logoHref}
+      class="font-script text-gold text-[30px] leading-none whitespace-nowrap no-underline"
+    >
+      Esencia Magnética
+    </a>
+
+    <!-- Desktop nav links -->
+    <nav
+      class="hidden flex-1 items-center justify-center gap-8 md:flex"
+      aria-label={t("nav.aria")}
+    >
+      {
+        NAV_ITEMS.map((item) => {
+          const href = navHref(item.href);
+          const active = isActive(item.href);
+          return (
+            <a
+              href={href}
+              class:list={[
+                "duration-base ease-soft border-b-2 pb-[3px] font-sans text-[14px] tracking-[0.06em] uppercase no-underline transition-colors",
+                active
+                  ? "text-olive border-gold font-bold"
+                  : "text-olive-soft hover:text-olive border-transparent font-normal",
+              ]}
+              aria-current={active ? "page" : undefined}
+            >
+              {t(item.labelKey as UiKey)}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- Right: LangToggle + hamburger -->
+    <div class="flex items-center gap-4">
+      <!-- LangToggle -->
+      <div
+        role="group"
+        aria-label={t("nav.lang")}
+        class="border-line-strong rounded-pill inline-flex items-center gap-[2px] border p-[3px]"
+      >
+        {
+          (["es", "en"] as const).map((l) => {
+            const active = l === lang;
+            const sharedClass =
+              "font-sans text-[12px] font-bold tracking-wide px-3 py-[5px] rounded-pill no-underline transition-colors duration-base ease-soft";
+            return active ? (
+              <span
+                aria-current="true"
+                class:list={[sharedClass, "bg-gold text-white"]}
+              >
+                {l.toUpperCase()}
+              </span>
+            ) : (
+              <a
+                href={langSwitchHref}
+                class:list={[
+                  sharedClass,
+                  "text-olive-soft hover:text-olive bg-transparent",
+                ]}
+                aria-label={l.toUpperCase()}
+              >
+                {l.toUpperCase()}
+              </a>
+            );
+          })
+        }
+      </div>
+
+      <!-- Hamburger button (mobile only) -->
+      <button
+        id="nav-toggle"
+        class="text-olive hover:bg-cream-deep rounded-md p-2 transition-colors md:hidden"
+        aria-label={t("nav.open")}
+        aria-expanded="false"
+        aria-controls="nav-mobile"
+      >
+        <Menu id="nav-icon-open" class="h-5 w-5" />
+        <X id="nav-icon-close" class="hidden h-5 w-5" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile nav dropdown -->
+  <div
+    id="nav-mobile"
+    class="border-line bg-cream border-t md:hidden"
+    aria-label={t("nav.aria")}
+  >
+    <div class="flex flex-col gap-1 [padding:1rem_var(--gutter)]">
+      {
+        NAV_ITEMS.map((item) => {
+          const href = navHref(item.href);
+          const active = isActive(item.href);
+          return (
+            <a
+              href={href}
+              class:list={[
+                "border-line border-b py-3 font-sans text-[14px] tracking-[0.06em] uppercase no-underline last:border-0",
+                active ? "text-gold font-bold" : "text-olive",
+              ]}
+              aria-current={active ? "page" : undefined}
+            >
+              {t(item.labelKey as UiKey)}
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</header>
+
+<style>
+  /* Mobile dropdown: hidden by default; .is-open shows it on mobile only */
+  #nav-mobile {
+    display: none;
+  }
+  #nav-mobile.is-open {
+    display: block;
+  }
+  @media (min-width: 768px) {
+    #nav-mobile,
+    #nav-mobile.is-open {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById(
+    "nav-toggle",
+  ) as HTMLButtonElement | null;
+  const menu = document.getElementById("nav-mobile");
+  const iconOpen = document.getElementById("nav-icon-open");
+  const iconClose = document.getElementById("nav-icon-close");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = menu?.classList.contains("is-open") ?? false;
+    if (isOpen) {
+      menu?.classList.remove("is-open");
+      iconOpen?.classList.remove("hidden");
+      iconClose?.classList.add("hidden");
+      toggle.setAttribute("aria-expanded", "false");
+    } else {
+      menu?.classList.add("is-open");
+      iconOpen?.classList.add("hidden");
+      iconClose?.classList.remove("hidden");
+      toggle.setAttribute("aria-expanded", "true");
+    }
+  });
+</script>
