@@ -1,0 +1,84 @@
+---
+// src/components/Footer.astro
+import type { Locale } from "@/types/index";
+import { useTranslations, getLocalizedUrl } from "@/i18n";
+import { NAV_ITEMS, SOCIAL_LINKS } from "@/lib/constants";
+import type { UiKey } from "@/i18n/ui";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const navLinks = NAV_ITEMS.map((item) => ({
+  label: t(item.labelKey as UiKey),
+  href: lang === "es" ? item.href : getLocalizedUrl("en", item.href),
+}));
+---
+
+<footer
+  class="bg-olive text-cream [padding:var(--space-8)_var(--gutter)_var(--space-6)]"
+>
+  <div
+    class="mx-auto flex max-w-[var(--container)] flex-wrap justify-between gap-8"
+  >
+    <!-- Brand column -->
+    <div class="max-w-[320px]">
+      <p class="font-script text-rose-nude mb-3 text-[30px] leading-none">
+        Esencia Magnética
+      </p>
+      <p class="m-0 text-sm leading-relaxed opacity-85">
+        {t("footer.tagline")}
+      </p>
+    </div>
+
+    <!-- Link columns -->
+    <div class="flex flex-wrap gap-16">
+      <!-- Explorar / Explore -->
+      <div class="flex flex-col gap-[10px]">
+        <span class="text-overline mb-1 tracking-wider uppercase opacity-60">
+          {t("footer.explore")}
+        </span>
+        {
+          navLinks.map(({ label, href }) => (
+            <a
+              href={href}
+              class="text-cream text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+            >
+              {label}
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- Síguenos / Follow -->
+      <div class="flex flex-col gap-[10px]">
+        <span class="text-overline mb-1 tracking-wider uppercase opacity-60">
+          {t("footer.follow")}
+        </span>
+        {
+          SOCIAL_LINKS.map(({ name, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-cream text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+            >
+              {name}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div
+    class="mx-auto mt-10 flex max-w-[var(--container)] flex-wrap justify-between gap-4 border-t border-white/15 pt-5 text-[13px] opacity-60"
+  >
+    <span>{t("footer.copyright")}</span>
+    <span>{t("footer.affiliate")}</span>
+  </div>
+</footer>
