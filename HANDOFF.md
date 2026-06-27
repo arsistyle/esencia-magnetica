@@ -1,13 +1,13 @@
 # HANDOFF — Esencia Magnética
 
-**Fecha:** 2026-06-21  
-**Estado actual:** Stage 03 completado ✅ · Próximo: Stage 04
+**Fecha:** 2026-06-27  
+**Estado actual:** Stage 04 completado ✅ · Próximo: Stage 05
 
 ---
 
 ## Dónde estamos
 
-Stages 01, 02 y 03 terminados y pusheados a `origin/main` en ambos repos.
+Stages 01, 02, 03 y 04 terminados y pusheados a `origin/main`.
 
 **Stack:** Astro v6.4.8 · TypeScript strict · Tailwind v4 · ESLint v9 · Prettier · Vitest · Husky + lint-staged · Sanity v6 · `@sanity/document-internationalization` · `@sanity/astro`.
 
@@ -90,14 +90,38 @@ Stages 01, 02 y 03 terminados y pusheados a `origin/main` en ambos repos.
 
 ---
 
-## Próximo paso: Stage 04
+## Stage 04 — Core Layout, Navigation & i18n (completado)
 
-Leer [`docs/stages/stage-04/FUNDAMENTS.md`](docs/stages/stage-04/FUNDAMENTS.md) antes de tocar código.
+### Decisiones clave
 
-Stage 04 probablemente involucra construir las páginas del frontend consumiendo los datos de Sanity. El patrón de templates ya está preparado:
+- **i18n architecture:** `src/i18n/ui.ts` (17 keys ES+EN) + `src/i18n/utils.ts` (puro) + `src/i18n/index.ts` (barrel).
+- **astro.config.mjs:** bloque `i18n: { defaultLocale: 'es', locales: ['es', 'en'] }`.
+- **ROUTE_PAIRS estático** en `getLocalizedUrl` — `/productos` ↔ `/en/products`, `/marca` ↔ `/en/brand` no son transformaciones algorítmicas.
+- **LangToggle:** locale activo = `<span aria-current="true">` (no interactivo), locale inactivo = `<a href>`. ESLint jsx-a11y bloquea `<a href="#" aria-pressed>`.
+- **Mobile nav:** clase CSS `is-open` (no `hidden` Tailwind) para evitar conflictos con media queries.
+- **Tailwind v4:** `@source` directives explícitas en `global.css` para escanear `components/`, `layouts/`, `pages/`.
+- **404.astro:** siempre `lang='es'` — Astro sirve la 404 sin contexto de locale.
 
-- `src/pages/[...slug].astro` — ruta dinámica que lee `page.template` y renderiza el template correspondiente
-- `src/templates/HomePage.astro`, `BlogPage.astro`, `ProductsPage.astro`, `AboutPage.astro`, `DefaultPage.astro`
+| Entregable                   | Archivo                               |
+| ---------------------------- | ------------------------------------- |
+| Tipos base (Locale, SeoMeta) | `src/types/index.ts`                  |
+| Constantes (NAV_ITEMS, etc.) | `src/lib/constants.ts`                |
+| Strings i18n (17 keys ES+EN) | `src/i18n/ui.ts`                      |
+| Utilidades i18n + 27 tests   | `src/i18n/utils.ts` + `utils.test.ts` |
+| Barrel i18n                  | `src/i18n/index.ts`                   |
+| Footer organism              | `src/components/Footer.astro`         |
+| Navbar organism              | `src/components/Navbar.astro`         |
+| BaseLayout template          | `src/layouts/BaseLayout.astro`        |
+| 404 on-brand                 | `src/pages/404.astro`                 |
+| Wrappers EN                  | `src/pages/en/` (4 páginas)           |
+
+---
+
+## Próximo paso: Stage 05
+
+Leer [`docs/stages/stage-05/FUNDAMENTS.md`](docs/stages/stage-05/FUNDAMENTS.md) antes de tocar código.
+
+Stage 05 probablemente involucra Blog listing + post pages consumiendo datos de Sanity (GROQ queries ya preparadas en `src/lib/queries.ts`).
 
 ---
 
