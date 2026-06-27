@@ -1,0 +1,75 @@
+---
+// src/components/blog/BlogPagination.astro
+// ponytail: muestra todos los números; añadir ellipsis si totalPages > 10
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import { ChevronLeft, ChevronRight } from "@lucide/astro";
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  currentUrl: string;
+  lang: Locale;
+}
+
+const { currentPage, totalPages, currentUrl, lang } = Astro.props;
+const t = useTranslations(lang);
+
+function pageUrl(page: number): string {
+  const url = new URL(currentUrl);
+  if (page > 1) url.searchParams.set("page", String(page));
+  else url.searchParams.delete("page");
+  return url.pathname + (url.search || "");
+}
+
+const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+---
+
+{
+  totalPages > 1 && (
+    <nav
+      aria-label="Paginación"
+      class="flex items-center justify-center gap-2 py-8"
+    >
+      {currentPage > 1 && (
+        <a
+          href={pageUrl(currentPage - 1)}
+          class="rounded-pill text-small text-olive-soft hover:text-gold flex items-center gap-1 px-4 py-2 font-sans transition-colors"
+          aria-label={t("blog.pagination.prev")}
+        >
+          <ChevronLeft class="h-4 w-4" />
+          {t("blog.pagination.prev")}
+        </a>
+      )}
+      <div class="flex items-center gap-1">
+        {pages.map((page) =>
+          page === currentPage ? (
+            <span
+              class="rounded-pill bg-gold text-small flex h-9 w-9 items-center justify-center font-bold text-white"
+              aria-current="page"
+            >
+              {page}
+            </span>
+          ) : (
+            <a
+              href={pageUrl(page)}
+              class="rounded-pill text-small text-olive-soft hover:bg-cream-deep hover:text-olive flex h-9 w-9 items-center justify-center font-sans transition-colors"
+            >
+              {page}
+            </a>
+          ),
+        )}
+      </div>
+      {currentPage < totalPages && (
+        <a
+          href={pageUrl(currentPage + 1)}
+          class="rounded-pill text-small text-olive-soft hover:text-gold flex items-center gap-1 px-4 py-2 font-sans transition-colors"
+          aria-label={t("blog.pagination.next")}
+        >
+          {t("blog.pagination.next")}
+          <ChevronRight class="h-4 w-4" />
+        </a>
+      )}
+    </nav>
+  )
+}
