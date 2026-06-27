@@ -21,14 +21,17 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@astrojs/node": "^11.0.0",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/great-vibes": "^5.2.8",
     "@fontsource/lato": "^5.2.7",
     "@lucide/astro": "^1.21.0",
+    "@portabletext/to-html": "^5.0.2",
     "@sanity/astro": "^3.4.1",
     "@sanity/client": "^7.23.0",
     "@sanity/image-url": "^2.1.1",
     "astro": "^6.4.7",
+    "astro-seo": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "groq": "^6.1.0",

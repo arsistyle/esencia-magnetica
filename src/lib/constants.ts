@@ -15,3 +15,5 @@ export const SOCIAL_LINKS = [
   { name: "Instagram", href: "#" },
   { name: "Pinterest", href: "#" },
 ] as const;
+
+export const POSTS_PER_PAGE = 12;
