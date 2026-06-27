@@ -3,7 +3,7 @@
 export function formatPostDate(iso: string, lang: "es" | "en"): string {
   return new Date(iso).toLocaleDateString(lang === "en" ? "en-US" : "es-ES", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 }

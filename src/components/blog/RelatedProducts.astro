@@ -53,10 +53,10 @@ const t = useTranslations(lang);
                     src={imgSrc}
                     alt={product.name ?? ""}
                     loading="lazy"
-                    class="rounded-radius-md aspect-square w-full object-cover"
+                    class="aspect-square w-full rounded-md object-cover"
                   />
                 ) : (
-                  <div class="rounded-radius-md bg-lavender aspect-square w-full" />
+                  <div class="bg-lavender aspect-square w-full rounded-md" />
                 )}
                 {product.store && (
                   <span class="text-overline text-olive-faint font-sans font-bold tracking-wider uppercase">
