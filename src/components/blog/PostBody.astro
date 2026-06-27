@@ -7,8 +7,7 @@ import {
   type PortableTextMarkComponentOptions,
   type PortableTextBlockComponent,
 } from "@portabletext/to-html";
-import type { SanityImageSource } from "@sanity/image-url";
-import { urlFor } from "@/lib/sanity";
+import { safeUrlFor, resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import { useTranslations } from "@/i18n";
 import type { Locale } from "@/types/index";
 
@@ -28,9 +27,8 @@ const html = toHTML(body, {
       image: ({
         value,
       }: PortableTextTypeComponentOptions<Record<string, unknown>>) => {
-        const src = urlFor(value as SanityImageSource)
-          .width(900)
-          .url();
+        const src = safeUrlFor(value)?.width(900).url();
+        if (!src) return "";
         const alt = String(value.alt ?? "");
         return `<img src="${src}" alt="${alt}" loading="lazy" class="w-full rounded-md my-6" />`;
       },
@@ -56,12 +54,11 @@ const html = toHTML(body, {
         if (!products.length) return "";
         const items = products
           .map((p) => {
-            const imgSrc = p.image
-              ? urlFor(p.image as SanityImageSource)
-                  .width(400)
-                  .height(400)
-                  .url()
-              : "";
+            const imgSrc =
+              resolveImageUrl(p.image as CoverImageLike, {
+                width: 400,
+                height: 400,
+              }) ?? "";
             const img = imgSrc
               ? `<img src="${imgSrc}" alt="${String(p.name ?? "")}" loading="lazy" class="aspect-square w-full rounded-md object-cover" />`
               : `<div class="aspect-square w-full rounded-md bg-lavender"></div>`;

@@ -212,13 +212,7 @@ export type Seo = {
   _type: "seo";
   metaTitle?: string;
   metaDescription?: string;
-  ogImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
+  ogImage?: CoverImage;
 };
 
 export type CoverImage = {

@@ -2,7 +2,7 @@
 // src/components/blog/FeaturedPost.astro
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
-import { urlFor } from "@/lib/sanity";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import Badge from "@/components/ui/Badge.astro";
 import { formatPostDate } from "@/lib/blog/postViewModel";
 
@@ -26,12 +26,10 @@ const href =
   lang === "es"
     ? `/blog/${post.slug.current}`
     : `/en/blog/${post.slug.current}`;
-const imgSrc = post.coverImage
-  ? urlFor(post.coverImage as Parameters<typeof urlFor>[0])
-      .width(1200)
-      .height(800)
-      .url()
-  : null;
+const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
+  width: 1200,
+  height: 800,
+});
 const date = formatPostDate(post.publishedAt, lang);
 const mins = Math.max(1, post.readTime ?? 1);
 const categoryName =

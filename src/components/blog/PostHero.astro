@@ -2,8 +2,7 @@
 // src/components/blog/PostHero.astro
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
-import type { SanityImageSource } from "@sanity/image-url";
-import { urlFor } from "@/lib/sanity";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import Badge from "@/components/ui/Badge.astro";
 import { formatPostDate, readingTime } from "@/lib/blog/postViewModel";
 
@@ -22,12 +21,10 @@ interface Props {
 
 const { post, lang } = Astro.props;
 const t = useTranslations(lang);
-const imgSrc = post.coverImage
-  ? urlFor(post.coverImage as SanityImageSource)
-      .width(1400)
-      .height(787)
-      .url()
-  : null;
+const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
+  width: 1400,
+  height: 787,
+});
 const date = formatPostDate(post.publishedAt, lang);
 const mins = post.body ? readingTime(post.body) : null;
 const categoryName =

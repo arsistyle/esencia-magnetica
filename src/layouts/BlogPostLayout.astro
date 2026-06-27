@@ -5,9 +5,8 @@ import PostHero from "@/components/blog/PostHero.astro";
 import PostBody from "@/components/blog/PostBody.astro";
 import RelatedProducts from "@/components/blog/RelatedProducts.astro";
 import FacebookComments from "@/components/blog/FacebookComments.astro";
-import { urlFor } from "@/lib/sanity";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import type { Locale } from "@/types/index";
-import type { SanityImageSource } from "@sanity/image-url";
 import { toHTML } from "@portabletext/to-html";
 
 type PortableTextBody = Parameters<typeof toHTML>[0];
@@ -26,14 +25,14 @@ interface Props {
     slug?: { current: string };
     excerpt?: string;
     publishedAt: string;
-    coverImage?: unknown;
+    coverImage?: CoverImageLike;
     body?: unknown[];
     category?: { name: Record<string, string> };
     authors?: Array<{ name: string }>;
     seo?: {
-      title?: string;
-      description?: string;
-      image?: unknown;
+      metaTitle?: string;
+      metaDescription?: string;
+      ogImage?: CoverImageLike;
     };
   };
   lang: Locale;
@@ -43,15 +42,10 @@ interface Props {
 
 const { post, lang, esUrl, enUrl } = Astro.props;
 
-const ogImage = post.seo?.image
-  ? urlFor(post.seo.image as SanityImageSource)
-      .width(1200)
-      .url()
-  : post.coverImage
-    ? urlFor(post.coverImage as SanityImageSource)
-        .width(1200)
-        .url()
-    : undefined;
+const ogImage =
+  resolveImageUrl(post.seo?.ogImage, { width: 1200 }) ??
+  resolveImageUrl(post.coverImage, { width: 1200 }) ??
+  undefined;
 
 const siteBase = Astro.site?.toString().replace(/\/$/, "") ?? "";
 const canonicalPath = lang === "es" ? esUrl : enUrl;
@@ -74,8 +68,8 @@ const products = (post.body ?? [])
 ---
 
 <BaseLayout
-  title={post.seo?.title ?? post.title}
-  description={post.seo?.description ?? post.excerpt}
+  title={post.seo?.metaTitle ?? post.title}
+  description={post.seo?.metaDescription ?? post.excerpt}
   ogImage={ogImage}
   lang={lang}
   canonical={canonical}
