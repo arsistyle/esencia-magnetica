@@ -15,6 +15,10 @@ const {PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET} = loadEnv(
 )
 
 export default defineConfig({
+  i18n: {
+    defaultLocale: 'es',
+    locales: ['es', 'en'],
+  },
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
