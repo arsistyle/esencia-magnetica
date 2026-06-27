@@ -1,14 +1,10 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import HomeHero from "@/components/home/HomeHero.astro";
+import MarqueeGallery from "@/components/home/MarqueeGallery.astro";
 ---
 
 <BaseLayout title="Welcome" lang="en">
-  <div
-    class="flex flex-col items-center justify-center [padding:var(--space-9)_var(--gutter)] text-center"
-  >
-    <h1 class="text-h1 text-olive font-serif leading-tight font-semibold">
-      Esencia Magnética
-    </h1>
-    <p class="text-body text-olive-soft mt-4">Stage 04 — shell active.</p>
-  </div>
+  <HomeHero lang="en" />
+  <MarqueeGallery />
 </BaseLayout>
