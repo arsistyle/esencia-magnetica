@@ -1,20 +1,20 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-27  
-**Estado actual:** Stage 06 completado ✅ · Próximo: Stage 07
+**Estado actual:** Stage 06 completo (+ fixes post-entrega) ✅ · Próximo: Stage 07
 
 ---
 
 ## Dónde estamos
 
-Stages 01–06 terminados y listos para commit a `origin/main`.
+Stages 01–06 terminados. Stage 06 tuvo una ronda de fixes después de la entrega inicial; están todos commiteados.
 
 **Stack:** Astro v6.4.8 · TypeScript strict · Tailwind v4 · ESLint v9 · Prettier · Vitest · Husky + lint-staged · Sanity v6 · `@sanity/document-internationalization` · `@sanity/astro` · `@astrojs/cloudflare` · `astro-seo`.
 
 **Repos:**
 
-- Frontend: https://github.com/arsistyle/esencia-magnetica (`E:\esencia-magnetica`)
-- Studio: https://github.com/arsistyle/esencia-magnetica-studio (`E:\esencia-magnetica-studio`)
+- Frontend: `E:\esencia-magnetica`
+- Studio: `E:\esencia-magnetica-studio`
 
 ---
 
@@ -26,6 +26,7 @@ Stages 01–06 terminados y listos para commit a `origin/main`.
 - **CVA en `src/lib/ui/*.ts`**, nunca en frontmatter `.astro` — necesario para escaneo de Tailwind v4.
 - **`cn()` en `src/lib/utils.ts`** — `clsx` + `extendTailwindMerge` con tokens font-size del brand.
 - **`leading-none` siempre después de `text-*`** en strings CVA — tailwind-merge v3 composed class groups.
+- **Clases de radio en Tailwind v4:** los tokens `--radius-lg`, `--radius-md` etc. en `@theme` generan `rounded-lg`, `rounded-md` (sin el prefijo `radius`). `rounded-radius-lg` **NO existe** — produce 0px. Usar siempre `rounded-lg`, `rounded-t-lg`, `rounded-l-lg`, etc.
 - Husky en lugar de GitHub Actions; GA en Stage 12.
 - Path alias `@/*` → `src/`.
 
@@ -37,14 +38,19 @@ Stages 01–06 terminados y listos para commit a `origin/main`.
   - Singletons con IDs fijos → `brand-es` / `brand-en`
 - **`author` es multi-documento** (no singleton) — posts tienen campo `authors: array<reference→author>`.
 - **`@sanity/astro`** provee el virtual module `sanity:client` — no se instancia `createClient` manualmente.
-- **TypeGen types** copiados manualmente a `src/types/sanity.types.ts` en el repo Astro (auto-generados en Studio, no committear en Studio).
+- **TypeGen types** en `src/types/sanity.types.ts` — actualizar manualmente al cambiar schemas en Studio.
 - **`createImageUrlBuilder`** (named export, no el default deprecated) de `@sanity/image-url`.
-- **Studio en repo separado** (`E:\esencia-magnetica-studio`) — solo uso local. Pendiente crear ejecutable Mac para que la brand owner pueda correrlo (Stage 12 o antes si urge).
-- **Páginas dinámicas** con campo `template` (enum) que enlaza con archivos `src/templates/*.astro` en Astro — patrón CMS-driven templates.
+- **Studio en repo separado** (`E:\esencia-magnetica-studio`) — solo uso local.
+- **`coverImage` es un objeto custom**, NO extiende el tipo `image` base. Estructura:
+  ```
+  { _type: "coverImage", asset: { _type: "image", asset: SanityImageAssetReference }, externalUrl?, alt? }
+  ```
+  Usar siempre `resolveImageUrl(post.coverImage)` (en `src/lib/sanity.ts`), NUNCA `urlFor(post.coverImage)` directamente.
+- **Todos los campos de imagen soportan URL externa** via `externalUrl` — `coverImage` type ya lo tenía; `seo.ogImage` se cambió a tipo `coverImage` en Studio también.
 
 ### i18n / Layout (Stage 04)
 
-- **i18n architecture:** `src/i18n/ui.ts` (36 keys ES+EN) + `src/i18n/utils.ts` (puro) + `src/i18n/index.ts` (barrel).
+- **i18n architecture:** `src/i18n/ui.ts` (ES+EN) + `src/i18n/utils.ts` (puro) + `src/i18n/index.ts` (barrel).
 - **astro.config.mjs:** bloque `i18n: { defaultLocale: 'es', locales: ['es', 'en'] }`.
 - **ROUTE_PAIRS estático** en `getLocalizedUrl` — `/productos` ↔ `/en/products`, `/marca` ↔ `/en/brand` no son transformaciones algorítmicas.
 - **LangToggle:** locale activo = `<span aria-current="true">` (no interactivo), locale inactivo = `<a href>`.
@@ -62,47 +68,51 @@ Stages 01–06 terminados y listos para commit a `origin/main`.
 
 - **`output: 'static'` + `prerender = false` por página** — `output: 'hybrid'` fue eliminado en Astro v6. Las páginas del blog usan `export const prerender = false` para ser SSR.
 - **Adapter:** `@astrojs/cloudflare` (v14.0.1) para Cloudflare Pages.
-- **Filtros server-side:** todos los filtros del blog (categoría, búsqueda, página) son queryParams de URL leídos en servidor, sin client-side JS.
-- **GROQ listing query:** incluye `"readTime": round(length(pt::text(body)) / 1000)` para estimación de lectura sin traer body completo.
+- **Filtros server-side:** todos los filtros (categoría, búsqueda, página) son queryParams de URL leídos en servidor, sin client-side JS.
+- **GROQ listing query:** `"readTime": round(length(pt::text(body)) / 1000)` — estimación sin traer body completo.
 - **`@portabletext/to-html`** para renderizar Portable Text sin React (evita islands).
 - **YouTube façade:** thumbnail → `replaceChildren(iframe)` on click. Usar `replaceChildren()` en lugar de `innerHTML = ""` — hook de seguridad bloquea innerHTML.
 - **SEO:** plugin `astro-seo` con `hrefLang` (camelCase, NO `hreflang`).
-- **Imágenes Sanity:** `SanityImageSource` de `@sanity/image-url` para tipado (no `Parameters<typeof urlFor>[0]` — el parser Astro JSX lo parte).
-- **Design del blog:** respeta Claude Design proyecto `658592d3-5da1-4cd3-81b6-c1576c694e23`. PostCard como `<a>` completa con hover lift, categoría en texto dorado uppercase, FeaturedPost con grid `1.5fr 1fr`, BlogFilters con FilterTag olive-active y search underline.
+- **Design del blog:** respeta Claude Design proyecto `658592d3-5da1-4cd3-81b6-c1576c694e23`.
+- **`resolveImageUrl(source, { width, height })`** en `src/lib/sanity.ts`: prioriza `source.externalUrl`, si no pasa `source.asset` (imagen interna) a `safeUrlFor`. Retorna `string | null`.
+- **`seo.metaTitle` / `seo.metaDescription` / `seo.ogImage`** — campos reales del schema Sanity (NO `seo.title` / `seo.description` / `seo.image`). `BlogPostLayout` ya usa los nombres correctos.
+- **View Transitions:** `ClientRouter` (Astro v6, antes `ViewTransitions`) en `BaseLayout`. `transition:name="post-image-{slug}"` en PostCard, FeaturedPost y PostHero para morphing de imagen al navegar card → detalle.
+- **Imágenes siempre 16:9:** PostCard, FeaturedPost y PostHero usan `aspect-video`. FeaturedPost en desktop mantiene el grid `1.5fr_1fr` pero la imagen del grid izquierdo es siempre 16:9 (sin `lg:aspect-auto lg:h-full`).
+- **Fecha corta:** `formatPostDate` usa `month: 'short'` → "5 jun 2026".
 
 ### Build conocido (pendiente)
 
-- **`pnpm run build` falla** con: `rollupOptions.input should not be an html file when building for SSR`. Es una incompatibilidad entre `@astrojs/cloudflare@14.0.1` y Vite 7.3.5. **El dev server funciona correctamente.** Resolver actualizando el adapter cuando haya un patch compatible.
+- **`pnpm run build` falla** con: `rollupOptions.input should not be an html file when building for SSR`. Incompatibilidad entre `@astrojs/cloudflare@14.0.1` y Vite 7.3.5. **El dev server funciona correctamente.** Resolver actualizando el adapter cuando haya un patch compatible.
 
 ---
 
-## Stage 06 — Blog: Listing + Post Detail (completado)
+## Stage 06 — Blog: Listing + Post Detail (completado + fixes)
 
 ### Archivos creados / modificados
 
-| Entregable                                             | Archivo                                      |
-| ------------------------------------------------------ | -------------------------------------------- |
-| Keys i18n blog (14+4 keys ES+EN)                       | `src/i18n/ui.ts`                             |
-| Queries GROQ listado + conteo                          | `src/lib/queries.ts`                         |
-| `formatPostDate()` + `readingTime()` + 5 tests         | `src/lib/blog/postViewModel.ts` + `.test.ts` |
-| PostCard — card completa como `<a>`, categoría dorada  | `src/components/blog/PostCard.astro`         |
-| BlogFilters — FilterTag olive-active, search underline | `src/components/blog/BlogFilters.astro`      |
-| FeaturedPost — grid 1.5fr/1fr, Badge rose              | `src/components/blog/FeaturedPost.astro`     |
-| PostGrid — 3 cols responsive, estado vacío             | `src/components/blog/PostGrid.astro`         |
-| BlogPagination — active con underline dorado           | `src/components/blog/BlogPagination.astro`   |
-| YouTubeEmbed — façade thumbnail→iframe                 | `src/components/blog/YouTubeEmbed.astro`     |
-| PostBody — Portable Text → HTML sin React              | `src/components/blog/PostBody.astro`         |
-| PostHero — centrado, Badge gold, hero 16:9             | `src/components/blog/PostHero.astro`         |
-| RelatedProducts — bg-cream-deep, Badge rose            | `src/components/blog/RelatedProducts.astro`  |
-| FacebookComments — placeholder                         | `src/components/blog/FacebookComments.astro` |
-| BlogPostLayout — template de post detail               | `src/layouts/BlogPostLayout.astro`           |
-| BaseLayout — refactor con astro-seo                    | `src/layouts/BaseLayout.astro`               |
-| Blog listing ES (prerender=false)                      | `src/pages/blog/index.astro`                 |
-| Blog listing EN (prerender=false)                      | `src/pages/en/blog/index.astro`              |
-| Post detail ES (prerender=false)                       | `src/pages/blog/[slug].astro`                |
-| Post detail EN (prerender=false)                       | `src/pages/en/blog/[slug].astro`             |
+| Entregable                                                  | Archivo                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
+| `resolveImageUrl()` + `CoverImageLike` type                 | `src/lib/sanity.ts`                                      |
+| `formatPostDate()` fecha corta + `readingTime()`            | `src/lib/blog/postViewModel.ts`                          |
+| PostCard — `<a>` completa, 16:9, `rounded-t-lg`, transition | `src/components/blog/PostCard.astro`                     |
+| BlogFilters — FilterTag olive-active, search underline      | `src/components/blog/BlogFilters.astro`                  |
+| FeaturedPost — grid 1.5fr/1fr, 16:9, transition             | `src/components/blog/FeaturedPost.astro`                 |
+| PostGrid — 3 cols responsive, estado vacío                  | `src/components/blog/PostGrid.astro`                     |
+| BlogPagination — active con underline dorado                | `src/components/blog/BlogPagination.astro`               |
+| PostBody — Portable Text → HTML sin React                   | `src/components/blog/PostBody.astro`                     |
+| PostHero — centrado, Badge gold, hero 16:9, transition      | `src/components/blog/PostHero.astro`                     |
+| RelatedProducts — bg-cream-deep, Badge rose                 | `src/components/blog/RelatedProducts.astro`              |
+| FacebookComments — placeholder                              | `src/components/blog/FacebookComments.astro`             |
+| BlogPostLayout — template de post detail                    | `src/layouts/BlogPostLayout.astro`                       |
+| BaseLayout — ClientRouter (View Transitions)                | `src/layouts/BaseLayout.astro`                           |
+| Blog listing ES (prerender=false)                           | `src/pages/blog/index.astro`                             |
+| Blog listing EN (prerender=false)                           | `src/pages/en/blog/index.astro`                          |
+| Post detail ES (prerender=false)                            | `src/pages/blog/[slug].astro`                            |
+| Post detail EN (prerender=false)                            | `src/pages/en/blog/[slug].astro`                         |
+| ogImage → tipo `coverImage` (soporta URL externa)           | `E:\esencia-magnetica-studio\schemaTypes\objects\seo.ts` |
+| Tipo Seo.ogImage actualizado                                | `src/types/sanity.types.ts`                              |
 
-### Keys i18n blog añadidas
+### Keys i18n blog
 
 ```
 blog.description · blog.all · blog.search.placeholder · blog.featured
@@ -111,25 +121,32 @@ blog.pagination.next · blog.related · blog.view · blog.by · blog.minutes
 post.play · blog.headline · blog.lead · blog.shop · blog.shop.subtitle
 ```
 
+### Fixes post-entrega (esta sesión)
+
+| Fix                                        | Causa                                                                                                                                                                                              |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Imágenes no aparecían                      | `safeUrlFor(coverImage)` buscaba `_ref` en nivel incorrecto; `CoverImage.asset` es un objeto imagen, no una referencia. Fix: `resolveImageUrl(coverImage)` pasa `coverImage.asset` a `safeUrlFor`. |
+| Bordes redondeados no aplicaban            | `rounded-radius-lg` no es clase Tailwind v4 válida (genera 0px). Fix: `rounded-lg`, `rounded-t-lg`, `rounded-l-lg` etc.                                                                            |
+| `seo.title/description/image` inexistentes | Los campos reales son `seo.metaTitle`, `seo.metaDescription`, `seo.ogImage`. Fix: corregidos en `BlogPostLayout`.                                                                                  |
+| Fecha larga                                | `month: 'long'` → `month: 'short'` en `formatPostDate`.                                                                                                                                            |
+| FeaturedPost rompía 16:9 en desktop        | `lg:aspect-auto lg:h-full` en la imagen. Fix: eliminados.                                                                                                                                          |
+| View Transitions API                       | En Astro v6 el componente se llama `ClientRouter`, no `ViewTransitions`.                                                                                                                           |
+
 ### Verificación UI (dev server)
 
-| Vista                                                             | Resultado                     |
-| ----------------------------------------------------------------- | ----------------------------- |
-| `/blog` — header centrado, Badge "Blog", h1 "Historias de estilo" | ✅                            |
-| FilterTags — "Todo" active olive, otros outlined                  | ✅                            |
-| Search — underline only, centrado                                 | ✅                            |
-| PostCard — categoría dorada uppercase, date·readTime              | ✅                            |
-| `/en/blog` — "Style stories", EN completo                         | ✅                            |
-| `/blog/[slug]` — Badge gold centrado, excerpt lead                | ✅                            |
-| `lint` + `typecheck` + `tests` (42/42)                            | ✅                            |
-| `build`                                                           | ⚠️ (ver nota de build arriba) |
+| Vista                                           | Resultado             |
+| ----------------------------------------------- | --------------------- |
+| `/blog` — header, filtros, PostCard con imagen  | ✅                    |
+| FeaturedPost — imagen 16:9, grid 1.5fr/1fr      | ✅                    |
+| `/blog/[slug]` — PostHero centrado, imagen 16:9 | ✅                    |
+| View Transition card → detalle                  | ✅                    |
+| `lint` + `typecheck` + `tests`                  | ✅                    |
+| `build`                                         | ⚠️ (ver bug conocido) |
 
 ### Problema de datos de prueba en Sanity
 
-Los datos de prueba tienen:
-
-- **`publishedAt` vacío** → muestra "Invalid Date" en cards/PostHero. Editar el post en Studio y añadir la fecha.
-- **Slugs de categorías sin `.current`** → los chips de filtro no generan URL con `?categoria=`. Editar cada `blogCategory` en Studio y pulsar "Generate" en el campo slug.
+- **`publishedAt` vacío** → "Invalid Date". Editar post en Studio y añadir fecha.
+- **Slugs de categorías sin `.current`** → chips de filtro no generan URL con `?categoria=`. Editar cada `blogCategory` en Studio → campo slug → "Generate".
 
 ---
 
@@ -161,11 +178,11 @@ Los datos de prueba tienen:
 
 ### Astro
 
-| Archivo                     | Descripción                                                  |
-| --------------------------- | ------------------------------------------------------------ |
-| `src/lib/sanity.ts`         | `urlFor()` helper                                            |
-| `src/lib/queries.ts`        | Todas las queries GROQ                                       |
-| `src/types/sanity.types.ts` | TypeGen output — actualizar tras cambios de schema en Studio |
+| Archivo                     | Descripción                                                       |
+| --------------------------- | ----------------------------------------------------------------- |
+| `src/lib/sanity.ts`         | `urlFor()`, `safeUrlFor()`, `resolveImageUrl()`, `CoverImageLike` |
+| `src/lib/queries.ts`        | Todas las queries GROQ                                            |
+| `src/types/sanity.types.ts` | TypeGen output — actualizar tras cambios de schema en Studio      |
 
 ---
 
@@ -218,7 +235,7 @@ $env:SANITY_TOKEN="tu-token"; pnpm exec tsx seed.ts
 pnpm run dev         # servidor local
 pnpm run lint        # ESLint
 pnpm run typecheck   # tsc
-pnpm run test        # Vitest (42 tests)
+pnpm run test        # Vitest
 pnpm run build       # ⚠️ falla por bug @astrojs/cloudflare@14 + Vite 7
 
 # Studio (E:\esencia-magnetica-studio)
@@ -232,13 +249,14 @@ pnpm exec tsc --noEmit  # typecheck del studio
 
 - `docs/PLAN.md` — 12 stages, orden de dependencias
 - `docs/DESIGN-SYSTEM.md` — tokens, componentes, uso
-- `src/styles/global.css` — @theme con todos los tokens
+- `src/styles/global.css` — @theme con todos los tokens Tailwind v4
 - `src/lib/utils.ts` — `cn()` con tailwind-merge extendido
+- `src/lib/sanity.ts` — `resolveImageUrl()` para campos CoverImage
 - `src/lib/ui/` — variantes CVA de los primitivos
 - `src/components/ui/` — Button, Badge, Card, Input, Checkbox
 - `src/components/blog/` — todos los componentes del blog
-- `src/layouts/` — BaseLayout, BlogPostLayout
+- `src/layouts/` — BaseLayout (ClientRouter), BlogPostLayout
 - `src/lib/queries.ts` — todas las queries GROQ
 - `src/types/sanity.types.ts` — tipos TypeGen (actualizar al cambiar schemas)
-- `src/i18n/ui.ts` — todas las strings de UI ES+EN (36 keys)
+- `src/i18n/ui.ts` — todas las strings de UI ES+EN
 - `CLAUDE.md` — convenciones del repo (leer siempre)
