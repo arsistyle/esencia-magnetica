@@ -24,6 +24,7 @@
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/great-vibes": "^5.2.8",
     "@fontsource/lato": "^5.2.7",
+    "@lucide/astro": "^1.21.0",
     "@sanity/astro": "^3.4.1",
     "@sanity/client": "^7.23.0",
     "@sanity/image-url": "^2.1.1",

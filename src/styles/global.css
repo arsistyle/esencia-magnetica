@@ -16,6 +16,9 @@
 @import "tailwindcss";
 @source "../lib/ui/*.ts";
 @source "../components/ui/*.astro";
+@source "../components/**/*.astro";
+@source "../layouts/**/*.astro";
+@source "../pages/**/*.astro";
 
 /* ─── Design tokens ──────────────────────────────── */
 @theme {

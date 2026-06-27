@@ -17,6 +17,9 @@ importers:
       '@fontsource/lato':
         specifier: ^5.2.7
         version: 5.2.7
+      '@lucide/astro':
+        specifier: ^1.21.0
+        version: 1.21.0(astro@6.4.8(@types/node@26.0.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))
       '@sanity/astro':
         specifier: ^3.4.1
         version: 3.4.1(@emotion/is-prop-valid@1.4.0)(@sanity/client@7.23.0)(@sanity/types@6.1.0(@types/react@19.2.17))(astro@6.4.8(@types/node@26.0.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(react-dom@19.2.7(react@19.2.7))(react-is@19.2.7)(react@19.2.7)(sanity@6.1.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@emotion/is-prop-valid@1.4.0)(@noble/hashes@2.2.0)(@oclif/core@4.11.7)(@sanity/cli-core@2.0.1(@noble/hashes@2.2.0)(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))(@types/node@26.0.0)(@types/react@19.2.17)(esbuild@0.28.1)(jiti@2.7.0)(prismjs@1.30.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rolldown@1.0.3)(styled-components@6.4.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3))(styled-components@6.4.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)
@@ -1797,6 +1800,11 @@ packages:
 
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
+
+  '@lucide/astro@1.21.0':
+    resolution: {integrity: sha512-RSz8xUah+eApcVKuQJXuLzcaYwK++tTLHa34peSln3h8n/RblaohSmsHdOj1JUQT/KutfbXw19u2x5g0zMTT0w==}
+    peerDependencies:
+      astro: ^4 || ^5 || ^6
 
   '@mdit/plugin-alert@0.23.2':
     resolution: {integrity: sha512-pXIil0FLy9ilhvT6d324A4X+mt5i/zG8ml0VIpZwiUYh2k1Wi6VnZhFHfsnONTRu6dPL2EwQBIhQgQ+269f7LA==}
@@ -8672,6 +8680,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@juggle/resize-observer@3.4.0': {}
+
+  '@lucide/astro@1.21.0(astro@6.4.8(@types/node@26.0.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))':
+    dependencies:
+      astro: 6.4.8(@types/node@26.0.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0)
 
   '@mdit/plugin-alert@0.23.2(markdown-it@14.2.0)':
     dependencies:
