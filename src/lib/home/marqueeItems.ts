@@ -4,6 +4,8 @@ export interface MarqueeItem {
   bg: string;
   src?: string;
   alt?: string;
+  /** Aspect ratio for gradient placeholder tiles (no src). Default: "3/4" */
+  aspectRatio?: string;
 }
 
 const BASE: MarqueeItem[] = [

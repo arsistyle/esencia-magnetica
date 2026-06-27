@@ -6,16 +6,19 @@ import type { MarqueeItem } from "@/lib/home/marqueeItems";
 
 interface Props {
   direction?: "left" | "right";
+  /** Row height, any CSS length. Default: "300px" */
+  height?: string;
   items: MarqueeItem[];
 }
 
-const { direction = "left", items } = Astro.props;
+const { direction = "left", height = "300px", items } = Astro.props;
 // ponytail: triple content — seamless wrap at any viewport width
 const tiles = [...items, ...items, ...items];
 ---
 
 <div
-  class="h-[300px] w-full overflow-hidden"
+  class="w-full overflow-hidden"
+  style={`height: ${height}`}
   data-marquee
   data-direction={direction}
   data-set-size={items.length}
@@ -23,14 +26,17 @@ const tiles = [...items, ...items, ...items];
 >
   <div class="mq-track" style="will-change: transform">
     {
-      tiles.map(({ bg, src, alt }) => (
-        <div class="mq-tile" style={`background: ${bg}`}>
+      tiles.map(({ bg, src, alt, aspectRatio }) => (
+        <div
+          class="mq-tile"
+          style={`background: ${bg}${!src ? `; aspect-ratio: ${aspectRatio ?? "3/4"}` : ""}`}
+        >
           {src && (
             <img
               src={src}
               alt={alt ?? ""}
               loading="lazy"
-              class="h-full w-full object-cover"
+              class="block h-full w-auto"
             />
           )}
         </div>
@@ -48,7 +54,6 @@ const tiles = [...items, ...items, ...items];
   .mq-tile {
     flex: none;
     height: 100%;
-    aspect-ratio: 3 / 4;
   }
 </style>
 
