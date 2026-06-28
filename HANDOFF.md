@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-28 (actualizado)
-**Estado actual:** Stage 07 completo (Product Catalog + Search/Filter UX) ✅ · Próximo: Stage 08
+**Estado actual:** Stage 08 completo (Marca / About Page) ✅ · Próximo: Stage 09
 
 ---
 
@@ -47,6 +47,39 @@ Stages 01–06 terminados. Stage 06 tuvo una ronda de fixes después de la entre
   ```
   Usar siempre `resolveImageUrl(post.coverImage)` (en `src/lib/sanity.ts`), NUNCA `urlFor(post.coverImage)` directamente.
 - **Todos los campos de imagen soportan URL externa** via `externalUrl` — `coverImage` type ya lo tenía; `seo.ogImage` se cambió a tipo `coverImage` en Studio también.
+
+### CMS — Esquema de páginas (`page`) con campos condicionales por plantilla
+
+El documento `page` centraliza todas las páginas del sitio. Cada página selecciona una **plantilla** (`template`), y los campos disponibles en Studio varían según la selección mediante `hidden: ({document}) => document?.template !== '<value>'`.
+
+**Separación `brand` vs `page`:**
+
+- **`brand`** = identidad global de la marca usada en todo el sitio (nombre de la creadora, `tagline`, `heroPhoto`, `mission`, `vision`, `logo`, `socialLinks`). IDs fijos: `brand-es` / `brand-en`. Se usa en Navbar, footer, JSON-LD global, SEO.
+- **`page` con `template: 'about'`** = contenido profundo de `/marca` (intro del hero, secciones Historia, Filosofía, etc.). Estos campos NO van en `brand`.
+
+**Plantillas definidas y sus campos:**
+
+| `template` | Campos genéricos | Campos exclusivos                                                             |
+| ---------- | ---------------- | ----------------------------------------------------------------------------- |
+| `home`     | `hero` + `body`  | —                                                                             |
+| `blog`     | `hero`           | — (listing via posts)                                                         |
+| `products` | `hero`           | — (listing via products)                                                      |
+| `about`    | —                | `aboutContent` { `intro`, `history`, `philosophy`, `whatYouFind`, `blogCta` } |
+| `default`  | `hero` + `body`  | —                                                                             |
+
+**Patrón section-enabled (Stage 08):** Cada sección de `aboutContent` es un objeto con `enabled: boolean` (initialValue: true en Studio). Los campos hijos se ocultan en Studio con `hidden: ({parent}) => !parent?.enabled`. En el frontend, `enabled ?? false` — la sección no renderiza si `enabled` es false o el campo no existe en el documento.
+
+**Patrón para añadir una nueva plantilla:**
+
+1. Añadir el valor al selector `template` en `page.ts`.
+2. Añadir un `defineField` de tipo `object` con `hidden: ({document}) => document?.template !== '<value>'` que agrupe sus campos.
+3. Cada sección debe seguir el patrón section-enabled: objeto con `enabled: boolean` + campos hijos.
+4. Actualizar `Page` y el tipo de contenido correspondiente en `src/types/sanity.types.ts`.
+5. En el frontend, la página Astro lee `page.template` y monta el layout correcto.
+
+**Pendiente en el frontend:** las páginas `home`, `blog` y `products` actualmente no leen su documento `page` de Sanity — gestionan su propio hero hardcodeado o sin hero. Cuando se implemente la edición de heroes desde Studio, cada página deberá hacer una segunda query al documento `page` con su slug y locale.
+
+**⚠️ Migración de datos en Sanity:** Al renombrar o reestructurar campos del schema, los documentos existentes conservan los valores en las rutas viejas. Siempre migrar con `patch_documents` (MCP): `set` nuevas rutas + `unset` rutas viejas + `publish_documents`. Si no se hace, la GROQ query no encuentra los datos aunque el schema y el frontend estén actualizados.
 
 ### i18n / Layout (Stage 04)
 
@@ -203,7 +236,47 @@ common.result_for · common.results_for · common.clear_search
 | `src/i18n/ui.ts`                                               | `common.result_for`, `common.results_for`, `common.clear_search`                                        |
 | `src/pages/blog/index.astro` · `src/pages/en/blog/index.astro` | "N resultados" row, clearSearchUrl, `inline-flex leading-none` fix                                      |
 
-### Próximo paso: Stage 08
+---
+
+## Stage 08 — Marca / About Page (completado)
+
+### Archivos creados / modificados
+
+| Cambio                                                                       | Archivo                                                          |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `BrandHero.astro` — hero con foto, tagline, intro del hero                   | `src/components/brand/BrandHero.astro`                           |
+| `BrandHistoria.astro` — foto 1:1 + Portable Text; tag y título condicionales | `src/components/brand/BrandHistoria.astro`                       |
+| `BrandFilosofia.astro` — chip, título, descripción, pilares dinámicos        | `src/components/brand/BrandFilosofia.astro`                      |
+| `BrandMisionVision.astro` — Portable Text para misión y visión del brand doc | `src/components/brand/BrandMisionVision.astro`                   |
+| `BrandQueEncontrar.astro` — chip, título, cards dinámicas de Sanity          | `src/components/brand/BrandQueEncontrar.astro`                   |
+| `BrandCTA.astro` — título y botón desde Sanity; buttonUrl default `/blog`    | `src/components/brand/BrandCTA.astro`                            |
+| `BrandLayout.astro` — template que orquesta los 6 organismos                 | `src/layouts/BrandLayout.astro`                                  |
+| Páginas `/marca` (ES) y `/en/brand` (EN)                                     | `src/pages/marca/index.astro` · `src/pages/en/brand/index.astro` |
+| `brandQuery` + `aboutPageQuery`                                              | `src/lib/queries.ts`                                             |
+| `ptToHtml()` para Portable Text sin React                                    | `src/lib/brand/brandViewModel.ts`                                |
+| `AboutContent` type + `Brand` con `logo` y `socialLinks`                     | `src/types/sanity.types.ts`                                      |
+| Schema `brand`: `logo` + `socialLinks` (array dinámico)                      | `E:\esencia-magnetica-studio\schemaTypes\documents\brand.ts`     |
+| Schema `page`: `aboutContent` con 5 secciones section-enabled                | `E:\esencia-magnetica-studio\schemaTypes\documents\page.ts`      |
+| Regla English-only en source code                                            | `CLAUDE.md`                                                      |
+
+### Decisiones clave (Stage 08)
+
+- **Dos fuentes de datos:** `brandQuery` (identidad global: nombre, foto, misión, visión, logo, redes) + `aboutPageQuery` (contenido de `/marca`: intro + secciones). El frontend hace las dos queries en paralelo con `Promise.all`.
+- **`socialLinks` es array dinámico** `[{platform: select, url}]` — NO campos fijos por red social. El editor añade y ordena las redes que quiera.
+- **Secciones ocultas por defecto** — `enabled ?? false` en BrandLayout. Las secciones solo aparecen cuando el editor las habilita explícitamente en Studio.
+- **Texto condicional** — cada elemento de texto (`<span>`, `<h2>`, `<p>`) solo renderiza si el campo de Sanity tiene valor. Sin fallbacks i18n para contenido de sección.
+- **`ptToHtml()`** en `src/lib/brand/brandViewModel.ts` convierte Portable Text a HTML para `BrandHistoria` y `BrandMisionVision`. Usa `@portabletext/to-html` (ya instalado para el blog).
+- **Pilares de Filosofía** — solo los que tienen datos en Sanity, numerados desde el índice del array (`01`, `02`…). Sin fallback a i18n ni relleno de posiciones vacías.
+- **`brand.mission` y `brand.vision`** viven en el documento global `brand-es`/`brand-en`, no en `aboutContent`. `BrandMisionVision` las lee directamente del brand doc.
+- **English-only en code** — variables, nombres de función, tipos, comentarios, nombres de campos en schema Sanity: todo en inglés. Español solo en contenido de Sanity o en `src/i18n/ui.ts`.
+
+### Datos Sanity actuales (ES)
+
+- **`brand-es`**: `name: "Alexandra"` — faltan `tagline`, `heroPhoto`, `mission`, `vision`, `logo`, `socialLinks`.
+- **`page` about ES** (`e0e09813-…`): `history.enabled=true`, `history.body` (3 bloques), `history.photo` (imagen 2304×3072), `philosophy.enabled=true`, `philosophy.pillars[0]` ("Práctico"). Secciones `whatYouFind` y `blogCta` habilitadas pero sin contenido.
+- **Falta:** documento `page` about EN + documento `brand-en`.
+
+### Próximo paso: Stage 09
 
 ---
 
@@ -332,9 +405,9 @@ post.play · blog.headline · blog.lead · blog.shop · blog.shop.subtitle
 
 ---
 
-## Próximo paso: Stage 08
+## Próximo paso: Stage 09
 
-Leer [`docs/stages/stage-08/FUNDAMENTS.md`](docs/stages/stage-08/FUNDAMENTS.md) antes de tocar código.
+Leer [`docs/stages/stage-09/FUNDAMENTS.md`](docs/stages/stage-09/FUNDAMENTS.md) antes de tocar código.
 
 ---
 
@@ -376,7 +449,9 @@ pnpm exec tsc --noEmit  # typecheck del studio
 - `src/lib/ui/` — variantes CVA de los primitivos
 - `src/components/ui/` — Button, Badge, Card, Input, Checkbox
 - `src/components/blog/` — todos los componentes del blog
-- `src/layouts/` — BaseLayout (ClientRouter), BlogPostLayout
+- `src/components/brand/` — BrandHero, BrandHistoria, BrandFilosofia, BrandMisionVision, BrandQueEncontrar, BrandCTA
+- `src/layouts/` — BaseLayout (ClientRouter), BlogPostLayout, BrandLayout
+- `src/lib/brand/brandViewModel.ts` — `ptToHtml()` para Portable Text sin React
 - `src/lib/queries.ts` — todas las queries GROQ
 - `src/types/sanity.types.ts` — tipos TypeGen (actualizar al cambiar schemas)
 - `src/i18n/ui.ts` — todas las strings de UI ES+EN
