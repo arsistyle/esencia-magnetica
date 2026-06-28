@@ -17,3 +17,4 @@ export const SOCIAL_LINKS = [
 ] as const;
 
 export const POSTS_PER_PAGE = 12;
+export const PRODUCTS_PER_PAGE = 12;
