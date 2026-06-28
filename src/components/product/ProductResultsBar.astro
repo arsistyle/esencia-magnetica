@@ -2,6 +2,8 @@
 // src/components/product/ProductResultsBar.astro
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
+import { buildProductsUrl } from "@/lib/product/productViewModel";
+import { ChevronDown } from "@lucide/astro";
 
 interface Props {
   total: number;
@@ -17,42 +19,77 @@ const { total, sort, basePath, activeCategoria, activeTienda, activeQ, lang } =
   Astro.props;
 const t = useTranslations(lang);
 const noun = total === 1 ? t("product.result") : t("product.results");
+
+const sortOptions = [
+  { value: "recientes", label: t("product.sort.recent") },
+  { value: "nombre", label: t("product.sort.popular") },
+];
+
+const currentLabel =
+  sortOptions.find((o) => o.value === sort)?.label ?? sortOptions[0]!.label;
+
+function sortUrl(value: string) {
+  return buildProductsUrl(basePath, {
+    categoria: activeCategoria,
+    tienda: activeTienda,
+    q: activeQ,
+    orden: value,
+  });
+}
 ---
 
 <div
   class="border-line mb-7 flex flex-wrap items-center justify-between gap-4 border-b pb-5"
 >
   <span class="text-small text-olive-soft">{total} {noun}</span>
-  <form method="GET" action={basePath} class="flex items-center gap-3">
-    {
-      activeCategoria && (
-        <input type="hidden" name="categoria" value={activeCategoria} />
-      )
-    }
-    {activeTienda && <input type="hidden" name="tienda" value={activeTienda} />}
-    {activeQ && <input type="hidden" name="q" value={activeQ} />}
+  <div class="flex items-center gap-3">
     <span
       class="text-olive-soft font-sans text-[13px] font-bold tracking-[0.1em] whitespace-nowrap uppercase"
     >
       {t("product.sort.label")}
     </span>
-    <select
-      id="sort-select"
-      name="orden"
-      class="border-line-strong text-small text-olive focus:border-gold cursor-pointer rounded-md border bg-transparent px-3 py-2 font-sans focus:outline-none"
-    >
-      <option value="recientes" selected={sort !== "nombre"}
-        >{t("product.sort.recent")}</option
-      >
-      <option value="nombre" selected={sort === "nombre"}
-        >{t("product.sort.popular")}</option
-      >
-    </select>
-  </form>
-</div>
 
-<script>
-  document.getElementById("sort-select")?.addEventListener("change", (e) => {
-    (e.currentTarget as HTMLSelectElement).closest("form")?.submit();
-  });
-</script>
+    <!-- Alpine custom dropdown -->
+    <div class="relative" x-data="{ open: false }">
+      <button
+        type="button"
+        @click="open = !open"
+        class="border-line-strong text-small text-olive bg-cream hover:border-gold flex min-w-[160px] items-center justify-between gap-2 rounded-md border px-3 py-2 font-sans transition-colors"
+        :class="{ 'border-gold': open }"
+        aria-haspopup="listbox"
+        :aria-expanded="open"
+      >
+        <span>{currentLabel}</span>
+        <ChevronDown
+          class="text-olive-soft h-4 w-4 shrink-0 transition-transform duration-150"
+          :class="{ 'rotate-180': open }"
+        />
+      </button>
+
+      <ul
+        x-show="open"
+        x-cloak
+        @click.outside="open = false"
+        role="listbox"
+        class="bg-cream border-line absolute top-full right-0 z-20 mt-1 min-w-full overflow-hidden rounded-lg border shadow-md"
+      >
+        {
+          sortOptions.map((opt) => (
+            <li role="option" aria-selected={opt.value === sort}>
+              <a
+                href={sortUrl(opt.value)}
+                @click="open = false"
+                class:list={[
+                  "text-small hover:bg-gold/10 block px-4 py-2.5 font-sans whitespace-nowrap transition-colors",
+                  opt.value === sort ? "text-gold font-bold" : "text-olive",
+                ]}
+              >
+                {opt.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</div>
