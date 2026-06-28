@@ -1,0 +1,273 @@
+---
+// src/components/product/ProductFilterModals.astro
+import { Search, SlidersHorizontal, X } from "@lucide/astro";
+
+interface Category {
+  _id: string;
+  name: Record<string, string>;
+  slug: { current: string };
+}
+
+export interface ProductFilterLabels {
+  search: string;
+  filter: string;
+  placeholder: string;
+  categories: string;
+  store: string;
+  allStores: string;
+  all: string;
+  clearAll: string;
+  confirm: string;
+}
+
+interface Props {
+  categories: Category[];
+  activeCategoria: string;
+  activeTienda: string;
+  activeQ: string;
+  activeOrden: string;
+  basePath: string;
+  lang: string;
+  labels: ProductFilterLabels;
+}
+
+const {
+  categories,
+  activeCategoria,
+  activeTienda,
+  activeQ,
+  activeOrden,
+  basePath,
+  lang,
+  labels,
+} = Astro.props;
+
+const btnBase =
+  "flex items-center gap-1.5 border border-line-strong rounded-pill px-4 py-2 text-small font-sans uppercase tracking-widest text-olive-soft hover:border-olive hover:text-olive transition-colors bg-transparent cursor-pointer";
+
+const chipClass =
+  "rounded-pill border px-[18px] py-2 text-small font-sans transition-colors cursor-pointer inline-flex items-center " +
+  "border-line-strong bg-transparent text-olive-soft hover:border-olive hover:text-olive " +
+  "has-[input:checked]:bg-olive has-[input:checked]:border-olive has-[input:checked]:text-cream has-[input:checked]:font-bold";
+---
+
+<div class="flex flex-none gap-2">
+  <button type="button" id="btn-psearch-open" class={btnBase}>
+    <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
+    {labels.search}
+  </button>
+  <button type="button" id="btn-pfilter-open" class={btnBase}>
+    <SlidersHorizontal class="h-4 w-4 shrink-0" aria-hidden="true" />
+    {labels.filter}
+  </button>
+</div>
+
+<!-- Search overlay -->
+<div
+  id="overlay-psearch"
+  class="fixed inset-0 z-50 flex hidden items-center justify-center p-5"
+  style="background: rgba(62, 61, 47, 0.55)"
+>
+  <div
+    role="dialog"
+    aria-modal="true"
+    class="bg-cream border-line relative w-full max-w-[460px] rounded-xl border p-8 shadow-lg"
+  >
+    <button
+      type="button"
+      id="btn-psearch-close"
+      class="text-olive-soft hover:text-olive absolute top-5 right-5 cursor-pointer transition-colors"
+      aria-label="Cerrar"
+    >
+      <X class="h-5 w-5" />
+    </button>
+    <h2 class="text-olive mb-5 font-serif text-[28px] font-semibold">
+      {labels.search}
+    </h2>
+    <form method="GET" action={basePath}>
+      {
+        activeCategoria && (
+          <input type="hidden" name="categoria" value={activeCategoria} />
+        )
+      }
+      {
+        activeTienda && (
+          <input type="hidden" name="tienda" value={activeTienda} />
+        )
+      }
+      {activeOrden && <input type="hidden" name="orden" value={activeOrden} />}
+      <div class="relative mb-6">
+        <Search
+          class="text-olive-faint absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2"
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          name="q"
+          value={activeQ}
+          placeholder={labels.placeholder}
+          class="border-line-strong text-body text-olive placeholder:text-olive-faint focus:border-gold w-full rounded-md border bg-transparent py-3 pr-4 pl-10 transition-colors focus:outline-none"
+        />
+      </div>
+      <button
+        type="submit"
+        class="bg-gold text-cream text-small w-full cursor-pointer rounded-md border-0 py-3 font-sans tracking-widest uppercase transition-opacity hover:opacity-90"
+      >
+        {labels.search.toUpperCase()}
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Filter overlay -->
+<div
+  id="overlay-pfilter"
+  class="fixed inset-0 z-50 flex hidden items-center justify-center p-5"
+  style="background: rgba(62, 61, 47, 0.55)"
+>
+  <div
+    role="dialog"
+    aria-modal="true"
+    class="bg-cream border-line relative max-h-[90vh] w-full max-w-[500px] overflow-y-auto rounded-xl border p-8 shadow-lg"
+  >
+    <button
+      type="button"
+      id="btn-pfilter-close"
+      class="text-olive-soft hover:text-olive absolute top-5 right-5 cursor-pointer transition-colors"
+      aria-label="Cerrar"
+    >
+      <X class="h-5 w-5" />
+    </button>
+    <h2
+      class="text-olive mb-6 font-sans text-[22px] font-bold tracking-widest uppercase"
+    >
+      {labels.filter.toUpperCase()}
+    </h2>
+    <form method="GET" action={basePath}>
+      {activeQ && <input type="hidden" name="q" value={activeQ} />}
+      {activeOrden && <input type="hidden" name="orden" value={activeOrden} />}
+
+      <!-- Categories -->
+      <p
+        class="text-olive-soft mb-3 font-sans text-[11px] font-bold tracking-[0.16em] uppercase"
+      >
+        {labels.categories.toUpperCase()}
+      </p>
+      <div class="mb-7 flex flex-wrap gap-2">
+        <label class={chipClass}>
+          <input
+            type="radio"
+            name="categoria"
+            value=""
+            class="sr-only"
+            checked={!activeCategoria}
+          />
+          {labels.all}
+        </label>
+        {
+          categories.map((cat) => {
+            const name = cat.name?.[lang] ?? cat.name?.es ?? "";
+            return (
+              <label class={chipClass}>
+                <input
+                  type="radio"
+                  name="categoria"
+                  value={cat.slug.current}
+                  class="sr-only"
+                  checked={activeCategoria === cat.slug.current}
+                />
+                {name}
+              </label>
+            );
+          })
+        }
+      </div>
+
+      <!-- Store -->
+      <p
+        class="text-olive-soft mb-3 font-sans text-[11px] font-bold tracking-[0.16em] uppercase"
+      >
+        {labels.store.toUpperCase()}
+      </p>
+      <div class="mb-8 flex flex-wrap gap-2">
+        {
+          [
+            { value: "", label: labels.allStores },
+            { value: "amazon", label: "Amazon" },
+            { value: "shein", label: "Shein" },
+          ].map(({ value, label }) => (
+            <label class={chipClass}>
+              <input
+                type="radio"
+                name="tienda"
+                value={value}
+                class="sr-only"
+                checked={activeTienda === value}
+              />
+              {label}
+            </label>
+          ))
+        }
+      </div>
+
+      <div class="flex gap-3">
+        <a
+          href={basePath}
+          class="border-line-strong rounded-pill text-small text-olive-soft hover:border-olive flex-1 border py-2.5 text-center font-sans tracking-wider uppercase transition-colors"
+        >
+          {labels.clearAll.toUpperCase()}
+        </a>
+        <button
+          type="submit"
+          class="bg-gold text-cream rounded-pill text-small flex-1 cursor-pointer border-0 py-2.5 font-sans tracking-wider uppercase transition-opacity hover:opacity-90"
+        >
+          {labels.confirm.toUpperCase()}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const sOverlay = document.getElementById("overlay-psearch");
+  const fOverlay = document.getElementById("overlay-pfilter");
+
+  function openS() {
+    sOverlay?.classList.remove("hidden");
+    (
+      sOverlay?.querySelector('input[type="search"]') as HTMLInputElement | null
+    )?.focus();
+  }
+  function closeS() {
+    sOverlay?.classList.add("hidden");
+  }
+  function openF() {
+    fOverlay?.classList.remove("hidden");
+  }
+  function closeF() {
+    fOverlay?.classList.add("hidden");
+  }
+
+  document.getElementById("btn-psearch-open")?.addEventListener("click", openS);
+  document
+    .getElementById("btn-psearch-close")
+    ?.addEventListener("click", closeS);
+  document.getElementById("btn-pfilter-open")?.addEventListener("click", openF);
+  document
+    .getElementById("btn-pfilter-close")
+    ?.addEventListener("click", closeF);
+
+  sOverlay?.addEventListener("click", (e) => {
+    if (e.target === sOverlay) closeS();
+  });
+  fOverlay?.addEventListener("click", (e) => {
+    if (e.target === fOverlay) closeF();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeS();
+      closeF();
+    }
+  });
+</script>
