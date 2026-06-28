@@ -49,8 +49,12 @@ export const siteSettingsQuery = defineQuery(`
 `);
 
 export const brandQuery = defineQuery(`
-  *[_id == "brand-" + $lang][0] {
-    name, tagline, photos, mission, vision, philosophy
+  *[_type == "brand" && _id == $brandId][0] {
+    name,
+    tagline,
+    heroPhoto { asset, hotspot, crop },
+    mission,
+    vision
   }
 `);
 
@@ -123,4 +127,18 @@ export const productsFilteredCountQuery = defineQuery(`
     && ($tienda == "" || store == $tienda)
     && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
   ])
+`);
+
+// Página /marca o /en/brand — template 'about' por locale.
+// Retorna null si el documento no existe todavía (brand-en pendiente de crear).
+export const aboutPageQuery = defineQuery(`
+  *[_type == "page" && template == "about" && language == $lang][0] {
+    title,
+    aboutContent {
+      intro,
+      historiaPhoto { asset, hotspot, crop },
+      historia
+    },
+    seo
+  }
 `);
