@@ -70,6 +70,33 @@ export const ui = {
     "product.filter.all_stores": "Todas",
     "product.disclosure":
       "Enlaces de afiliados. Podemos recibir una comisión sin coste para ti.",
+    // ── Marca / About ────────────────────────────────────────────────────────
+    "brand.historia.kicker": "Mi historia",
+    "brand.historia.heading": "Por qué nació Esencia Magnética",
+    "brand.filosofia.badge": "Mi filosofía",
+    "brand.filosofia.heading": "Estilo para mujeres de 40 a 55+",
+    "brand.filosofia.lead": "Tres principios que guían cada recomendación.",
+    "brand.pillar.1.title": "Práctico",
+    "brand.pillar.1.desc":
+      "Looks que funcionan en tu vida real, no solo en un escaparate. Fáciles de copiar y adaptar.",
+    "brand.pillar.2.title": "Atemporal",
+    "brand.pillar.2.desc":
+      "Piezas y combinaciones que duran más de una temporada. La elegancia no caduca.",
+    "brand.pillar.3.title": "Empoderador",
+    "brand.pillar.3.desc":
+      "El estilo como herramienta de confianza. Tú decides quién quieres ser cada día.",
+    "brand.mision.label": "Misión",
+    "brand.vision.label": "Visión",
+    "brand.site.badge": "En el sitio",
+    "brand.site.heading": "Qué encontrarás aquí",
+    "brand.blog.title": "Historias de estilo",
+    "brand.blog.desc": "Outfits, tendencias y combinaciones paso a paso.",
+    "brand.products.title": "Selección curada",
+    "brand.products.desc":
+      "Piezas favoritas con enlaces directos a tiendas de confianza.",
+    "brand.site.cta": "Explorar",
+    "brand.cta.heading": "¿Lista para encontrar tu esencia?",
+    "brand.cta.button": "Empezar por el blog",
   },
   en: {
     "nav.home": "Home",
@@ -142,6 +169,33 @@ export const ui = {
     "product.filter.all_stores": "All stores",
     "product.disclosure":
       "Affiliate links. We may earn a commission at no cost to you.",
+    // ── Brand / About ────────────────────────────────────────────────────────
+    "brand.historia.kicker": "My story",
+    "brand.historia.heading": "Why Esencia Magnética began",
+    "brand.filosofia.badge": "My philosophy",
+    "brand.filosofia.heading": "Style for women aged 40 to 55+",
+    "brand.filosofia.lead": "Three principles that guide every recommendation.",
+    "brand.pillar.1.title": "Practical",
+    "brand.pillar.1.desc":
+      "Looks that work in your real life, not just a shop window. Easy to copy and adapt.",
+    "brand.pillar.2.title": "Timeless",
+    "brand.pillar.2.desc":
+      "Pieces and pairings that last beyond a season. Elegance never expires.",
+    "brand.pillar.3.title": "Empowering",
+    "brand.pillar.3.desc":
+      "Style as a tool for confidence. You decide who you want to be each day.",
+    "brand.mision.label": "Mission",
+    "brand.vision.label": "Vision",
+    "brand.site.badge": "On the site",
+    "brand.site.heading": "What you'll find here",
+    "brand.blog.title": "Style stories",
+    "brand.blog.desc": "Outfits, trends and pairings step by step.",
+    "brand.products.title": "Curated edit",
+    "brand.products.desc":
+      "Favourite pieces with direct links to trusted stores.",
+    "brand.site.cta": "Explore",
+    "brand.cta.heading": "Ready to find your essence?",
+    "brand.cta.button": "Start with the blog",
   },
 } as const;
 
