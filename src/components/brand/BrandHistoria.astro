@@ -1,0 +1,81 @@
+---
+// src/components/brand/BrandHistoria.astro
+import type { SimpleImage } from "@/types/sanity.types";
+import { safeUrlFor } from "@/lib/sanity";
+import type { useTranslations } from "@/i18n";
+
+interface Props {
+  photo?: SimpleImage;
+  historiaHtml: string;
+  t: ReturnType<typeof useTranslations>;
+}
+
+const { photo, historiaHtml, t } = Astro.props;
+
+const photoUrl = photo
+  ? (safeUrlFor(photo)?.width(600).height(600).url() ?? null)
+  : null;
+---
+
+<section class="bg-lavender px-[var(--gutter)] py-[var(--space-9)]">
+  <div
+    class="mx-auto grid max-w-[var(--container)] grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.2fr]"
+  >
+    {
+      photoUrl ? (
+        <img
+          src={photoUrl}
+          alt=""
+          class="aspect-square w-full rounded-xl object-cover shadow-md"
+        />
+      ) : (
+        <div
+          class="from-cream to-rose-nude aspect-square w-full rounded-xl bg-gradient-to-br shadow-md"
+          aria-hidden="true"
+        />
+      )
+    }
+
+    <div>
+      <span
+        class="text-gold text-overline font-sans font-bold tracking-wider uppercase"
+      >
+        {t("brand.historia.kicker")}
+      </span>
+      <h2
+        class="text-olive mt-3 mb-4 font-serif leading-tight font-semibold"
+        style="font-size: clamp(2rem, 3.5vw, 2.8rem)"
+      >
+        {t("brand.historia.heading")}
+      </h2>
+
+      {
+        historiaHtml ? (
+          <div
+            class="brand-historia text-olive leading-normal"
+            style="font-size: 17px"
+            set:html={historiaHtml}
+          />
+        ) : (
+          <p
+            class="text-olive-soft leading-normal italic"
+            style="font-size: 17px"
+          >
+            — Contenido próximamente —
+          </p>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .brand-historia :global(p) {
+    margin-bottom: 1rem;
+    color: var(--color-olive);
+  }
+  .brand-historia :global(p:last-child) {
+    margin-bottom: 0;
+    color: var(--color-olive-soft);
+  }
+</style>
