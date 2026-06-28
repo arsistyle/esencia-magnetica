@@ -15,6 +15,7 @@ interface Props {
   ogImage?: string;
   canonical?: string;
   alternates?: { es: string; en: string };
+  jsonLd?: string;
   article?: {
     publishedTime?: string;
     modifiedTime?: string;
@@ -32,6 +33,7 @@ const {
   ogImage,
   canonical,
   alternates,
+  jsonLd,
   article,
 } = Astro.props;
 
@@ -76,6 +78,7 @@ const canonicalUrl = canonical ?? `${siteBase}${currentPath}`;
         { hrefLang: "x-default", href: `${siteBase}${esPath}` },
       ]}
     />
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
   </head>
   <body>
     <a
