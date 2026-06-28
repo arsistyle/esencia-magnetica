@@ -1,0 +1,68 @@
+---
+// src/components/brand/BrandFilosofia.astro
+import type { useTranslations } from "@/i18n";
+import Badge from "@/components/ui/Badge.astro";
+
+interface Props {
+  t: ReturnType<typeof useTranslations>;
+}
+
+const { t } = Astro.props;
+
+const pillars = [
+  {
+    num: "01",
+    title: t("brand.pillar.1.title"),
+    desc: t("brand.pillar.1.desc"),
+  },
+  {
+    num: "02",
+    title: t("brand.pillar.2.title"),
+    desc: t("brand.pillar.2.desc"),
+  },
+  {
+    num: "03",
+    title: t("brand.pillar.3.title"),
+    desc: t("brand.pillar.3.desc"),
+  },
+];
+---
+
+<section
+  class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-9)]"
+>
+  <div class="mb-[var(--space-7)] text-center">
+    <Badge tone="rose">{t("brand.filosofia.badge")}</Badge>
+    <h2
+      class="text-olive mt-3 mb-2 font-serif leading-tight font-semibold"
+      style="font-size: clamp(2rem, 3.5vw, 2.8rem)"
+    >
+      {t("brand.filosofia.heading")}
+    </h2>
+    <p class="text-olive-soft mx-auto max-w-[560px]" style="font-size: 17px">
+      {t("brand.filosofia.lead")}
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-[var(--space-7)] sm:grid-cols-3">
+    {
+      pillars.map((p) => (
+        <div class="text-center">
+          <span
+            class="text-gold font-serif leading-none italic"
+            style="font-size: 40px"
+            aria-hidden="true"
+          >
+            {p.num}
+          </span>
+          <h3 class="text-olive mt-3 mb-2 font-serif text-2xl font-semibold">
+            {p.title}
+          </h3>
+          <p class="text-olive-soft leading-normal" style="font-size: 16px">
+            {p.desc}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</section>
