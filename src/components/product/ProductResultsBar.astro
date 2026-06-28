@@ -1,0 +1,58 @@
+---
+// src/components/product/ProductResultsBar.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+
+interface Props {
+  total: number;
+  sort: string;
+  basePath: string;
+  activeCategoria: string;
+  activeTienda: string;
+  activeQ: string;
+  lang: Locale;
+}
+
+const { total, sort, basePath, activeCategoria, activeTienda, activeQ, lang } =
+  Astro.props;
+const t = useTranslations(lang);
+const noun = total === 1 ? t("product.result") : t("product.results");
+---
+
+<div
+  class="border-line mb-7 flex flex-wrap items-center justify-between gap-4 border-b pb-5"
+>
+  <span class="text-small text-olive-soft">{total} {noun}</span>
+  <form method="GET" action={basePath} class="flex items-center gap-3">
+    {
+      activeCategoria && (
+        <input type="hidden" name="categoria" value={activeCategoria} />
+      )
+    }
+    {activeTienda && <input type="hidden" name="tienda" value={activeTienda} />}
+    {activeQ && <input type="hidden" name="q" value={activeQ} />}
+    <span
+      class="text-olive-soft font-sans text-[13px] font-bold tracking-[0.1em] whitespace-nowrap uppercase"
+    >
+      {t("product.sort.label")}
+    </span>
+    <select
+      id="sort-select"
+      name="orden"
+      class="border-line-strong text-small text-olive focus:border-gold cursor-pointer rounded-md border bg-transparent px-3 py-2 font-sans focus:outline-none"
+    >
+      <option value="recientes" selected={sort !== "nombre"}
+        >{t("product.sort.recent")}</option
+      >
+      <option value="nombre" selected={sort === "nombre"}
+        >{t("product.sort.popular")}</option
+      >
+    </select>
+  </form>
+</div>
+
+<script>
+  document.getElementById("sort-select")?.addEventListener("change", (e) => {
+    (e.currentTarget as HTMLSelectElement).closest("form")?.submit();
+  });
+</script>
