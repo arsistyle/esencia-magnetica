@@ -6,15 +6,20 @@ import type { useTranslations } from "@/i18n";
 
 interface Props {
   photo?: SimpleImage;
-  historiaHtml: string;
+  bodyHtml: string;
+  tag?: string;
+  title?: string;
   t: ReturnType<typeof useTranslations>;
 }
 
-const { photo, historiaHtml, t } = Astro.props;
+const { photo, bodyHtml, tag, title, t } = Astro.props;
 
 const photoUrl = photo
   ? (safeUrlFor(photo)?.width(600).height(600).url() ?? null)
   : null;
+
+const sectionTag = tag ?? t("brand.historia.kicker");
+const sectionTitle = title ?? t("brand.historia.heading");
 ---
 
 <section class="bg-lavender px-[var(--gutter)] py-[var(--space-9)]">
@@ -40,28 +45,23 @@ const photoUrl = photo
       <span
         class="text-gold text-overline font-sans font-bold tracking-wider uppercase"
       >
-        {t("brand.historia.kicker")}
+        {sectionTag}
       </span>
       <h2
-        class="text-olive mt-3 mb-4 font-serif leading-tight font-semibold"
-        style="font-size: clamp(2rem, 3.5vw, 2.8rem)"
+        class="text-olive text-h2 mt-3 mb-4 font-serif leading-tight font-semibold"
       >
-        {t("brand.historia.heading")}
+        {sectionTitle}
       </h2>
 
       {
-        historiaHtml ? (
+        bodyHtml ? (
           <div
-            class="brand-historia text-olive leading-normal"
-            style="font-size: 17px"
-            set:html={historiaHtml}
+            class="brand-historia text-olive text-lead leading-normal"
+            set:html={bodyHtml}
           />
         ) : (
-          <p
-            class="text-olive-soft leading-normal italic"
-            style="font-size: 17px"
-          >
-            — Contenido próximamente —
+          <p class="text-olive-soft text-lead leading-normal italic">
+            — Content coming soon —
           </p>
         )
       }

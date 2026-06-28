@@ -138,9 +138,10 @@ export const aboutPageQuery = defineQuery(`
     title,
     aboutContent {
       intro,
-      historiaPhoto { asset, hotspot, crop },
-      historia,
-      filosofia[] { title, desc }
+      history { enabled, tag, title, photo { asset, hotspot, crop }, body },
+      philosophy { enabled, chip, title, description, pillars[] { title, desc } },
+      whatYouFind { enabled, chip, title, cards[] { tag, title, description, url } },
+      blogCta { enabled, title, buttonText, buttonUrl }
     },
     seo
   }

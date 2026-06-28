@@ -5,26 +5,33 @@ import Badge from "@/components/ui/Badge.astro";
 
 interface Props {
   t: ReturnType<typeof useTranslations>;
-  filosofia?: Array<{ title?: string; desc?: string }>;
+  chip?: string;
+  title?: string;
+  description?: string;
+  pillars?: Array<{ title?: string; desc?: string }>;
 }
 
-const { t, filosofia } = Astro.props;
+const { t, chip, title, description, pillars } = Astro.props;
 
-const pillars = [
+const sectionChip = chip ?? t("brand.filosofia.badge");
+const sectionTitle = title ?? t("brand.filosofia.heading");
+const sectionDesc = description ?? t("brand.filosofia.lead");
+
+const resolvedPillars = [
   {
     num: "01",
-    title: filosofia?.[0]?.title ?? t("brand.pillar.1.title"),
-    desc: filosofia?.[0]?.desc ?? t("brand.pillar.1.desc"),
+    title: pillars?.[0]?.title ?? t("brand.pillar.1.title"),
+    desc: pillars?.[0]?.desc ?? t("brand.pillar.1.desc"),
   },
   {
     num: "02",
-    title: filosofia?.[1]?.title ?? t("brand.pillar.2.title"),
-    desc: filosofia?.[1]?.desc ?? t("brand.pillar.2.desc"),
+    title: pillars?.[1]?.title ?? t("brand.pillar.2.title"),
+    desc: pillars?.[1]?.desc ?? t("brand.pillar.2.desc"),
   },
   {
     num: "03",
-    title: filosofia?.[2]?.title ?? t("brand.pillar.3.title"),
-    desc: filosofia?.[2]?.desc ?? t("brand.pillar.3.desc"),
+    title: pillars?.[2]?.title ?? t("brand.pillar.3.title"),
+    desc: pillars?.[2]?.desc ?? t("brand.pillar.3.desc"),
   },
 ];
 ---
@@ -33,20 +40,20 @@ const pillars = [
   class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-9)]"
 >
   <div class="mb-[var(--space-7)] text-center">
-    <Badge tone="rose">{t("brand.filosofia.badge")}</Badge>
+    <Badge tone="rose">{sectionChip}</Badge>
     <h2
       class="text-olive text-h2 mt-3 mb-2 font-serif leading-tight font-semibold"
     >
-      {t("brand.filosofia.heading")}
+      {sectionTitle}
     </h2>
     <p class="text-olive-soft text-lead mx-auto max-w-[560px]">
-      {t("brand.filosofia.lead")}
+      {sectionDesc}
     </p>
   </div>
 
   <div class="grid grid-cols-1 gap-[var(--space-7)] sm:grid-cols-3">
     {
-      pillars.map((p) => (
+      resolvedPillars.map((p) => (
         <div class="text-center">
           <span
             class="text-gold text-h1 font-serif leading-none italic"

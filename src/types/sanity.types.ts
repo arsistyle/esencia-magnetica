@@ -67,13 +67,41 @@ export type Brand = {
 
 export type PageTemplate = "home" | "blog" | "products" | "about" | "default";
 
-// Campos exclusivos de template: 'about'.
-// Los datos globales (nombre, foto, misión) vienen del documento brand-{lang}.
+// Fields exclusive to template: 'about'.
+// Global brand data (name, photo, mission) comes from the brand-{lang} document.
 export type AboutContent = {
   intro?: string;
-  historiaPhoto?: SimpleImage;
-  historia?: SimplePortableText;
-  filosofia?: Array<{ title?: string; desc?: string }>;
+  history?: {
+    enabled?: boolean;
+    tag?: string;
+    title?: string;
+    photo?: SimpleImage;
+    body?: SimplePortableText;
+  };
+  philosophy?: {
+    enabled?: boolean;
+    chip?: string;
+    title?: string;
+    description?: string;
+    pillars?: Array<{ title?: string; desc?: string }>;
+  };
+  whatYouFind?: {
+    enabled?: boolean;
+    chip?: string;
+    title?: string;
+    cards?: Array<{
+      tag?: string;
+      title?: string;
+      description?: string;
+      url?: string;
+    }>;
+  };
+  blogCta?: {
+    enabled?: boolean;
+    title?: string;
+    buttonText?: string;
+    buttonUrl?: string;
+  };
 };
 
 export type Page = {
