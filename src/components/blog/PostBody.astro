@@ -35,7 +35,10 @@ const html = toHTML(body, {
       youtubeEmbed: ({
         value,
       }: PortableTextTypeComponentOptions<Record<string, unknown>>) => {
-        const vid = String(value.videoId ?? "");
+        const url = String(value.url ?? "");
+        const match =
+          url.match(/[?&]v=([^&]+)/) ?? url.match(/youtu\.be\/([^?/]+)/);
+        const vid = match?.[1] ?? "";
         const thumb = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
         const label = t("post.play");
         return [
@@ -109,13 +112,13 @@ const html = toHTML(body, {
     },
     block: {
       h2: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
-        `<h2 class="mt-10 mb-4 font-serif text-h2 font-semibold leading-tight text-olive">${children}</h2>`,
+        `<h2>${children}</h2>`,
       h3: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
-        `<h3 class="mt-8 mb-3 font-serif text-h3 font-semibold leading-tight text-olive">${children}</h3>`,
+        `<h3>${children}</h3>`,
       blockquote: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
-        `<blockquote class="my-6 border-l-4 border-gold pl-6 text-lead italic text-olive-soft">${children}</blockquote>`,
+        `<blockquote>${children}</blockquote>`,
       normal: ({ children }: Parameters<PortableTextBlockComponent>[0]) =>
-        `<p class="mb-4 text-body leading-relaxed text-olive">${children}</p>`,
+        `<p>${children}</p>`,
     },
   },
 });

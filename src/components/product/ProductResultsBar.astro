@@ -3,7 +3,7 @@
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
 import { buildProductsUrl } from "@/lib/product/productViewModel";
-import { ChevronDown } from "@lucide/astro";
+import { ChevronDown, X } from "@lucide/astro";
 
 interface Props {
   total: number;
@@ -28,6 +28,12 @@ const sortOptions = [
 const currentLabel =
   sortOptions.find((o) => o.value === sort)?.label ?? sortOptions[0]!.label;
 
+const clearUrl = buildProductsUrl(basePath, {
+  categoria: activeCategoria,
+  tienda: activeTienda,
+  orden: sort,
+});
+
 function sortUrl(value: string) {
   return buildProductsUrl(basePath, {
     categoria: activeCategoria,
@@ -41,7 +47,34 @@ function sortUrl(value: string) {
 <div
   class="border-line mb-7 flex flex-wrap items-center justify-between gap-4 border-b pb-5"
 >
-  <span class="text-small text-olive-soft">{total} {noun}</span>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <span class="text-small text-olive-soft">
+      {
+        activeQ ? (
+          <>
+            {total}&nbsp;
+            {total === 1 ? t("common.result_for") : t("common.results_for")}
+            &nbsp;<strong class="text-olive font-semibold">{activeQ}</strong>
+          </>
+        ) : (
+          <>
+            {total}&nbsp;{noun}
+          </>
+        )
+      }
+    </span>
+    {
+      activeQ && (
+        <a
+          href={clearUrl}
+          class="text-olive-faint hover:text-olive inline-flex items-center gap-1 font-sans text-[12px] leading-none transition-colors"
+        >
+          <X class="h-3 w-3 shrink-0" aria-hidden="true" />
+          <span>{t("common.clear_search")}</span>
+        </a>
+      )
+    }
+  </div>
   <div class="flex items-center gap-3">
     <span
       class="text-olive-soft font-sans text-[13px] font-bold tracking-[0.1em] whitespace-nowrap uppercase"
@@ -49,36 +82,31 @@ function sortUrl(value: string) {
       {t("product.sort.label")}
     </span>
 
-    <!-- Alpine custom dropdown -->
-    <div class="relative" x-data="{ open: false }">
+    <div class="relative">
       <button
         type="button"
-        @click="open = !open"
-        class="border-line-strong text-small text-olive bg-cream hover:border-gold flex min-w-[160px] items-center justify-between gap-2 rounded-md border px-3 py-2 font-sans transition-colors"
-        :class="{ 'border-gold': open }"
+        id="sort-trigger"
         aria-haspopup="listbox"
-        :aria-expanded="open"
+        aria-expanded="false"
+        class="border-line-strong text-small text-olive bg-cream hover:border-gold flex min-w-[160px] items-center justify-between gap-2 rounded-md border px-3 py-2 font-sans transition-colors"
       >
         <span>{currentLabel}</span>
         <ChevronDown
+          id="sort-chevron"
           class="text-olive-soft h-4 w-4 shrink-0 transition-transform duration-150"
-          :class="{ 'rotate-180': open }"
         />
       </button>
 
       <ul
-        x-show="open"
-        x-cloak
-        @click.outside="open = false"
+        id="sort-menu"
         role="listbox"
-        class="bg-cream border-line absolute top-full right-0 z-20 mt-1 min-w-full overflow-hidden rounded-lg border shadow-md"
+        class="bg-cream border-line absolute top-full right-0 z-20 mt-1 hidden min-w-full overflow-hidden rounded-lg border shadow-md"
       >
         {
           sortOptions.map((opt) => (
             <li role="option" aria-selected={opt.value === sort}>
               <a
                 href={sortUrl(opt.value)}
-                @click="open = false"
                 class:list={[
                   "text-small hover:bg-gold/10 block px-4 py-2.5 font-sans whitespace-nowrap transition-colors",
                   opt.value === sort ? "text-gold font-bold" : "text-olive",
@@ -93,3 +121,70 @@ function sortUrl(value: string) {
     </div>
   </div>
 </div>
+
+<script>
+  let ac = new AbortController();
+
+  function init() {
+    const trigger = document.getElementById("sort-trigger");
+    const menu = document.getElementById("sort-menu");
+    const chevron = document.getElementById("sort-chevron");
+    if (!trigger || !menu) return;
+
+    const { signal } = ac;
+    const t = trigger as HTMLElement;
+    const m = menu as HTMLElement;
+
+    function open() {
+      m.classList.remove("hidden");
+      t.setAttribute("aria-expanded", "true");
+      chevron?.classList.add("rotate-180");
+    }
+    function close() {
+      m.classList.add("hidden");
+      t.setAttribute("aria-expanded", "false");
+      chevron?.classList.remove("rotate-180");
+    }
+
+    trigger.addEventListener(
+      "click",
+      () => {
+        if (menu.classList.contains("hidden")) {
+          open();
+        } else {
+          close();
+        }
+      },
+      { signal },
+    );
+
+    document.addEventListener(
+      "click",
+      (e) => {
+        if (
+          !trigger.contains(e.target as Node) &&
+          !menu.contains(e.target as Node)
+        ) {
+          close();
+        }
+      },
+      { signal },
+    );
+
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Escape") close();
+      },
+      { signal },
+    );
+  }
+
+  document.addEventListener("astro:before-swap", () => {
+    ac.abort();
+    ac = new AbortController();
+  });
+
+  document.addEventListener("astro:page-load", init);
+  init();
+</script>

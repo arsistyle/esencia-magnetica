@@ -1,0 +1,20 @@
+---
+// src/pages/marca/index.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/types/index";
+
+const lang: Locale = "es";
+const t = useTranslations(lang);
+---
+
+<BaseLayout title={t("nav.brand")} lang={lang}>
+  <main
+    class="mx-auto max-w-[var(--container)] [padding:var(--space-9)_var(--gutter)]"
+  >
+    <h1 class="text-h1 text-olive font-serif font-semibold">
+      {t("nav.brand")}
+    </h1>
+    <p class="text-olive-soft mt-4">Coming in Stage 07.</p>
+  </main>
+</BaseLayout>

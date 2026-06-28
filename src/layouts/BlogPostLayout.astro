@@ -1,12 +1,14 @@
 ---
 // src/layouts/BlogPostLayout.astro
 import BaseLayout from "./BaseLayout.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
 import PostHero from "@/components/blog/PostHero.astro";
 import PostBody from "@/components/blog/PostBody.astro";
 import RelatedProducts from "@/components/blog/RelatedProducts.astro";
 import FacebookComments from "@/components/blog/FacebookComments.astro";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
 import { toHTML } from "@portabletext/to-html";
 
 type PortableTextBody = Parameters<typeof toHTML>[0];
@@ -41,6 +43,7 @@ interface Props {
 }
 
 const { post, lang, esUrl, enUrl } = Astro.props;
+const t = useTranslations(lang);
 
 const ogImage =
   resolveImageUrl(post.seo?.ogImage, { width: 1200 }) ??
@@ -80,6 +83,18 @@ const products = (post.body ?? [])
     section: categoryName,
   }}
 >
+  <div
+    class="mx-auto max-w-[var(--container)] px-[var(--gutter)] pt-[var(--space-8)] pb-2.5"
+  >
+    <Breadcrumb
+      items={[
+        { label: t("nav.home"), href: lang === "en" ? "/en" : "/" },
+        { label: t("nav.blog"), href: lang === "en" ? "/en/blog" : "/blog" },
+        { label: post.title },
+      ]}
+      lang={lang}
+    />
+  </div>
   <PostHero post={post} lang={lang} />
   <div
     class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"

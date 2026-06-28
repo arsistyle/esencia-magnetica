@@ -13,15 +13,20 @@ interface Props {
     publishedAt: string;
     excerpt?: string;
     coverImage?: unknown;
-    category?: { name: Record<string, string> };
+    category?: {
+      name: Record<string, string>;
+      slug?: { es?: string; en?: string };
+    };
     authors?: Array<{ name: string }>;
     body?: unknown[];
+    tags?: string[];
   };
   lang: Locale;
 }
 
 const { post, lang } = Astro.props;
 const t = useTranslations(lang);
+const blogPath = lang === "en" ? "/en/blog" : "/blog";
 const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
   width: 1400,
   height: 787,
@@ -32,17 +37,19 @@ const categoryName =
   (post.category?.name as Record<string, string> | undefined)?.[lang] ??
   (post.category?.name as Record<string, string> | undefined)?.es ??
   "";
+const categorySlug = post.category?.slug?.es ?? "";
 const authorNames = post.authors?.map((a) => a.name).join(", ") ?? "";
 ---
 
-<header
-  class="mx-auto max-w-[var(--container-text,720px)] px-[var(--gutter)] pt-[var(--space-8)] text-center"
->
+<header class="mx-auto max-w-[var(--container)] px-[var(--gutter)] pb-5">
   {
     categoryName && (
-      <Badge tone="gold" class="mb-4">
-        {categoryName}
-      </Badge>
+      <a
+        href={`${blogPath}?categoria=${encodeURIComponent(categorySlug)}`}
+        class="mb-4 inline-block"
+      >
+        <Badge tone="gold">{categoryName}</Badge>
+      </a>
     )
   }
   <h1
@@ -53,7 +60,7 @@ const authorNames = post.authors?.map((a) => a.name).join(", ") ?? "";
   </h1>
   {
     post.excerpt && (
-      <p class="text-lead text-olive-soft mx-auto mb-6 max-w-[640px] leading-normal">
+      <p class="text-lead text-olive-soft mb-6 max-w-[640px] leading-normal">
         {post.excerpt}
       </p>
     )
@@ -76,6 +83,20 @@ const authorNames = post.authors?.map((a) => a.name).join(", ") ?? "";
       )
     }
   </p>
+  {
+    post.tags && post.tags.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-2">
+        {post.tags.map((tag) => (
+          <a
+            href={`${blogPath}?q=${encodeURIComponent(tag)}`}
+            class="border-line-strong text-olive-soft hover:border-gold hover:text-olive rounded-pill border px-3 py-1 font-sans text-[12px] transition-colors"
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+    )
+  }
 </header>
 
 {

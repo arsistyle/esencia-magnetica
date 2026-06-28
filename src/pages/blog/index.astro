@@ -3,7 +3,8 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import BlogFilters from "@/components/blog/BlogFilters.astro";
+import BlogFilterModals from "@/components/blog/BlogFilterModals.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
 import FeaturedPost from "@/components/blog/FeaturedPost.astro";
 import PostGrid from "@/components/blog/PostGrid.astro";
 import BlogPagination from "@/components/blog/BlogPagination.astro";
@@ -16,6 +17,7 @@ import {
 import { POSTS_PER_PAGE } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
 import Badge from "@/components/ui/Badge.astro";
+import { X } from "@lucide/astro";
 import type { Locale } from "@/types/index";
 
 interface PostItem {
@@ -55,6 +57,10 @@ const featured =
 const gridPosts = featured
   ? posts.filter((p) => p._id !== featured._id)
   : posts;
+
+const clearSearchUrl = categoria
+  ? `/blog?categoria=${encodeURIComponent(categoria)}`
+  : "/blog";
 ---
 
 <BaseLayout
@@ -63,26 +69,65 @@ const gridPosts = featured
   lang={lang}
 >
   <div
-    class="mx-auto max-w-[var(--container)] [padding:var(--space-9)_var(--gutter)]"
+    class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"
   >
-    <div class="mb-10 text-center">
-      <Badge tone="gold" class="mb-4">{t("nav.blog")}</Badge>
-      <h1
-        class="text-h1 text-olive mb-4 font-serif leading-tight font-semibold"
-      >
-        {t("blog.headline")}
-      </h1>
-      <p class="text-lead text-olive-soft mx-auto max-w-[640px]">
-        {t("blog.lead")}
-      </p>
-    </div>
-    <BlogFilters
-      categories={categories}
-      activeCategoria={categoria}
-      activeQ={q}
+    <Breadcrumb
+      items={[{ label: t("nav.home"), href: "/" }, { label: t("nav.blog") }]}
       lang={lang}
+      class="mb-2.5"
     />
-    <div class="mt-10 flex flex-col gap-12">
+    <header
+      class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6"
+    >
+      <div class="max-w-[640px]">
+        <Badge tone="gold" class="mb-3">{t("nav.blog")}</Badge>
+        <h1
+          class="text-h1 text-olive my-3 font-serif leading-tight font-semibold"
+        >
+          {t("blog.headline")}
+        </h1>
+        <p class="text-lead text-olive-soft">
+          {t("blog.lead")}
+        </p>
+      </div>
+      <BlogFilterModals
+        categories={categories}
+        activeCategoria={categoria}
+        activeQ={q}
+        basePath="/blog"
+        lang={lang}
+        labels={{
+          search: t("common.search"),
+          filter: t("common.filter"),
+          placeholder: t("blog.search.placeholder"),
+          categories: t("blog.filter.categories"),
+          all: t("blog.all"),
+          clearAll: t("common.clear_all"),
+          confirm: t("common.confirm"),
+        }}
+      />
+    </header>
+    {
+      q && (
+        <div class="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p class="text-small text-olive-soft">
+            {(total as number) ?? 0}&nbsp;
+            {((total as number) ?? 0) === 1
+              ? t("common.result_for")
+              : t("common.results_for")}
+            &nbsp;<strong class="text-olive font-semibold">{q}</strong>
+          </p>
+          <a
+            href={clearSearchUrl}
+            class="text-olive-faint hover:text-olive inline-flex items-center gap-1 font-sans text-[12px] leading-none transition-colors"
+          >
+            <X class="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span>{t("common.clear_search")}</span>
+          </a>
+        </div>
+      )
+    }
+    <div class="flex flex-col gap-12">
       {featured && <FeaturedPost post={featured} lang={lang} />}
       <PostGrid posts={gridPosts} q={q} lang={lang} />
       <BlogPagination

@@ -1,0 +1,48 @@
+---
+// src/components/Breadcrumb.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+
+interface Item {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: Item[];
+  separator?: string;
+  lang: Locale;
+  class?: string;
+}
+
+const { items, separator = " — ", lang, class: cls } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<nav aria-label={t("breadcrumb.aria")} class:list={[cls]}>
+  <ol class="text-small text-olive-soft flex flex-wrap items-center font-sans">
+    {
+      items.map((item, i) => {
+        const isLast = i === items.length - 1;
+        return (
+          <li class="flex items-center">
+            {!isLast && item.href ? (
+              <a href={item.href} class="transition-colors hover:underline">
+                {item.label}
+              </a>
+            ) : (
+              <span aria-current={isLast ? "page" : undefined}>
+                {item.label}
+              </span>
+            )}
+            {!isLast && (
+              <span aria-hidden="true" class="text-olive-faint mx-1.5">
+                {separator}
+              </span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

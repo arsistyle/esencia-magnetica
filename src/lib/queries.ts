@@ -11,7 +11,8 @@ export const postsQuery = defineQuery(`
 export const postBySlugQuery = defineQuery(`
   *[_type == "post" && slug.current == $slug && language == $lang][0] {
     ...,
-    "category": category->{ name },
+    tags,
+    "category": category->{ name, slug },
     "authors": authors[]->{ _id, name, photo, role, bio },
     body[]{
       ...,
@@ -78,8 +79,8 @@ export const pageBySlugQuery = defineQuery(`
 
 export const postsFilteredQuery = defineQuery(`
   *[_type == "post" && language == $lang
-    && ($categoria == "" || category->slug.current == $categoria)
-    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
+    && ($categoria == "" || category->slug.es == $categoria)
+    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*") || $q in tags)
   ] | order(publishedAt desc) [$offset...$end] {
     _id, title, slug, excerpt, publishedAt, featured,
     coverImage, "category": category->{ name, slug },
@@ -89,14 +90,14 @@ export const postsFilteredQuery = defineQuery(`
 
 export const postsCountQuery = defineQuery(`
   count(*[_type == "post" && language == $lang
-    && ($categoria == "" || category->slug.current == $categoria)
-    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
+    && ($categoria == "" || category->slug.es == $categoria)
+    && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*") || $q in tags)
   ])
 `);
 
 export const productsFilteredQuery = defineQuery(`
   *[_type == "product" && language == $lang && active == true
-    && ($categoria == "" || category->slug.current == $categoria)
+    && ($categoria == "" || category->slug.es == $categoria)
     && ($tienda == "" || store == $tienda)
     && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
   ] | order(publishedAt desc) [$offset...$end] {
@@ -107,7 +108,7 @@ export const productsFilteredQuery = defineQuery(`
 
 export const productsFilteredByNameQuery = defineQuery(`
   *[_type == "product" && language == $lang && active == true
-    && ($categoria == "" || category->slug.current == $categoria)
+    && ($categoria == "" || category->slug.es == $categoria)
     && ($tienda == "" || store == $tienda)
     && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
   ] | order(name asc) [$offset...$end] {
@@ -118,7 +119,7 @@ export const productsFilteredByNameQuery = defineQuery(`
 
 export const productsFilteredCountQuery = defineQuery(`
   count(*[_type == "product" && language == $lang && active == true
-    && ($categoria == "" || category->slug.current == $categoria)
+    && ($categoria == "" || category->slug.es == $categoria)
     && ($tienda == "" || store == $tienda)
     && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
   ])

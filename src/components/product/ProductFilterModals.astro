@@ -1,11 +1,12 @@
 ---
 // src/components/product/ProductFilterModals.astro
 import { Search, SlidersHorizontal, X } from "@lucide/astro";
+import { buildProductsUrl } from "@/lib/product/productViewModel";
 
 interface Category {
   _id: string;
   name: Record<string, string>;
-  slug: { current: string };
+  slug: { es?: string; en?: string };
 }
 
 export interface ProductFilterLabels {
@@ -42,6 +43,12 @@ const {
   labels,
 } = Astro.props;
 
+const filterCount = (activeCategoria ? 1 : 0) + (activeTienda ? 1 : 0);
+const clearFiltersUrl = buildProductsUrl(basePath, {
+  q: activeQ,
+  orden: activeOrden,
+});
+
 const btnBase =
   "flex items-center gap-1.5 border border-line-strong rounded-pill px-4 py-2 text-small font-sans uppercase tracking-widest text-olive-soft hover:border-olive hover:text-olive transition-colors bg-transparent cursor-pointer";
 
@@ -56,10 +63,19 @@ const chipClass =
     <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
     {labels.search}
   </button>
-  <button type="button" id="btn-pfilter-open" class={btnBase}>
-    <SlidersHorizontal class="h-4 w-4 shrink-0" aria-hidden="true" />
-    {labels.filter}
-  </button>
+  <div class="relative">
+    <button type="button" id="btn-pfilter-open" class={btnBase}>
+      <SlidersHorizontal class="h-4 w-4 shrink-0" aria-hidden="true" />
+      {labels.filter}
+    </button>
+    {
+      filterCount > 0 && (
+        <span class="bg-gold text-cream absolute -top-1.5 -right-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full text-[10px] leading-none font-bold">
+          {filterCount}
+        </span>
+      )
+    }
+  </div>
 </div>
 
 <!-- Search overlay -->
@@ -106,6 +122,7 @@ const chipClass =
           name="q"
           value={activeQ}
           placeholder={labels.placeholder}
+          maxlength="100"
           class="border-line-strong text-body text-olive placeholder:text-olive-faint focus:border-gold w-full rounded-md border bg-transparent py-3 pr-4 pl-10 transition-colors focus:outline-none"
         />
       </div>
@@ -172,9 +189,9 @@ const chipClass =
                 <input
                   type="radio"
                   name="categoria"
-                  value={cat.slug.current}
+                  value={cat.slug?.es ?? ""}
                   class="sr-only"
-                  checked={activeCategoria === cat.slug.current}
+                  checked={activeCategoria === (cat.slug?.es ?? "")}
                 />
                 {name}
               </label>
@@ -212,7 +229,7 @@ const chipClass =
 
       <div class="flex gap-3">
         <a
-          href={basePath}
+          href={clearFiltersUrl}
           class="border-line-strong rounded-pill text-small text-olive-soft hover:border-olive flex-1 border py-2.5 text-center font-sans tracking-wider uppercase transition-colors"
         >
           {labels.clearAll.toUpperCase()}
@@ -231,12 +248,7 @@ const chipClass =
 <script>
   let ac = new AbortController();
 
-  document.addEventListener("astro:before-swap", () => {
-    ac.abort();
-    ac = new AbortController();
-  });
-
-  document.addEventListener("astro:page-load", () => {
+  function init() {
     const sOverlay = document.getElementById("overlay-psearch");
     const fOverlay = document.getElementById("overlay-pfilter");
     if (!sOverlay || !fOverlay) return;
@@ -299,5 +311,32 @@ const chipClass =
       },
       { signal },
     );
+
+    [sOverlay, fOverlay].forEach((overlay) => {
+      const form = overlay.querySelector("form") as HTMLFormElement | null;
+      if (!form) return;
+      form.addEventListener(
+        "submit",
+        (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const params = new URLSearchParams();
+          for (const [key, value] of fd) {
+            if (String(value).trim()) params.set(key, String(value));
+          }
+          const qs = params.toString();
+          window.location.href = form.action + (qs ? "?" + qs : "");
+        },
+        { signal },
+      );
+    });
+  }
+
+  document.addEventListener("astro:before-swap", () => {
+    ac.abort();
+    ac = new AbortController();
   });
+
+  document.addEventListener("astro:page-load", init);
+  init();
 </script>
