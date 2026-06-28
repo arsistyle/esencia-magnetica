@@ -33,6 +33,10 @@ Defined in Stage 02 → [`docs/stages/stage-02/FUNDAMENTS.md`](docs/stages/stage
 - Fonts: Cormorant Garamond (serif headings), Lato (sans body), Great Vibes (decorative script).
 - Use theme tokens / CSS variables — **no hardcoded hex values in components**.
 
+## Language in code
+
+**All code must be in English only — no mixing.** This applies to: variable names, function names, type names, comments, Sanity schema `name`/`title`/`description` fields, GROQ field aliases, and any other identifier or string that lives inside a source file. The only Spanish allowed in source files is user-facing content fetched from Sanity or translated via the i18n system (`src/i18n/ui.ts`).
+
 ## Conventions
 
 - Path alias `@/*` → `src/`.
