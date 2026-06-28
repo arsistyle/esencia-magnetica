@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
-**Fecha:** 2026-06-28  
-**Estado actual:** Stage 07 completo (Product Catalog) ✅ · Próximo: Stage 08
+**Fecha:** 2026-06-28 (actualizado)
+**Estado actual:** Stage 07 completo (Product Catalog + Search/Filter UX) ✅ · Próximo: Stage 08
 
 ---
 
@@ -152,8 +152,8 @@ blog.filter.categories · breadcrumb.aria
 - **Sort "Más populares" = `order(name asc)`** — el schema de `product` no tiene campo de popularidad; se usa orden alfabético como proxy. Renombrar si se añade un campo `featured`.
 - **Tienda como radio (no checkbox)** — selección única por tienda para simplificar el queryParam server-side. Cambiar a checkboxes + múltiples valores si se necesita multi-select.
 - **`ProductCard` wrapper `<a>`** — la card entera es clickeable. El CTA "Ver producto" es un `<span>` visual dentro del `<a>` exterior.
-- **Alpine.js dropdown** — `@astrojs/alpinejs@1.0.0` añadido para el sort select estilizado. URLs pre-construidas server-side con `buildProductsUrl`.
-- **View Transitions fix** — `BlogFilterModals` y `ProductFilterModals` usan `astro:page-load` + AbortController para reinicializar listeners tras cada navegación.
+- **Alpine.js dropdown reemplazado** — Se instaló Alpine.js (`@astrojs/alpinejs@1.0.0`) pero no re-inicializa DOM swapeado por View Transitions. Reemplazado por vanilla JS + AbortController en `ProductResultsBar`. Alpine.js sigue configurado en `astro.config.mjs` pero no se usa en ningún componente activo.
+- **View Transitions init pattern** — La clave es llamar `init()` **inmediatamente** (para la carga inicial) Y registrar el listener `astro:page-load`. Solo registrar el listener no funciona porque `astro:page-load` se dispara ANTES de que el module script se registre en la carga inicial.
 
 ### Keys i18n nuevas (Stage 07)
 
@@ -162,7 +162,46 @@ product.headline · product.lead · product.result · product.results
 product.sort.label · product.sort.recent · product.sort.popular
 product.view · product.empty · product.filter.categories
 product.filter.store · product.filter.all_stores · product.disclosure
+common.result_for · common.results_for · common.clear_search
 ```
+
+---
+
+## Stage 07 — Search & Filter UX improvements (2026-06-28)
+
+### Bugs críticos corregidos
+
+| Bug                                                       | Causa                                                                                                                                                                                                     | Fix                                                                                                                                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Filtros nunca filtraban (`?categoria=on`)                 | Schema `blogCategory`/`productCategory` usa `slug: { es, en }` (objeto custom), NO `slug` type de Sanity con `.current`. El valor `cat.slug.current` era `undefined` → browser enviaba `"on"` por defecto | Radio values: `cat.slug?.es ?? ""` · Interface: `slug: { es?: string; en?: string }`                                                                                  |
+| GROQ nunca filtraba por categoría                         | Queries usaban `category->slug.current` que no existe — siempre retornaba todos los posts/productos                                                                                                       | Fix: `category->slug.es` en 5 queries (`postsFilteredQuery`, `postsCountQuery`, `productsFilteredQuery`, `productsFilteredByNameQuery`, `productsFilteredCountQuery`) |
+| URL contaminada (`?tienda=&categoria=`)                   | Form GET nativo incluye todos los campos aunque estén vacíos                                                                                                                                              | Interceptar `submit`: `FormData` → `URLSearchParams` filtrando valores vacíos → `window.location.href`                                                                |
+| Botones de búsqueda/filtro no funcionaban tras navegación | Listeners registrados solo en `astro:page-load` — ese evento se dispara antes de que el module script se registre en la carga inicial                                                                     | Patrón correcto: `function init() {...}` + `document.addEventListener("astro:page-load", init)` + `init()` inmediato                                                  |
+| Sort dropdown roto tras View Transitions                  | Alpine.js no re-inicializa elementos swapeados por View Transitions                                                                                                                                       | Reemplazado por vanilla JS + AbortController (`astro:before-swap` abort, mismo patrón que modales)                                                                    |
+
+### Features añadidas
+
+| Feature                                 | Implementación                                                                                                                    |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| "N resultados para **X**"               | Blog: inline en `pages/blog/index.astro`. Productos: en `ProductResultsBar.astro`                                                 |
+| "× Limpiar búsqueda"                    | `inline-flex leading-none` + `<span>` para alinear icono y texto. Aparece solo cuando `activeQ` activo                            |
+| Badge en botón FILTRAR                  | Badge absoluto `bg-gold` con `filterCount` (Blog: max 1, Productos: max 2)                                                        |
+| Tags en detalle del post                | `PostHero.astro`: chips debajo de la fecha → `?q={tag}`. GROQ incluye `$q in tags` (match exacto) para que funcionen como filtros |
+| Categoría linkeable en detalle          | Badge de categoría en `PostHero` es `<a href="?categoria={slug.es}">`                                                             |
+| "Limpiar filtros" preserva búsqueda     | `clearFiltersUrl` preserva `q` (y `orden` en Productos). Búsqueda y filtros son independientes                                    |
+| `maxlength="100"` en inputs de búsqueda | Ambos modales (Blog + Productos)                                                                                                  |
+
+### Archivos modificados (esta sesión)
+
+| Archivo                                                        | Cambios                                                                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `src/components/blog/BlogFilterModals.astro`                   | Init pattern, badge filterCount, clearFiltersUrl, maxlength, fix slug interface                         |
+| `src/components/blog/PostHero.astro`                           | Tags chips, categoría linkeable, blogPath por lang                                                      |
+| `src/components/product/ProductFilterModals.astro`             | Init pattern, badge filterCount, clearFiltersUrl, maxlength, fix slug interface                         |
+| `src/components/product/ProductResultsBar.astro`               | Vanilla JS sort (sin Alpine), count con activeQ, "× Limpiar búsqueda"                                   |
+| `src/lib/queries.ts`                                           | `slug.es` en 5 queries, `tags` + `category.slug` en `postBySlugQuery`, `$q in tags` en filtered queries |
+| `src/i18n/ui.ts`                                               | `common.result_for`, `common.results_for`, `common.clear_search`                                        |
+| `src/pages/blog/index.astro` · `src/pages/en/blog/index.astro` | "N resultados" row, clearSearchUrl, `inline-flex leading-none` fix                                      |
 
 ### Próximo paso: Stage 08
 
