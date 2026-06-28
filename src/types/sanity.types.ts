@@ -48,8 +48,8 @@ export type SimplePortableText = Array<{
   _key: string;
 }>;
 
-// Identidad global de la marca — usada en todo el sitio.
-// El contenido profundo de /marca va en Page con template 'about'.
+// Global brand identity — used site-wide (Navbar, footer, SEO, JSON-LD).
+// Deep page content for /marca lives in Page with template 'about'.
 export type Brand = {
   _id: string;
   _type: "brand";
@@ -114,7 +114,7 @@ export type Page = {
   title?: string;
   slug?: Slug;
   template?: PageTemplate;
-  // Campos genéricos (home · blog · products · default)
+  // Generic fields (home · blog · products · default)
   hero?: {
     heading?: string;
     subheading?: string;
@@ -125,7 +125,7 @@ export type Page = {
     };
   };
   body?: BlockContent;
-  // Campos exclusivos de template 'about'
+  // Fields exclusive to template 'about'
   aboutContent?: AboutContent;
   seo?: Seo;
 };
