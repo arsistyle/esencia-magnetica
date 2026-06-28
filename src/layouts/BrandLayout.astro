@@ -35,6 +35,7 @@ const heroUrl = brand?.heroPhoto
 const intro = page?.aboutContent?.intro;
 const historiaHtml = ptToHtml(page?.aboutContent?.historia);
 const historiaPhoto = page?.aboutContent?.historiaPhoto;
+const filosofia = page?.aboutContent?.filosofia;
 
 // JSON-LD: Person + Organization
 const personName = brand?.name ?? "";
@@ -80,7 +81,7 @@ const enPath = lang === "en" ? brandPath : "/en/brand";
 >
   <BrandHero brand={brand} intro={intro} />
   <BrandHistoria photo={historiaPhoto} historiaHtml={historiaHtml} t={t} />
-  <BrandFilosofia t={t} />
+  <BrandFilosofia t={t} filosofia={filosofia} />
   <BrandMisionVision mission={brand?.mission} vision={brand?.vision} t={t} />
   <BrandQueEncontrar t={t} lang={lang} />
   <BrandCTA t={t} lang={lang} />

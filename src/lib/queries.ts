@@ -54,7 +54,9 @@ export const brandQuery = defineQuery(`
     tagline,
     heroPhoto { asset, hotspot, crop },
     mission,
-    vision
+    vision,
+    logo { asset, hotspot, crop },
+    socialLinks { instagram, youtube, facebook, tiktok, pinterest }
   }
 `);
 
@@ -137,7 +139,8 @@ export const aboutPageQuery = defineQuery(`
     aboutContent {
       intro,
       historiaPhoto { asset, hotspot, crop },
-      historia
+      historia,
+      filosofia[] { title, desc }
     },
     seo
   }

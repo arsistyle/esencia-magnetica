@@ -22,6 +22,34 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
+export type SimpleImage = {
+  asset?: SanityImageAssetReference;
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  _type: "image";
+};
+
+export type SimplePortableText = Array<{
+  children?: Array<{
+    marks?: Array<string>;
+    text?: string;
+    _type: "span";
+    _key: string;
+  }>;
+  style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+  listItem?: "bullet" | "number";
+  markDefs?: Array<{
+    href?: string;
+    _type: "link";
+    _key: string;
+  }>;
+  level?: number;
+  _type: "block";
+  _key: string;
+}>;
+
+// Identidad global de la marca — usada en todo el sitio.
+// El contenido profundo de /marca va en Page con template 'about'.
 export type Brand = {
   _id: string;
   _type: "brand";
@@ -30,68 +58,54 @@ export type Brand = {
   _rev: string;
   name?: string;
   tagline?: string;
-  photos?: Array<{
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-    _key: string;
-  }>;
-  mission?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
+  heroPhoto?: SimpleImage;
+  mission?: SimplePortableText;
+  vision?: SimplePortableText;
+  logo?: SimpleImage;
+  socialLinks?: {
+    instagram?: string;
+    youtube?: string;
+    facebook?: string;
+    tiktok?: string;
+    pinterest?: string;
+  };
+};
+
+export type PageTemplate = "home" | "blog" | "products" | "about" | "default";
+
+// Campos exclusivos de template: 'about'.
+// Los datos globales (nombre, foto, misión) vienen del documento brand-{lang}.
+export type AboutContent = {
+  intro?: string;
+  historiaPhoto?: SimpleImage;
+  historia?: SimplePortableText;
+  filosofia?: Array<{ title?: string; desc?: string }>;
+};
+
+export type Page = {
+  _id: string;
+  _type: "page";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  language?: string;
+  title?: string;
+  slug?: Slug;
+  template?: PageTemplate;
+  // Campos genéricos (home · blog · products · default)
+  hero?: {
+    heading?: string;
+    subheading?: string;
+    image?: CoverImage;
+    cta?: {
+      label?: string;
       href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-  vision?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
-  philosophy?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
+    };
+  };
+  body?: BlockContent;
+  // Campos exclusivos de template 'about'
+  aboutContent?: AboutContent;
+  seo?: Seo;
 };
 
 export type SanityImageCrop = {
