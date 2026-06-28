@@ -1,0 +1,52 @@
+---
+// src/components/brand/BrandMisionVision.astro
+import type { useTranslations } from "@/i18n";
+import type { SimplePortableText } from "@/types/sanity.types";
+import { ptToText } from "@/lib/brand/brandViewModel";
+
+interface Props {
+  mission?: SimplePortableText;
+  vision?: SimplePortableText;
+  t: ReturnType<typeof useTranslations>;
+}
+
+const { mission, vision, t } = Astro.props;
+
+const misionText = ptToText(mission);
+const visionText = ptToText(vision);
+---
+
+{
+  (misionText || visionText) && (
+    <section class="bg-olive px-[var(--gutter)] py-[var(--space-9)]">
+      <div class="mx-auto grid max-w-[var(--container)] grid-cols-1 gap-[var(--space-8)] md:grid-cols-2">
+        {misionText && (
+          <div>
+            <span class="text-rose-nude text-overline font-sans font-bold tracking-wider uppercase">
+              {t("brand.mision.label")}
+            </span>
+            <p
+              class="text-cream mt-3 font-serif leading-snug"
+              style="font-size: 25px"
+            >
+              {misionText}
+            </p>
+          </div>
+        )}
+        {visionText && (
+          <div>
+            <span class="text-rose-nude text-overline font-sans font-bold tracking-wider uppercase">
+              {t("brand.vision.label")}
+            </span>
+            <p
+              class="text-cream mt-3 font-serif leading-snug"
+              style="font-size: 25px"
+            >
+              {visionText}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
