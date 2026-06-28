@@ -1,12 +1,17 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
+// src/pages/en/brand/index.astro
+export const prerender = false;
+
+import { sanityClient } from "sanity:client";
+import { brandQuery, aboutPageQuery } from "@/lib/queries";
+import BrandLayout from "@/layouts/BrandLayout.astro";
+import type { Locale } from "@/types/index";
+
+const lang: Locale = "en";
+const [brand, page] = await Promise.all([
+  sanityClient.fetch(brandQuery, { brandId: "brand-en" }),
+  sanityClient.fetch(aboutPageQuery, { lang }),
+]);
 ---
 
-<BaseLayout title="Brand" lang="en">
-  <main
-    class="mx-auto max-w-[var(--container)] [padding:var(--space-9)_var(--gutter)]"
-  >
-    <h1 class="text-h1 text-olive font-serif font-semibold">Brand</h1>
-    <p class="text-olive-soft mt-4">Coming in Stage 07.</p>
-  </main>
-</BaseLayout>
+<BrandLayout brand={brand} page={page} lang={lang} />
