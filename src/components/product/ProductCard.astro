@@ -19,8 +19,11 @@ const imgUrl = resolveImageUrl(image as Parameters<typeof resolveImageUrl>[0], {
 });
 ---
 
-<div
-  class="bg-surface-card border-line flex flex-col overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
+<a
+  href={href}
+  target="_blank"
+  rel="sponsored nofollow noopener"
+  class="bg-surface-card border-line group flex flex-col overflow-hidden rounded-xl border no-underline transition-shadow hover:shadow-md"
 >
   <div
     class="from-cream-deep to-rose-nude relative aspect-square overflow-hidden bg-gradient-to-br"
@@ -56,14 +59,11 @@ const imgUrl = resolveImageUrl(image as Parameters<typeof resolveImageUrl>[0], {
     <h4 class="text-olive font-serif text-[20px] leading-snug font-semibold">
       {name}
     </h4>
-    <a
-      href={href}
-      target="_blank"
-      rel="sponsored nofollow noopener"
-      class="text-gold mt-auto inline-flex items-center gap-2 pt-4 font-sans text-[13px] font-bold tracking-[0.06em] uppercase transition-opacity hover:opacity-75"
+    <span
+      class="text-gold mt-auto inline-flex items-center gap-2 pt-4 font-sans text-[13px] font-bold tracking-[0.06em] uppercase transition-opacity group-hover:opacity-75"
     >
       {ctaLabel}
       <ArrowUpRight class="h-4 w-4 shrink-0" aria-hidden="true" />
-    </a>
+    </span>
   </div>
-</div>
+</a>
