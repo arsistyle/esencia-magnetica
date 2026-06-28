@@ -1,12 +1,124 @@
 ---
+// src/pages/en/products/index.astro
+export const prerender = false;
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Badge from "@/components/ui/Badge.astro";
+import ProductFilterModals from "@/components/product/ProductFilterModals.astro";
+import ProductResultsBar from "@/components/product/ProductResultsBar.astro";
+import ProductGrid from "@/components/product/ProductGrid.astro";
+import BlogPagination from "@/components/blog/BlogPagination.astro";
+import { sanityClient } from "sanity:client";
+import {
+  productsFilteredQuery,
+  productsFilteredByNameQuery,
+  productsFilteredCountQuery,
+  productCategoriesQuery,
+} from "@/lib/queries";
+import { PRODUCTS_PER_PAGE } from "@/lib/constants";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/types/index";
+
+const lang: Locale = "en";
+const t = useTranslations(lang);
+
+const categoria = Astro.url.searchParams.get("categoria") ?? "";
+const tienda = Astro.url.searchParams.get("tienda") ?? "";
+const q = Astro.url.searchParams.get("q") ?? "";
+const orden = Astro.url.searchParams.get("orden") ?? "recientes";
+const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1"));
+const offset = (page - 1) * PRODUCTS_PER_PAGE;
+const end = offset + PRODUCTS_PER_PAGE;
+
+const activeQuery =
+  orden === "nombre" ? productsFilteredByNameQuery : productsFilteredQuery;
+
+const [rawProducts, total, categories] = await Promise.all([
+  sanityClient.fetch(activeQuery, { lang, categoria, tienda, q, offset, end }),
+  sanityClient.fetch(productsFilteredCountQuery, {
+    lang,
+    categoria,
+    tienda,
+    q,
+  }),
+  sanityClient.fetch(productCategoriesQuery),
+]);
+
+const totalPages = Math.ceil((total ?? 0) / PRODUCTS_PER_PAGE);
 ---
 
-<BaseLayout title="Products" lang="en">
-  <main
-    class="mx-auto max-w-[var(--container)] [padding:var(--space-9)_var(--gutter)]"
+<BaseLayout
+  title={t("nav.products")}
+  description={t("product.lead")}
+  lang={lang}
+>
+  <div
+    class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"
   >
-    <h1 class="text-h1 text-olive font-serif font-semibold">Products</h1>
-    <p class="text-olive-soft mt-4">Coming in Stage 06.</p>
-  </main>
+    <Breadcrumb
+      items={[
+        { label: t("nav.home"), href: "/en" },
+        { label: t("nav.products") },
+      ]}
+      lang={lang}
+      class="mb-2.5"
+    />
+    <header
+      class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6"
+    >
+      <div class="max-w-[640px]">
+        <Badge tone="gold" class="mb-3">{t("nav.products")}</Badge>
+        <h1
+          class="text-h1 text-olive my-3 font-serif leading-tight font-semibold"
+        >
+          {t("product.headline")}
+        </h1>
+        <p class="text-lead text-olive-soft">{t("product.lead")}</p>
+      </div>
+      <ProductFilterModals
+        categories={categories}
+        activeCategoria={categoria}
+        activeTienda={tienda}
+        activeQ={q}
+        activeOrden={orden}
+        basePath="/en/products"
+        lang={lang}
+        labels={{
+          search: t("common.search"),
+          filter: t("common.filter"),
+          placeholder: t("blog.search.placeholder"),
+          categories: t("product.filter.categories"),
+          store: t("product.filter.store"),
+          allStores: t("product.filter.all_stores"),
+          all: t("blog.all"),
+          clearAll: t("common.clear_all"),
+          confirm: t("common.confirm"),
+        }}
+      />
+    </header>
+
+    <ProductResultsBar
+      total={total ?? 0}
+      sort={orden}
+      basePath="/en/products"
+      activeCategoria={categoria}
+      activeTienda={tienda}
+      activeQ={q}
+      lang={lang}
+    />
+
+    <ProductGrid products={rawProducts ?? []} lang={lang} />
+
+    <BlogPagination
+      currentPage={page}
+      totalPages={totalPages}
+      currentUrl={Astro.url.toString()}
+      lang={lang}
+    />
+
+    <p class="text-olive-faint mt-10 text-center text-[13px]">
+      {t("product.disclosure")}
+    </p>
+  </div>
 </BaseLayout>
