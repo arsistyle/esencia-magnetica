@@ -1,0 +1,87 @@
+---
+// src/layouts/BrandLayout.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BrandHero from "@/components/brand/BrandHero.astro";
+import BrandHistoria from "@/components/brand/BrandHistoria.astro";
+import BrandFilosofia from "@/components/brand/BrandFilosofia.astro";
+import BrandMisionVision from "@/components/brand/BrandMisionVision.astro";
+import BrandQueEncontrar from "@/components/brand/BrandQueEncontrar.astro";
+import BrandCTA from "@/components/brand/BrandCTA.astro";
+import { useTranslations } from "@/i18n";
+import { ptToHtml } from "@/lib/brand/brandViewModel";
+import { safeUrlFor } from "@/lib/sanity";
+import type { Brand, Page } from "@/types/sanity.types";
+import type { Locale } from "@/types/index";
+
+interface Props {
+  brand: Brand | null;
+  page: Page | null;
+  lang: Locale;
+}
+
+const { brand, page, lang } = Astro.props;
+const t = useTranslations(lang);
+
+// SEO
+const seoTitle = page?.seo?.metaTitle ?? t("nav.brand");
+const seoDescription =
+  page?.seo?.metaDescription ??
+  (brand ? `${brand.tagline ?? ""} ${brand.name ?? ""}`.trim() : undefined);
+const heroUrl = brand?.heroPhoto
+  ? (safeUrlFor(brand.heroPhoto)?.width(800).height(1000).url() ?? undefined)
+  : undefined;
+
+// Contenido de la página (puede ser null si brand-en aún no existe)
+const intro = page?.aboutContent?.intro;
+const historiaHtml = ptToHtml(page?.aboutContent?.historia);
+const historiaPhoto = page?.aboutContent?.historiaPhoto;
+
+// JSON-LD: Person + Organization
+const personName = brand?.name ?? "";
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "";
+const brandPath = lang === "en" ? "/en/brand" : "/marca";
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    ...(personName
+      ? [
+          {
+            "@type": "Person",
+            name: personName,
+            url: `${siteUrl}${brandPath}`,
+            ...(heroUrl ? { image: heroUrl } : {}),
+          },
+        ]
+      : []),
+    {
+      "@type": "Organization",
+      name: "Esencia Magnética",
+      url: siteUrl,
+      ...(personName
+        ? { founder: { "@type": "Person", name: personName } }
+        : {}),
+    },
+  ],
+});
+
+// hreflang alternates
+const esPath = lang === "es" ? brandPath : "/marca";
+const enPath = lang === "en" ? brandPath : "/en/brand";
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  lang={lang}
+  ogImage={heroUrl}
+  alternates={{ es: esPath, en: enPath }}
+  jsonLd={jsonLd}
+>
+  <BrandHero brand={brand} intro={intro} />
+  <BrandHistoria photo={historiaPhoto} historiaHtml={historiaHtml} t={t} />
+  <BrandFilosofia t={t} />
+  <BrandMisionVision mission={brand?.mission} vision={brand?.vision} t={t} />
+  <BrandQueEncontrar t={t} lang={lang} />
+  <BrandCTA t={t} lang={lang} />
+</BaseLayout>
