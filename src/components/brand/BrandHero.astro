@@ -1,0 +1,66 @@
+---
+// src/components/brand/BrandHero.astro
+import type { Brand } from "@/types/sanity.types";
+import { safeUrlFor } from "@/lib/sanity";
+
+interface Props {
+  brand: Brand | null;
+  intro?: string;
+}
+
+const { brand, intro } = Astro.props;
+
+const heroUrl = brand?.heroPhoto
+  ? (safeUrlFor(brand.heroPhoto)?.width(600).height(750).url() ?? null)
+  : null;
+---
+
+<section
+  class="mx-auto grid max-w-[var(--container)] grid-cols-1 items-center gap-10 px-[var(--gutter)] py-[var(--space-9)] md:grid-cols-[1.05fr_1fr]"
+>
+  <div>
+    {
+      brand?.tagline && (
+        <div
+          class="font-script text-gold mb-2 leading-none"
+          style="font-size: clamp(2rem, 4vw, 46px)"
+        >
+          {brand.tagline}
+        </div>
+      )
+    }
+    {
+      brand?.name && (
+        <h1
+          class="text-olive mb-5 font-serif leading-none font-semibold tracking-tight"
+          style="font-size: clamp(2.8rem, 5vw, 4.2rem)"
+        >
+          {brand.name}
+        </h1>
+      )
+    }
+    {
+      intro && (
+        <p class="text-olive-soft leading-normal" style="font-size: 20px">
+          {intro}
+        </p>
+      )
+    }
+  </div>
+
+  {
+    heroUrl ? (
+      <img
+        src={heroUrl}
+        alt={brand?.name ?? ""}
+        class="aspect-[4/5] w-full rounded-xl object-cover shadow-md"
+        loading="eager"
+      />
+    ) : (
+      <div
+        class="from-rose-nude to-gold-soft aspect-[4/5] w-full rounded-xl bg-gradient-to-br shadow-md"
+        aria-hidden="true"
+      />
+    )
+  }
+</section>
