@@ -1,0 +1,73 @@
+---
+// src/components/brand/BrandQueEncontrar.astro
+import type { useTranslations } from "@/i18n";
+import type { Locale } from "@/types/index";
+import Badge from "@/components/ui/Badge.astro";
+import { ArrowRight } from "@lucide/astro";
+
+interface Props {
+  t: ReturnType<typeof useTranslations>;
+  lang: Locale;
+}
+
+const { t, lang } = Astro.props;
+
+const cards = [
+  {
+    label: t("nav.blog"),
+    title: t("brand.blog.title"),
+    desc: t("brand.blog.desc"),
+    href: lang === "en" ? "/en/blog" : "/blog",
+  },
+  {
+    label: t("nav.products"),
+    title: t("brand.products.title"),
+    desc: t("brand.products.desc"),
+    href: lang === "en" ? "/en/products" : "/productos",
+  },
+];
+---
+
+<section
+  class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-9)]"
+>
+  <div class="mb-[var(--space-7)] text-center">
+    <Badge tone="gold">{t("brand.site.badge")}</Badge>
+    <h2
+      class="text-olive mt-3 font-serif leading-tight font-semibold"
+      style="font-size: clamp(2rem, 3.5vw, 2.8rem)"
+    >
+      {t("brand.site.heading")}
+    </h2>
+  </div>
+
+  <div
+    class="mx-auto grid max-w-[760px] grid-cols-1 gap-[var(--space-6)] sm:grid-cols-2"
+  >
+    {
+      cards.map((card) => (
+        <a
+          href={card.href}
+          class="border-line bg-cream-card block rounded-lg border p-[var(--space-6)] transition hover:-translate-y-1 hover:shadow-md"
+        >
+          <span class="text-gold text-overline font-sans font-bold tracking-wide uppercase">
+            {card.label}
+          </span>
+          <h3 class="text-olive mt-2 mb-3 font-serif text-2xl leading-tight font-semibold">
+            {card.title}
+          </h3>
+          <p
+            class="text-olive-soft mb-4 leading-normal"
+            style="font-size: 16px"
+          >
+            {card.desc}
+          </p>
+          <span class="text-gold text-small inline-flex items-center gap-1 font-sans font-bold tracking-wide uppercase">
+            {t("brand.site.cta")}
+            <ArrowRight class="h-4 w-4 shrink-0" />
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</section>
