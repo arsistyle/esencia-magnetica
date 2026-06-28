@@ -12,6 +12,11 @@
 @import "@fontsource/lato/900.css";
 @import "@fontsource/great-vibes/400.css";
 
+/* ─── Alpine.js ──────────────────────────────────── */
+[x-cloak] {
+  display: none !important;
+}
+
 /* ─── Tailwind ───────────────────────────────────── */
 @import "tailwindcss";
 @source "../lib/ui/*.ts";
@@ -126,4 +131,71 @@ html {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* ─── Post body (Portable Text → set:html) ───────── */
+/* > combinator: aplica solo a hijos directos, no afecta la section del productList */
+.post-body {
+  & > p {
+    font-size: var(--text-body);
+    line-height: var(--leading-relaxed);
+    color: var(--color-olive);
+    margin-bottom: var(--space-5);
+  }
+  & > h2 {
+    font-family: var(--font-serif);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--color-olive);
+    margin-top: var(--space-7);
+    margin-bottom: var(--space-4);
+  }
+  & > h3 {
+    font-family: var(--font-serif);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--color-olive);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+  & > blockquote {
+    border-left: 4px solid var(--color-gold);
+    padding-left: var(--space-5);
+    font-style: italic;
+    font-size: var(--text-lead);
+    color: var(--color-olive-soft);
+    margin-block: var(--space-6);
+  }
+  & > p a {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity var(--duration-fast);
+  }
+  & > p a:hover {
+    opacity: 0.8;
+  }
+  & strong {
+    font-weight: 600;
+    color: var(--color-olive);
+  }
+  & > ul,
+  & > ol {
+    padding-left: var(--space-5);
+    margin-block: var(--space-4);
+    color: var(--color-olive);
+    line-height: var(--leading-relaxed);
+  }
+  & > ul {
+    list-style: disc;
+  }
+  & > ol {
+    list-style: decimal;
+  }
+  & > ul li,
+  & > ol li {
+    margin-bottom: var(--space-1);
+  }
 }

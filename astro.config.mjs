@@ -6,8 +6,10 @@ import path from 'path'
 import { loadEnv } from 'vite'
 import sanity from '@sanity/astro'
 import cloudflare from '@astrojs/cloudflare'
+import alpinejs from '@astrojs/alpinejs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const isDev = process.env.NODE_ENV !== 'production'
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
   process.env.NODE_ENV ?? 'development',
@@ -17,7 +19,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 export default defineConfig({
   output: 'static',
-  adapter: cloudflare(),
+  adapter: isDev ? undefined : cloudflare(),
   site: 'https://esencia-magnetica.com',
   i18n: {
     defaultLocale: 'es',
@@ -30,6 +32,7 @@ export default defineConfig({
       apiVersion: '2025-01-01',
       useCdn: false,
     }),
+    alpinejs(),
   ],
   vite: {
     plugins: [tailwindcss()],
