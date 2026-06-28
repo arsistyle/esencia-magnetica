@@ -93,3 +93,33 @@ export const postsCountQuery = defineQuery(`
     && ($q == "" || title match ($q + "*") || pt::text(body) match ($q + "*"))
   ])
 `);
+
+export const productsFilteredQuery = defineQuery(`
+  *[_type == "product" && language == $lang && active == true
+    && ($categoria == "" || category->slug.current == $categoria)
+    && ($tienda == "" || store == $tienda)
+    && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
+  ] | order(publishedAt desc) [$offset...$end] {
+    _id, name, image, affiliateUrl, store, shortDescription,
+    "category": category->{ _id, name, slug }
+  }
+`);
+
+export const productsFilteredByNameQuery = defineQuery(`
+  *[_type == "product" && language == $lang && active == true
+    && ($categoria == "" || category->slug.current == $categoria)
+    && ($tienda == "" || store == $tienda)
+    && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
+  ] | order(name asc) [$offset...$end] {
+    _id, name, image, affiliateUrl, store, shortDescription,
+    "category": category->{ _id, name, slug }
+  }
+`);
+
+export const productsFilteredCountQuery = defineQuery(`
+  count(*[_type == "product" && language == $lang && active == true
+    && ($categoria == "" || category->slug.current == $categoria)
+    && ($tienda == "" || store == $tienda)
+    && ($q == "" || name match ($q + "*") || shortDescription match ($q + "*"))
+  ])
+`);
