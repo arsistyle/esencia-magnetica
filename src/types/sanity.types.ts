@@ -62,13 +62,7 @@ export type Brand = {
   mission?: SimplePortableText;
   vision?: SimplePortableText;
   logo?: SimpleImage;
-  socialLinks?: {
-    instagram?: string;
-    youtube?: string;
-    facebook?: string;
-    tiktok?: string;
-    pinterest?: string;
-  };
+  socialLinks?: Array<{ platform?: string; url?: string }>;
 };
 
 export type PageTemplate = "home" | "blog" | "products" | "about" | "default";

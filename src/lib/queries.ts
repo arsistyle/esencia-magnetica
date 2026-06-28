@@ -56,7 +56,7 @@ export const brandQuery = defineQuery(`
     mission,
     vision,
     logo { asset, hotspot, crop },
-    socialLinks { instagram, youtube, facebook, tiktok, pinterest }
+    socialLinks[] { platform, url }
   }
 `);
 
