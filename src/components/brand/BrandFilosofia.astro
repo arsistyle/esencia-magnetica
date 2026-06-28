@@ -34,12 +34,11 @@ const pillars = [
   <div class="mb-[var(--space-7)] text-center">
     <Badge tone="rose">{t("brand.filosofia.badge")}</Badge>
     <h2
-      class="text-olive mt-3 mb-2 font-serif leading-tight font-semibold"
-      style="font-size: clamp(2rem, 3.5vw, 2.8rem)"
+      class="text-olive text-h2 mt-3 mb-2 font-serif leading-tight font-semibold"
     >
       {t("brand.filosofia.heading")}
     </h2>
-    <p class="text-olive-soft mx-auto max-w-[560px]" style="font-size: 17px">
+    <p class="text-olive-soft text-lead mx-auto max-w-[560px]">
       {t("brand.filosofia.lead")}
     </p>
   </div>
@@ -49,8 +48,7 @@ const pillars = [
       pillars.map((p) => (
         <div class="text-center">
           <span
-            class="text-gold font-serif leading-none italic"
-            style="font-size: 40px"
+            class="text-gold text-h1 font-serif leading-none italic"
             aria-hidden="true"
           >
             {p.num}
@@ -58,9 +56,7 @@ const pillars = [
           <h3 class="text-olive mt-3 mb-2 font-serif text-2xl font-semibold">
             {p.title}
           </h3>
-          <p class="text-olive-soft leading-normal" style="font-size: 16px">
-            {p.desc}
-          </p>
+          <p class="text-olive-soft text-body leading-normal">{p.desc}</p>
         </div>
       ))
     }
