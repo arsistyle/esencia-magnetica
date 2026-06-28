@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
-**Fecha:** 2026-06-27  
-**Estado actual:** Stage 06 completo (+ fixes post-entrega) ✅ · Próximo: Stage 07
+**Fecha:** 2026-06-28  
+**Estado actual:** Stage 07 completo (Product Catalog) ✅ · Próximo: Stage 08
 
 ---
 
@@ -64,6 +64,18 @@ Stages 01–06 terminados. Stage 06 tuvo una ronda de fixes después de la entre
 - **`height` prop configurable** en `MarqueeRow` (default `"300px"`).
 - **`document.querySelectorAll`** (no `window.document`) — ESLint lanza `no-unused-expressions` con `window.document`.
 
+### Blog UI/UX improvements (post Stage 06)
+
+- **No React** — todo el blog es Astro puro con `<script>` vanilla JS. No instalar ni usar React islands en esta área.
+- **Filtros como overlays modales** (`BlogFilterModals.astro`) — reemplaza `BlogFilters.astro`. Dos botones (Buscar / Filtrar) abren overlays separados. Estado del chip activo via `has-[input:checked]:*` (CSS puro, sin JS). Overlay cierra con clic en backdrop o Escape.
+- **`@apply` en `<style>` de componente Astro requiere `@reference`** — en Tailwind v4 no ve los tokens custom del `@theme`. Solución alternativa: usar los variants de Tailwind directamente en el atributo `class`, o CSS con `var(--token)` en `<style is:global>`.
+- **Clases en template literals de frontmatter** — clases Tailwind dentro de callbacks de `toHTML()` pueden no ser escaneadas de forma fiable. Solución: CSS class `.post-body` en `global.css` con `var()` custom properties (sin `@apply`).
+- **`.post-body` usa selectores hijo directo (`>`)** — `& > p`, `& > h2`, etc. Evita que los estilos afecten al `<section>` anidado del `productList`. Los links de texto son `& > p a` (siempre dentro de `<p>`).
+- **`YoutubeEmbed.url` no `YoutubeEmbed.videoId`** — el schema Sanity guarda la URL completa en `url`, no el ID. Extraer con: `url.match(/[?&]v=([^&]+)/) ?? url.match(/youtu\.be\/([^?/]+)/)`.
+- **`blockContent` sin H1** — el schema del Studio define `styles` explícito: `normal`, `h2`, `h3`, `blockquote`. H1 removido para no competir con el título del post.
+- **Excerpt limitado a 200 caracteres** — validación `r.max(200)` en `post.ts` del Studio. El frontend no necesita `line-clamp` — la fuente de verdad es el schema.
+- **`Breadcrumb.astro`** — componente cross-cutting en `src/components/`. Separator `" — "` por defecto. Recibe `items: { label, href? }[]` y `lang`.
+
 ### Blog (Stage 06)
 
 - **`output: 'static'` + `prerender = false` por página** — `output: 'hybrid'` fue eliminado en Astro v6. Las páginas del blog usan `export const prerender = false` para ser SSR.
@@ -83,6 +95,76 @@ Stages 01–06 terminados. Stage 06 tuvo una ronda de fixes después de la entre
 ### Build conocido (pendiente)
 
 - **`pnpm run build` falla** con: `rollupOptions.input should not be an html file when building for SSR`. Incompatibilidad entre `@astrojs/cloudflare@14.0.1` y Vite 7.3.5. **El dev server funciona correctamente.** Resolver actualizando el adapter cuando haya un patch compatible.
+
+---
+
+## Stage 06 — UI/UX Improvements (2026-06-28)
+
+### Archivos creados / modificados
+
+| Cambio                                                                                     | Archivo                                                           |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `BlogFilterModals.astro` — overlays Buscar + Filtrar (reemplaza `BlogFilters.astro`)       | `src/components/blog/BlogFilterModals.astro`                      |
+| `Breadcrumb.astro` — componente cross-cutting                                              | `src/components/Breadcrumb.astro`                                 |
+| PostHero — alineado a la izquierda (era centrado)                                          | `src/components/blog/PostHero.astro`                              |
+| Blog listing ES+EN — breadcrumb + header flex space-between                                | `src/pages/blog/index.astro` · `src/pages/en/blog/index.astro`    |
+| BlogPostLayout — breadcrumb sobre PostHero                                                 | `src/layouts/BlogPostLayout.astro`                                |
+| PostBody — YouTube: `value.url` → extrae ID con regex                                      | `src/components/blog/PostBody.astro`                              |
+| PostBody — block handlers sin clases inline (CSS maneja los estilos)                       | `src/components/blog/PostBody.astro`                              |
+| `.post-body` en global.css — estilos tipográficos con `var()`, selectores hijo directo `>` | `src/styles/global.css`                                           |
+| blockContent — `styles` explícito sin H1                                                   | `E:\esencia-magnetica-studio\schemaTypes\objects\blockContent.ts` |
+| post.ts — excerpt `max(200)` con descripción                                               | `E:\esencia-magnetica-studio\schemaTypes\documents\post.ts`       |
+| Páginas placeholder `/productos` y `/marca` (eran 404)                                     | `src/pages/productos/index.astro` · `src/pages/marca/index.astro` |
+
+### Keys i18n nuevas
+
+```
+common.search · common.filter · common.clear_all · common.confirm
+blog.filter.categories · breadcrumb.aria
+```
+
+---
+
+## Stage 07 — Product Catalog (completado)
+
+### Archivos creados / modificados
+
+| Cambio                                                                                                  | Archivo                                                                                           |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `ProductCard.astro` — card afiliado: wrapper `<a>`, imagen 1:1, category kicker, nombre serif, CTA span | `src/components/product/ProductCard.astro`                                                        |
+| `ProductGrid.astro` — grid 3 cols responsive + empty state                                              | `src/components/product/ProductGrid.astro`                                                        |
+| `ProductFilterModals.astro` — overlays Buscar + Filtrar (categorías radio + tienda radio)               | `src/components/product/ProductFilterModals.astro`                                                |
+| `ProductResultsBar.astro` — "N productos · ORDENAR POR" + dropdown Alpine.js                            | `src/components/product/ProductResultsBar.astro`                                                  |
+| `productViewModel.ts` — `buildProductsUrl()` para construir URLs de filtro                              | `src/lib/product/productViewModel.ts`                                                             |
+| `productViewModel.test.ts` — 7 tests para `buildProductsUrl`                                            | `src/lib/product/productViewModel.test.ts`                                                        |
+| GROQ queries filtradas (publishedAt desc + name asc + count)                                            | `src/lib/queries.ts`                                                                              |
+| Constante `PRODUCTS_PER_PAGE = 12`                                                                      | `src/lib/constants.ts`                                                                            |
+| 13 keys i18n `product.*` (ES + EN)                                                                      | `src/i18n/ui.ts`                                                                                  |
+| Test que EN tiene todas las keys de ES                                                                  | `src/i18n/ui.test.ts`                                                                             |
+| Página catálogo ES (`prerender = false`, SSR, queryParams)                                              | `src/pages/productos/index.astro`                                                                 |
+| Página catálogo EN                                                                                      | `src/pages/en/products/index.astro`                                                               |
+| Alpine.js integration + `[x-cloak]` CSS                                                                 | `astro.config.mjs` · `src/styles/global.css`                                                      |
+| Fix View Transitions: scripts filtros envueltos en `astro:page-load` + AbortController                  | `src/components/blog/BlogFilterModals.astro` · `src/components/product/ProductFilterModals.astro` |
+
+### Decisiones clave
+
+- **Sin sidebar desktop** — el FUNDAMENTS.md describía un sidebar sticky de 240px; Claude Design muestra filtros modales (mismo patrón que el blog). Se siguió Claude Design.
+- **Sort "Más populares" = `order(name asc)`** — el schema de `product` no tiene campo de popularidad; se usa orden alfabético como proxy. Renombrar si se añade un campo `featured`.
+- **Tienda como radio (no checkbox)** — selección única por tienda para simplificar el queryParam server-side. Cambiar a checkboxes + múltiples valores si se necesita multi-select.
+- **`ProductCard` wrapper `<a>`** — la card entera es clickeable. El CTA "Ver producto" es un `<span>` visual dentro del `<a>` exterior.
+- **Alpine.js dropdown** — `@astrojs/alpinejs@1.0.0` añadido para el sort select estilizado. URLs pre-construidas server-side con `buildProductsUrl`.
+- **View Transitions fix** — `BlogFilterModals` y `ProductFilterModals` usan `astro:page-load` + AbortController para reinicializar listeners tras cada navegación.
+
+### Keys i18n nuevas (Stage 07)
+
+```
+product.headline · product.lead · product.result · product.results
+product.sort.label · product.sort.recent · product.sort.popular
+product.view · product.empty · product.filter.categories
+product.filter.store · product.filter.all_stores · product.disclosure
+```
+
+### Próximo paso: Stage 08
 
 ---
 
@@ -211,9 +293,9 @@ post.play · blog.headline · blog.lead · blog.shop · blog.shop.subtitle
 
 ---
 
-## Próximo paso: Stage 07
+## Próximo paso: Stage 08
 
-Leer [`docs/stages/stage-07/FUNDAMENTS.md`](docs/stages/stage-07/FUNDAMENTS.md) antes de tocar código.
+Leer [`docs/stages/stage-08/FUNDAMENTS.md`](docs/stages/stage-08/FUNDAMENTS.md) antes de tocar código.
 
 ---
 
