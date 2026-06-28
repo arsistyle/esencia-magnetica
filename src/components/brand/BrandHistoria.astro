@@ -2,24 +2,19 @@
 // src/components/brand/BrandHistoria.astro
 import type { SimpleImage } from "@/types/sanity.types";
 import { safeUrlFor } from "@/lib/sanity";
-import type { useTranslations } from "@/i18n";
 
 interface Props {
   photo?: SimpleImage;
   bodyHtml: string;
   tag?: string;
   title?: string;
-  t: ReturnType<typeof useTranslations>;
 }
 
-const { photo, bodyHtml, tag, title, t } = Astro.props;
+const { photo, bodyHtml, tag, title } = Astro.props;
 
 const photoUrl = photo
   ? (safeUrlFor(photo)?.width(600).height(600).url() ?? null)
   : null;
-
-const sectionTag = tag ?? t("brand.historia.kicker");
-const sectionTitle = title ?? t("brand.historia.heading");
 ---
 
 <section class="bg-lavender px-[var(--gutter)] py-[var(--space-9)]">
@@ -42,27 +37,26 @@ const sectionTitle = title ?? t("brand.historia.heading");
     }
 
     <div>
-      <span
-        class="text-gold text-overline font-sans font-bold tracking-wider uppercase"
-      >
-        {sectionTag}
-      </span>
-      <h2
-        class="text-olive text-h2 mt-3 mb-4 font-serif leading-tight font-semibold"
-      >
-        {sectionTitle}
-      </h2>
-
       {
-        bodyHtml ? (
+        tag && (
+          <span class="text-gold text-overline font-sans font-bold tracking-wider uppercase">
+            {tag}
+          </span>
+        )
+      }
+      {
+        title && (
+          <h2 class="text-olive text-h2 mt-3 mb-4 font-serif leading-tight font-semibold">
+            {title}
+          </h2>
+        )
+      }
+      {
+        bodyHtml && (
           <div
             class="brand-historia text-olive text-lead leading-normal"
             set:html={bodyHtml}
           />
-        ) : (
-          <p class="text-olive-soft text-lead leading-normal italic">
-            — Content coming soon —
-          </p>
         )
       }
     </div>

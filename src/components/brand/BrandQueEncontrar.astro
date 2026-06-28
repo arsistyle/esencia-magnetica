@@ -20,68 +20,60 @@ interface Props {
   cards?: SanityCard[];
 }
 
-const { t, lang, chip, title, cards } = Astro.props;
+const { t, chip, title, cards } = Astro.props;
 
-const sectionChip = chip ?? t("brand.site.badge");
-const sectionTitle = title ?? t("brand.site.heading");
-
-const resolvedCards = cards?.length
-  ? cards.map((c) => ({
-      tag: c.tag ?? "",
-      title: c.title ?? "",
-      desc: c.description ?? "",
-      href: c.url ?? "#",
-    }))
-  : [
-      {
-        tag: t("nav.blog"),
-        title: t("brand.blog.title"),
-        desc: t("brand.blog.desc"),
-        href: lang === "en" ? "/en/blog" : "/blog",
-      },
-      {
-        tag: t("nav.products"),
-        title: t("brand.products.title"),
-        desc: t("brand.products.desc"),
-        href: lang === "en" ? "/en/products" : "/productos",
-      },
-    ];
+const resolvedCards = (cards ?? []).map((c) => ({
+  tag: c.tag,
+  title: c.title,
+  desc: c.description,
+  href: c.url ?? "#",
+}));
 ---
 
 <section
   class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-9)]"
 >
   <div class="mb-[var(--space-7)] text-center">
-    <Badge tone="gold">{sectionChip}</Badge>
-    <h2 class="text-olive text-h2 mt-3 font-serif leading-tight font-semibold">
-      {sectionTitle}
-    </h2>
-  </div>
-
-  <div
-    class="mx-auto grid max-w-[760px] grid-cols-1 gap-[var(--space-6)] sm:grid-cols-2"
-  >
+    {chip && <Badge tone="gold">{chip}</Badge>}
     {
-      resolvedCards.map((card) => (
-        <a
-          href={card.href}
-          class="border-line bg-cream-card block rounded-lg border p-[var(--space-6)] transition hover:-translate-y-1 hover:shadow-md"
-        >
-          <span class="text-gold text-overline font-sans font-bold tracking-wide uppercase">
-            {card.tag}
-          </span>
-          <h3 class="text-olive mt-2 mb-3 font-serif text-2xl leading-tight font-semibold">
-            {card.title}
-          </h3>
-          <p class="text-olive-soft text-body mb-4 leading-normal">
-            {card.desc}
-          </p>
-          <span class="text-gold text-small inline-flex items-center gap-1 font-sans font-bold tracking-wide uppercase">
-            {t("brand.site.cta")}
-            <ArrowRight class="h-4 w-4 shrink-0" />
-          </span>
-        </a>
-      ))
+      title && (
+        <h2 class="text-olive text-h2 mt-3 font-serif leading-tight font-semibold">
+          {title}
+        </h2>
+      )
     }
   </div>
+
+  {
+    resolvedCards.length > 0 && (
+      <div class="mx-auto grid max-w-[760px] grid-cols-1 gap-[var(--space-6)] sm:grid-cols-2">
+        {resolvedCards.map((card) => (
+          <a
+            href={card.href}
+            class="border-line bg-cream-card block rounded-lg border p-[var(--space-6)] transition hover:-translate-y-1 hover:shadow-md"
+          >
+            {card.tag && (
+              <span class="text-gold text-overline font-sans font-bold tracking-wide uppercase">
+                {card.tag}
+              </span>
+            )}
+            {card.title && (
+              <h3 class="text-olive mt-2 mb-3 font-serif text-2xl leading-tight font-semibold">
+                {card.title}
+              </h3>
+            )}
+            {card.desc && (
+              <p class="text-olive-soft text-body mb-4 leading-normal">
+                {card.desc}
+              </p>
+            )}
+            <span class="text-gold text-small inline-flex items-center gap-1 font-sans font-bold tracking-wide uppercase">
+              {t("brand.site.cta")}
+              <ArrowRight class="h-4 w-4 shrink-0" />
+            </span>
+          </a>
+        ))}
+      </div>
+    )
+  }
 </section>

@@ -36,24 +36,24 @@ const ac = page?.aboutContent;
 
 const intro = ac?.intro;
 
-const historyEnabled = ac?.history?.enabled ?? true;
+const historyEnabled = ac?.history?.enabled ?? false;
 const historyTag = ac?.history?.tag;
 const historyTitle = ac?.history?.title;
 const historyPhoto = ac?.history?.photo;
 const historyBodyHtml = ptToHtml(ac?.history?.body);
 
-const philosophyEnabled = ac?.philosophy?.enabled ?? true;
+const philosophyEnabled = ac?.philosophy?.enabled ?? false;
 const philosophyChip = ac?.philosophy?.chip;
 const philosophyTitle = ac?.philosophy?.title;
 const philosophyDesc = ac?.philosophy?.description;
 const philosophyPillars = ac?.philosophy?.pillars;
 
-const whatYouFindEnabled = ac?.whatYouFind?.enabled ?? true;
+const whatYouFindEnabled = ac?.whatYouFind?.enabled ?? false;
 const whatYouFindChip = ac?.whatYouFind?.chip;
 const whatYouFindTitle = ac?.whatYouFind?.title;
 const whatYouFindCards = ac?.whatYouFind?.cards;
 
-const blogCtaEnabled = ac?.blogCta?.enabled ?? true;
+const blogCtaEnabled = ac?.blogCta?.enabled ?? false;
 const blogCtaTitle = ac?.blogCta?.title;
 const blogCtaButtonText = ac?.blogCta?.buttonText;
 const blogCtaButtonUrl = ac?.blogCta?.buttonUrl;
@@ -108,7 +108,6 @@ const enPath = lang === "en" ? brandPath : "/en/brand";
         bodyHtml={historyBodyHtml}
         tag={historyTag}
         title={historyTitle}
-        t={t}
       />
     )
   }
@@ -119,7 +118,6 @@ const enPath = lang === "en" ? brandPath : "/en/brand";
         title={philosophyTitle}
         description={philosophyDesc}
         pillars={philosophyPillars}
-        t={t}
       />
     )
   }
@@ -141,7 +139,6 @@ const enPath = lang === "en" ? brandPath : "/en/brand";
         title={blogCtaTitle}
         buttonText={blogCtaButtonText}
         buttonUrl={blogCtaButtonUrl}
-        t={t}
         lang={lang}
       />
     )

@@ -1,34 +1,38 @@
 ---
 // src/components/brand/BrandCTA.astro
-import type { useTranslations } from "@/i18n";
 import type { Locale } from "@/types/index";
 import Button from "@/components/ui/Button.astro";
 
 interface Props {
-  t: ReturnType<typeof useTranslations>;
   lang: Locale;
   title?: string;
   buttonText?: string;
   buttonUrl?: string;
 }
 
-const { t, lang, title, buttonText, buttonUrl } = Astro.props;
+const { lang, title, buttonText, buttonUrl } = Astro.props;
 
-const sectionTitle = title ?? t("brand.cta.heading");
-const sectionButtonText = buttonText ?? t("brand.cta.button");
 const sectionButtonUrl = buttonUrl ?? (lang === "en" ? "/en/blog" : "/blog");
 ---
 
 <section
   class="bg-rose-nude px-[var(--gutter)] py-[var(--space-9)] text-center"
 >
-  <h2
-    class="text-olive text-h2 mx-auto mb-[var(--space-5)] font-serif leading-tight font-semibold"
-    style="max-width: 600px"
-  >
-    {sectionTitle}
-  </h2>
-  <Button variant="primary" size="lg" href={sectionButtonUrl}>
-    {sectionButtonText}
-  </Button>
+  {
+    title && (
+      <h2
+        class="text-olive text-h2 mx-auto mb-[var(--space-5)] font-serif leading-tight font-semibold"
+        style="max-width: 600px"
+      >
+        {title}
+      </h2>
+    )
+  }
+  {
+    buttonText && (
+      <Button variant="primary" size="lg" href={sectionButtonUrl}>
+        {buttonText}
+      </Button>
+    )
+  }
 </section>

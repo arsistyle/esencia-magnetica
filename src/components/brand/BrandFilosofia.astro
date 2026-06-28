@@ -1,72 +1,68 @@
 ---
 // src/components/brand/BrandFilosofia.astro
-import type { useTranslations } from "@/i18n";
 import Badge from "@/components/ui/Badge.astro";
 
 interface Props {
-  t: ReturnType<typeof useTranslations>;
   chip?: string;
   title?: string;
   description?: string;
   pillars?: Array<{ title?: string; desc?: string }>;
 }
 
-const { t, chip, title, description, pillars } = Astro.props;
+const { chip, title, description, pillars } = Astro.props;
 
-const sectionChip = chip ?? t("brand.filosofia.badge");
-const sectionTitle = title ?? t("brand.filosofia.heading");
-const sectionDesc = description ?? t("brand.filosofia.lead");
-
-const resolvedPillars = [
-  {
-    num: "01",
-    title: pillars?.[0]?.title ?? t("brand.pillar.1.title"),
-    desc: pillars?.[0]?.desc ?? t("brand.pillar.1.desc"),
-  },
-  {
-    num: "02",
-    title: pillars?.[1]?.title ?? t("brand.pillar.2.title"),
-    desc: pillars?.[1]?.desc ?? t("brand.pillar.2.desc"),
-  },
-  {
-    num: "03",
-    title: pillars?.[2]?.title ?? t("brand.pillar.3.title"),
-    desc: pillars?.[2]?.desc ?? t("brand.pillar.3.desc"),
-  },
-];
+const activePillars = (pillars ?? [])
+  .filter((p) => p.title || p.desc)
+  .map((p, i) => ({
+    num: String(i + 1).padStart(2, "0"),
+    title: p.title,
+    desc: p.desc,
+  }));
 ---
 
 <section
   class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-9)]"
 >
   <div class="mb-[var(--space-7)] text-center">
-    <Badge tone="rose">{sectionChip}</Badge>
-    <h2
-      class="text-olive text-h2 mt-3 mb-2 font-serif leading-tight font-semibold"
-    >
-      {sectionTitle}
-    </h2>
-    <p class="text-olive-soft text-lead mx-auto max-w-[560px]">
-      {sectionDesc}
-    </p>
-  </div>
-
-  <div class="grid grid-cols-1 gap-[var(--space-7)] sm:grid-cols-3">
+    {chip && <Badge tone="rose">{chip}</Badge>}
     {
-      resolvedPillars.map((p) => (
-        <div class="text-center">
-          <span
-            class="text-gold text-h1 font-serif leading-none italic"
-            aria-hidden="true"
-          >
-            {p.num}
-          </span>
-          <h3 class="text-olive mt-3 mb-2 font-serif text-2xl font-semibold">
-            {p.title}
-          </h3>
-          <p class="text-olive-soft text-body leading-normal">{p.desc}</p>
-        </div>
-      ))
+      title && (
+        <h2 class="text-olive text-h2 mt-3 mb-2 font-serif leading-tight font-semibold">
+          {title}
+        </h2>
+      )
+    }
+    {
+      description && (
+        <p class="text-olive-soft text-lead mx-auto max-w-[560px]">
+          {description}
+        </p>
+      )
     }
   </div>
+
+  {
+    activePillars.length > 0 && (
+      <div class="grid grid-cols-1 gap-[var(--space-7)] sm:grid-cols-3">
+        {activePillars.map((p) => (
+          <div class="text-center">
+            <span
+              class="text-gold text-h1 font-serif leading-none italic"
+              aria-hidden="true"
+            >
+              {p.num}
+            </span>
+            {p.title && (
+              <h3 class="text-olive mt-3 mb-2 font-serif text-2xl font-semibold">
+                {p.title}
+              </h3>
+            )}
+            {p.desc && (
+              <p class="text-olive-soft text-body leading-normal">{p.desc}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
 </section>
