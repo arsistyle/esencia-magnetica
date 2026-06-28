@@ -1,0 +1,47 @@
+---
+// src/components/product/ProductGrid.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import ProductCard from "./ProductCard.astro";
+
+interface ProductItem {
+  _id: string;
+  name: string;
+  image?: unknown;
+  affiliateUrl: string;
+  store?: string;
+  category?: {
+    _id: string;
+    name: Record<string, string>;
+    slug: { current: string };
+  };
+}
+
+interface Props {
+  products: ProductItem[];
+  lang: Locale;
+}
+
+const { products, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  products.length === 0 ? (
+    <p class="text-olive-soft text-lead py-16 text-center">
+      {t("product.empty")}
+    </p>
+  ) : (
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {products.map((p) => (
+        <ProductCard
+          name={p.name}
+          category={p.category?.name?.[lang] ?? p.category?.name?.es}
+          image={p.image}
+          href={p.affiliateUrl}
+          ctaLabel={t("product.view")}
+        />
+      ))}
+    </div>
+  )
+}
