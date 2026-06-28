@@ -1,0 +1,69 @@
+---
+// src/components/product/ProductCard.astro
+import { ArrowUpRight } from "@lucide/astro";
+import { resolveImageUrl } from "@/lib/sanity";
+
+interface Props {
+  name: string;
+  category?: string;
+  image?: unknown;
+  badge?: string;
+  href: string;
+  ctaLabel: string;
+}
+
+const { name, category, image, badge, href, ctaLabel } = Astro.props;
+const imgUrl = resolveImageUrl(image as Parameters<typeof resolveImageUrl>[0], {
+  width: 480,
+  height: 480,
+});
+---
+
+<div
+  class="bg-surface-card border-line flex flex-col overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
+>
+  <div
+    class="from-cream-deep to-rose-nude relative aspect-square overflow-hidden bg-gradient-to-br"
+  >
+    {
+      imgUrl && (
+        <img
+          src={imgUrl}
+          alt={name}
+          width="480"
+          height="480"
+          loading="lazy"
+          class="h-full w-full object-cover"
+        />
+      )
+    }
+    {
+      badge && (
+        <span class="bg-gold text-cream rounded-pill absolute top-3 left-3 px-2.5 py-1 font-sans text-[11px] font-bold tracking-[0.1em] uppercase">
+          {badge}
+        </span>
+      )
+    }
+  </div>
+  <div class="flex flex-1 flex-col gap-1.5 p-5">
+    {
+      category && (
+        <span class="text-gold font-sans text-[12px] font-bold tracking-[0.12em] uppercase">
+          {category}
+        </span>
+      )
+    }
+    <h4 class="text-olive font-serif text-[20px] leading-snug font-semibold">
+      {name}
+    </h4>
+    <a
+      href={href}
+      target="_blank"
+      rel="sponsored nofollow noopener"
+      class="text-gold mt-auto inline-flex items-center gap-2 pt-4 font-sans text-[13px] font-bold tracking-[0.06em] uppercase transition-opacity hover:opacity-75"
+    >
+      {ctaLabel}
+      <ArrowUpRight class="h-4 w-4 shrink-0" aria-hidden="true" />
+    </a>
+  </div>
+</div>
