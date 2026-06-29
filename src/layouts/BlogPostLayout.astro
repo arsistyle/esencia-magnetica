@@ -10,6 +10,7 @@ import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
 import { toHTML } from "@portabletext/to-html";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo";
 
 type PortableTextBody = Parameters<typeof toHTML>[0];
 
@@ -27,6 +28,7 @@ interface Props {
     slug?: { current: string };
     excerpt?: string;
     publishedAt: string;
+    _updatedAt?: string;
     coverImage?: CoverImageLike;
     body?: unknown[];
     category?: { name: Record<string, string> };
@@ -54,6 +56,27 @@ const siteBase = Astro.site?.toString().replace(/\/$/, "") ?? "";
 const canonicalPath = lang === "es" ? esUrl : enUrl;
 const canonical = `${siteBase}${canonicalPath}`;
 
+const homeUrl = lang === "en" ? `${siteBase}/en` : `${siteBase}/`;
+const blogUrl = lang === "en" ? `${siteBase}/en/blog` : `${siteBase}/blog`;
+
+const articleSchema = buildArticleJsonLd({
+  title: post.title,
+  publishedAt: post.publishedAt,
+  updatedAt: post._updatedAt,
+  authorName: post.authors?.[0]?.name,
+  imageUrl: ogImage ?? null,
+  url: canonical,
+  lang,
+});
+
+const breadcrumbSchema = buildBreadcrumbJsonLd([
+  { name: t("nav.home"), url: homeUrl },
+  { name: t("nav.blog"), url: blogUrl },
+  { name: post.title, url: canonical },
+]);
+
+const jsonLd = `[${articleSchema},${breadcrumbSchema}]`;
+
 const categoryName =
   (post.category?.name as Record<string, string> | undefined)?.[lang] ??
   (post.category?.name as Record<string, string> | undefined)?.es;
@@ -77,6 +100,7 @@ const products = (post.body ?? [])
   lang={lang}
   canonical={canonical}
   alternates={{ es: esUrl, en: enUrl }}
+  jsonLd={jsonLd}
   article={{
     publishedTime: post.publishedAt,
     authors: post.authors?.map((a) => a.name),
