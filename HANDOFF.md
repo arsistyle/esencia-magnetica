@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
-**Fecha:** 2026-06-28 (actualizado)
-**Estado actual:** Stage 08 completo (Marca / About Page) ✅ · Próximo: Stage 09
+**Fecha:** 2026-06-29 (actualizado)
+**Estado actual:** Stage 09 completo (Integrations) ✅ · Próximo: Stage 10
 
 ---
 
@@ -276,7 +276,42 @@ common.result_for · common.results_for · common.clear_search
 - **`page` about ES** (`e0e09813-…`): `history.enabled=true`, `history.body` (3 bloques), `history.photo` (imagen 2304×3072), `philosophy.enabled=true`, `philosophy.pillars[0]` ("Práctico"). Secciones `whatYouFind` y `blogCta` habilitadas pero sin contenido.
 - **Falta:** documento `page` about EN + documento `brand-en`.
 
-### Próximo paso: Stage 09
+---
+
+## Stage 09 — Integrations (completado)
+
+### Archivos creados / modificados
+
+| Cambio                                                                                                             | Archivo                                      |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
+| `src/types/gtag.d.ts` — declaración global `window.dataLayer` + función `gtag`                                     | `src/types/gtag.d.ts`                        |
+| `Analytics.astro` — init de Consent Mode v2 (denied por defecto) via `<script is:inline set:html>`                 | `src/components/Analytics.astro`             |
+| `CookieBanner.astro` — banner fixed bottom, carga gtag.js dinámicamente al aceptar                                 | `src/components/CookieBanner.astro`          |
+| `BaseLayout.astro` — `<Analytics />` como primer hijo de `<head>`, `<CookieBanner />` antes de `</body>`           | `src/layouts/BaseLayout.astro`               |
+| `FacebookComments.astro` — IntersectionObserver lazy-load, guard doble-inyección SDK                               | `src/components/blog/FacebookComments.astro` |
+| `BlogPostLayout.astro` — pasa `url={canonical}` y `lang={lang}` a `<FacebookComments />`                           | `src/layouts/BlogPostLayout.astro`           |
+| `PostBody.astro` — `data-ga-event="affiliate_click"` en links + `productList`; facade YouTube dispara `video_play` | `src/components/blog/PostBody.astro`         |
+| `.env.example` — `PUBLIC_GA4_MEASUREMENT_ID` + `PUBLIC_FACEBOOK_PAGE_ID`                                           | `.env.example`                               |
+| Keys i18n: `cookie.banner.text/accept/reject`, `comments.label`                                                    | `src/i18n/ui.ts`                             |
+| `.prettierignore` — añadido `docs/superpowers/`                                                                    | `.prettierignore`                            |
+
+### Decisiones clave (Stage 09)
+
+- **Consent Mode v2 enfoque A (privacy-first):** `analytics_storage: "denied"` por defecto. GA4 no se carga hasta que el usuario acepta. Estado en `localStorage` bajo la clave `cookie_consent` (`'granted'` | `'denied'` | null). El banner no reaparece tras decidir.
+- **`<script is:inline set:html={consentScript}>`** para el init de GA4 en `Analytics.astro` — workaround para un bug de Prettier que falla al parsear `...args` dentro de expresiones JSX en archivos `.astro`. El script se construye en frontmatter como string y se inyecta con `set:html`.
+- **`PUBLIC_GA4_MEASUREMENT_ID` vacío por defecto** — si la env var no está definida, `Analytics.astro` y `CookieBanner.astro` no renderizan nada. El banner solo aparece cuando hay un GA ID configurado.
+- **Facebook Page ID:** `61579741058238`. SDK lazy-loaded con `IntersectionObserver { rootMargin: "200px" }` — se carga cuando el usuario está a 200px del wrapper.
+- **View Transitions + GA4:** `CookieBanner` registra `document.addEventListener("astro:page-load", ...)` para re-disparar `page_view` en cada navegación SPA del `ClientRouter`.
+- **Seguridad XSS:** `escAttr()` (en frontmatter de `PostBody.astro`) escapa `&`, `"`, `<`, `>` antes de interpolar en atributos HTML generados por `@portabletext/to-html`.
+- **`aria-labelledby` en CookieBanner** — no `aria-label` para evitar duplicar el texto del `<p>` como string de accesibilidad.
+
+### Keys i18n nuevas (Stage 09)
+
+```
+cookie.banner.text · cookie.banner.accept · cookie.banner.reject · comments.label
+```
+
+### Próximo paso: Stage 10
 
 ---
 
