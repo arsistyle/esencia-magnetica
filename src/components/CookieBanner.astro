@@ -10,6 +10,7 @@ interface Props {
 const { lang = "es" } = Astro.props;
 const t = useTranslations(lang);
 const gtmId = import.meta.env.PUBLIC_GTM_ID as string | undefined;
+const policyUrl = lang === "en" ? "/en/cookie-policy" : "/politica-de-cookies";
 ---
 
 {
@@ -18,25 +19,33 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID as string | undefined;
       id="cookie-banner"
       role="dialog"
       aria-labelledby="cookie-banner-text"
-      class="bg-olive fixed right-0 bottom-0 left-0 z-50 flex flex-wrap items-center justify-between gap-4 px-6 py-4 shadow-lg"
+      class="border-line bg-cream fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-2xl border p-5 shadow-2xl"
       style="display:none"
     >
-      <p id="cookie-banner-text" class="text-small text-cream font-sans">
-        {t("cookie.banner.text")}
-      </p>
-      <div class="flex shrink-0 gap-3">
-        <button
-          id="cookie-accept"
-          class="bg-gold text-small text-cream rounded-sm px-4 py-2 font-sans font-semibold transition-opacity hover:opacity-90"
-        >
-          {t("cookie.banner.accept")}
-        </button>
-        <button
-          id="cookie-reject"
-          class="border-cream/40 text-small text-cream/80 rounded-sm border px-4 py-2 font-sans transition-opacity hover:opacity-90"
-        >
-          {t("cookie.banner.reject")}
-        </button>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p id="cookie-banner-text" class="text-small text-olive font-sans">
+          {t("cookie.banner.text")}{" "}
+          <a
+            href={policyUrl}
+            class="text-gold underline underline-offset-2 hover:opacity-80"
+          >
+            {t("cookie.banner.policy")}
+          </a>
+        </p>
+        <div class="flex shrink-0 justify-end gap-3">
+          <button
+            id="cookie-reject"
+            class="border-line text-small text-olive/60 rounded-lg border px-4 py-2 font-sans transition-opacity hover:opacity-70"
+          >
+            {t("cookie.banner.reject")}
+          </button>
+          <button
+            id="cookie-accept"
+            class="bg-gold text-small text-cream rounded-lg px-4 py-2 font-sans font-semibold transition-opacity hover:opacity-90"
+          >
+            {t("cookie.banner.accept")}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -44,30 +53,39 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID as string | undefined;
 
 <script>
   const CONSENT_KEY = "cookie_consent";
-  const banner = document.getElementById("cookie-banner") as HTMLElement | null;
 
-  function grantConsent() {
-    gtag("consent", "update", { analytics_storage: "granted" });
-    document.addEventListener("astro:page-load", () => {
+  // Fires on every navigation (View Transitions) — registered once
+  document.addEventListener("astro:page-load", () => {
+    if (localStorage.getItem(CONSENT_KEY) === "granted") {
       gtag("event", "page_view", { page_location: window.location.href });
+    }
+  });
+
+  function init() {
+    const banner = document.getElementById(
+      "cookie-banner",
+    ) as HTMLElement | null;
+    if (!banner) return;
+
+    const stored = localStorage.getItem(CONSENT_KEY);
+    if (stored === "granted") {
+      gtag("consent", "update", { analytics_storage: "granted" });
+    } else if (!stored) {
+      banner.style.display = "flex";
+    }
+
+    document.getElementById("cookie-accept")?.addEventListener("click", () => {
+      localStorage.setItem(CONSENT_KEY, "granted");
+      banner.style.display = "none";
+      gtag("consent", "update", { analytics_storage: "granted" });
+    });
+
+    document.getElementById("cookie-reject")?.addEventListener("click", () => {
+      localStorage.setItem(CONSENT_KEY, "denied");
+      banner.style.display = "none";
     });
   }
 
-  const stored = localStorage.getItem(CONSENT_KEY);
-  if (stored === "granted") {
-    grantConsent();
-  } else if (!stored && banner) {
-    banner.style.display = "flex";
-  }
-
-  document.getElementById("cookie-accept")?.addEventListener("click", () => {
-    localStorage.setItem(CONSENT_KEY, "granted");
-    if (banner) banner.style.display = "none";
-    grantConsent();
-  });
-
-  document.getElementById("cookie-reject")?.addEventListener("click", () => {
-    localStorage.setItem(CONSENT_KEY, "denied");
-    if (banner) banner.style.display = "none";
-  });
+  document.addEventListener("astro:page-load", init);
+  init();
 </script>

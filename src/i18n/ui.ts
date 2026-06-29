@@ -99,6 +99,7 @@ export const ui = {
     "brand.cta.button": "Empezar por el blog",
     "cookie.banner.text":
       "Usamos cookies analíticas para mejorar tu experiencia.",
+    "cookie.banner.policy": "Ver política de cookies",
     "cookie.banner.accept": "Aceptar",
     "cookie.banner.reject": "Rechazar",
     "comments.label": "Comentarios",
@@ -203,6 +204,7 @@ export const ui = {
     "brand.cta.button": "Start with the blog",
     "cookie.banner.text":
       "We use analytics cookies to improve your experience.",
+    "cookie.banner.policy": "View cookie policy",
     "cookie.banner.accept": "Accept",
     "cookie.banner.reject": "Decline",
     "comments.label": "Comments",
