@@ -27,6 +27,18 @@ describe("resolveImageUrl", () => {
   it("returns null for source with no asset ref", () => {
     expect(resolveImageUrl({})).toBeNull();
   });
+
+  it("applies format param to Sanity asset URL", () => {
+    const src = { asset: { _ref: "image-abc123def456-100x100-jpg" } };
+    const url = resolveImageUrl(src, { format: "webp" });
+    expect(url).toContain("fm=webp");
+  });
+
+  it("applies quality param to Sanity asset URL", () => {
+    const src = { asset: { _ref: "image-abc123def456-100x100-jpg" } };
+    const url = resolveImageUrl(src, { quality: 80 });
+    expect(url).toContain("q=80");
+  });
 });
 
 describe("buildSrcSet", () => {
@@ -42,5 +54,13 @@ describe("buildSrcSet", () => {
 
   it("returns empty string for source with no asset", () => {
     expect(buildSrcSet({}, [400, 800])).toBe("");
+  });
+
+  it("returns srcset string for Sanity asset with multiple widths", () => {
+    const src = { asset: { _ref: "image-abc123def456-100x100-jpg" } };
+    const result = buildSrcSet(src, [400, 800], { format: "webp" });
+    expect(result).toContain("400w");
+    expect(result).toContain("800w");
+    expect(result).toContain("fm=webp");
   });
 });

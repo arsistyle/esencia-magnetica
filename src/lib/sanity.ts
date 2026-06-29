@@ -6,7 +6,7 @@ const builder = createImageUrlBuilder(sanityClient);
 
 export const urlFor = (source: SanityImageSource) => builder.image(source);
 
-/** Para imágenes Sanity estándar (tipo `image`). Retorna el builder o null si el ref está vacío. */
+/** For standard Sanity images (type `image`). Returns the builder or null if the asset ref is missing. */
 export function safeUrlFor(source: unknown) {
   const ref = (source as { asset?: { _ref?: string } } | undefined)?.asset
     ?._ref;
@@ -14,7 +14,7 @@ export function safeUrlFor(source: unknown) {
   return builder.image(source as SanityImageSource);
 }
 
-/** Tipo mínimo que describe un campo CoverImage (objeto personalizado con asset + externalUrl). */
+/** Minimal type describing a CoverImage field (custom object with asset + externalUrl). */
 export type CoverImageLike =
   | { externalUrl?: string; asset?: unknown; alt?: string }
   | null
@@ -28,10 +28,10 @@ export interface ImageOpts {
 }
 
 /**
- * Resuelve la URL final de un campo CoverImage.
- * Prioridad: externalUrl → imagen Sanity con parámetros de transformación.
- * format/quality no se aplican a externalUrl (CDN externo, no Sanity).
- * Retorna null si no hay ninguna fuente válida.
+ * Resolves the final URL for a CoverImage field.
+ * Priority: externalUrl → Sanity image with transformation params.
+ * format/quality are not applied to externalUrl (external CDN, not Sanity).
+ * Returns null if no valid source is found.
  */
 export function resolveImageUrl(
   source: CoverImageLike,
@@ -39,7 +39,7 @@ export function resolveImageUrl(
 ): string | null {
   if (!source) return null;
   if (source.externalUrl) return source.externalUrl;
-  const b = safeUrlFor(source.asset);
+  const b = safeUrlFor(source);
   if (!b) return null;
   let img = b;
   if (opts.width && opts.height)
@@ -52,8 +52,8 @@ export function resolveImageUrl(
 }
 
 /**
- * Genera una cadena srcset con múltiples anchos desde Sanity CDN.
- * Retorna '' para fuentes externas (no se pueden redimensionar via Sanity).
+ * Generates a srcset string with multiple widths from the Sanity CDN.
+ * Returns '' for external sources (cannot be resized via Sanity).
  */
 export function buildSrcSet(
   source: CoverImageLike,
