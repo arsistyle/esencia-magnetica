@@ -163,10 +163,13 @@ export const homePageQuery = defineQuery(`
       hero { enabled, tagline, heading, lead, primaryCta, secondaryCta },
       gallery {
         enabled,
-        "images": images[].asset->url
+        "images": images[]{ "url": asset->url }
       },
       latestPosts { enabled, heading, ctaLabel },
-      shopLook { enabled, heading, lead, ctaLabel }
+      shopLook {
+        enabled, heading, lead, ctaLabel,
+        "products": products[]->{_id, name, affiliateUrl, image}
+      }
     }
   }
 `);

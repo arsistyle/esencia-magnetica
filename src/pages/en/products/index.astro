@@ -50,6 +50,9 @@ const [rawProducts, total, categories, settings, pageData] = await Promise.all([
   sanityClient.fetch(productsPageQuery, { lang }),
 ]);
 
+if (!pageData)
+  return new Response(null, { status: 404, statusText: "Not Found" });
+
 const ph = pageData?.productsContent?.hero;
 
 const totalPages = Math.ceil((total ?? 0) / PRODUCTS_PER_PAGE);
@@ -91,12 +94,12 @@ const seoOgImage = settings?.defaultSeo?.ogImage
             <Badge tone="gold" class="mb-3">
               {t("nav.products")}
             </Badge>
-            <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
-              {ph?.heading ?? t("product.headline")}
-            </h1>
-            <p class="text-lead text-olive-soft">
-              {ph?.lead ?? t("product.lead")}
-            </p>
+            {ph?.heading && (
+              <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+                {ph.heading}
+              </h1>
+            )}
+            {ph?.lead && <p class="text-lead text-olive-soft">{ph.lead}</p>}
           </div>
         )
       }

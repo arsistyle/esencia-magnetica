@@ -1,7 +1,6 @@
 ---
 // src/components/home/HomeLatest.astro
 import type { Locale } from "@/types/index";
-import { useTranslations } from "@/i18n";
 import PostCard from "@/components/blog/PostCard.astro";
 
 interface Post {
@@ -24,11 +23,8 @@ interface Props {
 }
 
 const { lang, posts, heading, ctaLabel } = Astro.props;
-const t = useTranslations(lang);
 
 const blogHref = lang === "es" ? "/blog" : "/en/blog";
-const sectionHeading = heading ?? t("home.latest.heading");
-const sectionCta = ctaLabel ?? t("home.latest.cta");
 ---
 
 {
@@ -36,15 +32,19 @@ const sectionCta = ctaLabel ?? t("home.latest.cta");
     <section class="[padding:var(--space-8)_var(--gutter)]">
       <div class="mx-auto max-w-[var(--container)]">
         <div class="mb-10 flex flex-wrap items-baseline justify-between gap-3">
-          <h2 class="text-h2 text-olive m-0 font-serif leading-tight font-semibold">
-            {sectionHeading}
-          </h2>
-          <a
-            href={blogHref}
-            class="text-gold hover:text-gold-deep text-small font-bold tracking-wide uppercase no-underline transition-colors"
-          >
-            {sectionCta} →
-          </a>
+          {heading && (
+            <h2 class="text-h2 text-olive m-0 font-serif leading-tight font-semibold">
+              {heading}
+            </h2>
+          )}
+          {ctaLabel && (
+            <a
+              href={blogHref}
+              class="text-gold hover:text-gold-deep text-small font-bold tracking-wide uppercase no-underline transition-colors"
+            >
+              {ctaLabel} →
+            </a>
+          )}
         </div>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (

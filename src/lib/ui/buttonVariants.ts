@@ -10,7 +10,7 @@ export const buttonVariants = cva(
         secondary:
           "bg-transparent text-olive border border-line-strong hover:bg-cream-deep",
         ghost:
-          "bg-transparent text-gold border border-transparent hover:bg-cream-deep",
+          "bg-transparent text-olive-soft border border-transparent hover:bg-cream-deep hover:text-olive",
         warm: "bg-rose-nude text-olive border border-rose-nude hover:bg-rose-deep",
       },
       size: {

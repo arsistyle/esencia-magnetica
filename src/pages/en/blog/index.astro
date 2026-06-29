@@ -47,8 +47,6 @@ const bc = blogPage?.blogContent;
 const postsPerPage: number = bc?.settings?.postsPerPage ?? POSTS_PER_PAGE;
 const showFeatured: boolean = bc?.settings?.showFeatured ?? true;
 const blogHeroEnabled = bc?.hero?.enabled !== false;
-const blogHeroHeading = bc?.hero?.heading ?? t("blog.headline");
-const blogHeroLead = bc?.hero?.lead ?? t("blog.lead");
 
 const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1"));
 const offset = (page - 1) * postsPerPage;
@@ -107,13 +105,15 @@ const seoOgImage = settings?.defaultSeo?.ogImage
       <div class="max-w-[640px]">
         <Badge tone="gold" class="mb-3">{t("nav.blog")}</Badge>
         {
-          blogHeroEnabled && (
-            <>
-              <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
-                {blogHeroHeading}
-              </h1>
-              <p class="text-lead text-olive-soft">{blogHeroLead}</p>
-            </>
+          blogHeroEnabled && bc?.hero?.heading && (
+            <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+              {bc.hero.heading}
+            </h1>
+          )
+        }
+        {
+          blogHeroEnabled && bc?.hero?.lead && (
+            <p class="text-lead text-olive-soft">{bc.hero.lead}</p>
           )
         }
       </div>

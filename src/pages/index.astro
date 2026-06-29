@@ -14,17 +14,15 @@ import {
   siteSettingsQuery,
   homePageQuery,
   homePostsQuery,
-  homeProductsQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 
 const lang = "es" as const;
 
-const [settings, pageData, posts, products] = await Promise.all([
+const [settings, pageData, posts] = await Promise.all([
   sanityClient.fetch(siteSettingsQuery),
   sanityClient.fetch(homePageQuery, { lang }),
   sanityClient.fetch(homePostsQuery, { lang }),
-  sanityClient.fetch(homeProductsQuery, { lang }),
 ]);
 
 const hc = pageData?.homeContent;
@@ -79,7 +77,7 @@ const seoOgImage = settings?.defaultSeo?.ogImage
     (!hc?.shopLook || hc.shopLook.enabled !== false) && (
       <HomeShopLook
         lang="es"
-        products={products ?? []}
+        products={hc?.shopLook?.products ?? []}
         heading={hc?.shopLook?.heading}
         lead={hc?.shopLook?.lead}
         ctaLabel={hc?.shopLook?.ctaLabel}

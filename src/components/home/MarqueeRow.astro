@@ -58,24 +58,24 @@ const tiles = [...items, ...items, ...items];
 </style>
 
 <script>
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    // One script handles every MarqueeRow instance on the page
+  function initMarquees() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     document
-      .querySelectorAll<HTMLElement>("[data-marquee]")
+      .querySelectorAll<HTMLElement>("[data-marquee]:not([data-mq-init])")
       .forEach((container) => {
+        container.dataset.mqInit = "1";
+
         const direction = container.dataset.direction as "left" | "right";
         const setSize = parseInt(container.dataset.setSize ?? "8", 10);
         const track = container.querySelector<HTMLElement>(".mq-track");
         if (!track) return;
 
-        // Reassign to a new const so TypeScript preserves the non-null type in closures
         const el: HTMLElement = track;
 
-        const BASE_SPEED = 0.6; // px per rAF frame (~60 fps target)
-        const SCROLL_FACTOR = 0.08; // scroll velocity → extra speed
-        const FRICTION = 0.92; // velocity decay per frame
+        const BASE_SPEED = 0.6;
+        const SCROLL_FACTOR = 0.08;
+        const FRICTION = 0.92;
 
-        // wrapValue(x, -setWidth, 0) — keeps position in [-setWidth, 0)
         const wrap = (x: number, sw: number): number =>
           ((((x + sw) % sw) + sw) % sw) - sw;
 
@@ -88,9 +88,12 @@ const tiles = [...items, ...items, ...items];
         };
 
         let sw = measureSet();
-        let x = -sw; // start at -setWidth (showing set 2)
+        let x = -sw;
         let scrollVel = 0;
         let lastY = window.scrollY;
+        let running = true;
+
+        const ac = new AbortController();
 
         window.addEventListener(
           "scroll",
@@ -98,7 +101,16 @@ const tiles = [...items, ...items, ...items];
             scrollVel += Math.abs(window.scrollY - lastY);
             lastY = window.scrollY;
           },
-          { passive: true },
+          { passive: true, signal: ac.signal },
+        );
+
+        document.addEventListener(
+          "astro:before-swap",
+          () => {
+            running = false;
+            ac.abort();
+          },
+          { once: true },
         );
 
         const ro = new ResizeObserver(() => {
@@ -108,6 +120,7 @@ const tiles = [...items, ...items, ...items];
         ro.observe(container);
 
         function tick() {
+          if (!running) return;
           scrollVel *= FRICTION;
           const speed = BASE_SPEED + scrollVel * SCROLL_FACTOR;
           x = direction === "left" ? wrap(x - speed, sw) : wrap(x + speed, sw);
@@ -117,4 +130,7 @@ const tiles = [...items, ...items, ...items];
         requestAnimationFrame(tick);
       });
   }
+
+  document.addEventListener("astro:page-load", initMarquees);
+  initMarquees();
 </script>

@@ -133,6 +133,13 @@ html {
   box-sizing: border-box;
 }
 
+/* ─── Accessibility: focus ring ──────────────────── */
+:focus-visible {
+  outline: 2.5px solid var(--color-gold-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* ─── Post body (Portable Text → set:html) ───────── */
 /* > combinator: aplica solo a hijos directos, no afecta la section del productList */
 .post-body {
@@ -169,8 +176,9 @@ html {
     margin-block: var(--space-6);
   }
   & > p a {
-    color: var(--color-gold);
+    color: var(--color-olive-soft);
     text-decoration: underline;
+    text-decoration-color: var(--color-gold);
     text-underline-offset: 2px;
     transition: opacity var(--duration-fast);
   }

@@ -1,7 +1,6 @@
 ---
 // src/components/home/HomeShopLook.astro
 import type { Locale } from "@/types/index";
-import { useTranslations } from "@/i18n";
 import Badge from "@/components/ui/Badge.astro";
 import Button from "@/components/ui/Button.astro";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
@@ -22,12 +21,8 @@ interface Props {
 }
 
 const { lang, products, heading, lead, ctaLabel } = Astro.props;
-const t = useTranslations(lang);
 
 const catalogHref = lang === "es" ? "/productos" : "/en/products";
-const sectionHeading = heading ?? t("home.shop.heading");
-const sectionLead = lead ?? t("home.shop.lead");
-const sectionCta = ctaLabel ?? t("home.shop.cta");
 
 const GRADIENTS = [
   "linear-gradient(135deg, var(--color-rose-nude), var(--color-cream))",
@@ -51,16 +46,26 @@ function productImageUrl(product: Product): string | null {
   >
     <!-- Copy -->
     <div>
-      <Badge tone="gold">{t("home.shop.badge")}</Badge>
-      <h2
-        class="text-h2 text-olive my-6 font-serif leading-tight font-semibold"
-      >
-        {sectionHeading}
-      </h2>
-      <p class="text-olive-soft text-lead mb-8 leading-normal">
-        {sectionLead}
-      </p>
-      <Button href={catalogHref} variant="warm">{sectionCta}</Button>
+      <Badge tone="gold">Shop el look</Badge>
+      {
+        heading && (
+          <h2 class="text-h2 text-olive my-6 font-serif leading-tight font-semibold">
+            {heading}
+          </h2>
+        )
+      }
+      {
+        lead && (
+          <p class="text-olive-soft text-lead mb-8 leading-normal">{lead}</p>
+        )
+      }
+      {
+        ctaLabel && (
+          <Button href={catalogHref} variant="warm">
+            {ctaLabel}
+          </Button>
+        )
+      }
     </div>
 
     <!-- Product images grid -->
