@@ -155,3 +155,65 @@ export const sitemapPostsQuery = defineQuery(`
     _updatedAt
   }
 `);
+
+// Home page content config
+export const homePageQuery = defineQuery(`
+  *[_type == "page" && template == "home" && language == $lang][0] {
+    homeContent {
+      hero { enabled, tagline, heading, lead, primaryCta, secondaryCta },
+      gallery {
+        enabled,
+        "images": images[].asset->url
+      },
+      latestPosts { enabled, heading, ctaLabel },
+      shopLook { enabled, heading, lead, ctaLabel }
+    }
+  }
+`);
+
+// 3 most recent posts for home page (no filters)
+export const homePostsQuery = defineQuery(`
+  *[_type == "post" && language == $lang && defined(publishedAt)]
+    | order(publishedAt desc) [0...3] {
+    _id, title, slug, excerpt, publishedAt, featured,
+    coverImage, "category": category->{ name, slug },
+    "readTime": round(length(pt::text(body)) / 1000)
+  }
+`);
+
+// 2 most recent active products for home page
+export const homeProductsQuery = defineQuery(`
+  *[_type == "product" && language == $lang && active == true]
+    | order(publishedAt desc) [0...2] {
+    _id, name, affiliateUrl, image
+  }
+`);
+
+// Blog listing page content config
+export const blogPageQuery = defineQuery(`
+  *[_type == "page" && template == "blog" && language == $lang][0] {
+    blogContent {
+      hero { enabled, heading, lead },
+      settings { postsPerPage, showFeatured }
+    }
+  }
+`);
+
+// Products listing page content config
+export const productsPageQuery = defineQuery(`
+  *[_type == "page" && template == "products" && language == $lang][0] {
+    productsContent {
+      hero { enabled, heading, lead }
+    }
+  }
+`);
+
+// Combined site nav: brand logo + all 3 menu slots in one round-trip
+export const siteNavQuery = defineQuery(`
+  {
+    "logo": *[_type == "brand" && _id == $brandId][0].logo.asset->url,
+    "headerMenu": *[_type == "navMenu" && slot == "header" && locale == $locale][0].items,
+    "mobileMenu": *[_type == "navMenu" && slot == "mobile" && locale == $locale][0].items,
+    "footerMenu": *[_type == "navMenu" && slot == "footer" && locale == $locale][0].items
+  }
+`);
