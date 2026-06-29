@@ -342,6 +342,13 @@ cookie.banner.text · cookie.banner.policy · cookie.banner.accept · cookie.ban
 | `siteSettings.defaultSeo` añadido al `Promise.all` existente                                                             | `src/pages/blog/index.astro` · `src/pages/en/blog/index.astro`          |
 | `siteSettings.defaultSeo` añadido al `Promise.all` existente                                                             | `src/pages/productos/index.astro` · `src/pages/en/products/index.astro` |
 
+### Verificación manual completada
+
+- `/sitemap.xml` — XML válido con páginas estáticas y posts publicados con hreflang ES/EN ✅
+- JSON-LD en posts — `Article` + `BreadcrumbList` presentes en source ✅
+- JSON-LD en `/marca` — `Person` + `Organization` presentes en source ✅
+- A11y headings — un solo `<h1>` por página, sin saltos de nivel ✅
+
 ### Decisiones clave (Stage 10)
 
 - **Sanity CDN URL params** — optimización de imágenes via `?fm=webp&q=80&w=800` en el CDN de Sanity. No se necesita CDN externo (Cloudflare Images requiere plan Pro). El `projectId` en la URL es público por diseño (Sanity escribe requiere API token).
