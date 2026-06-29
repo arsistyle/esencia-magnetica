@@ -21,6 +21,13 @@ interface Props {
 const { body, lang } = Astro.props;
 const t = useTranslations(lang);
 
+const escAttr = (s: string) =>
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 const html = toHTML(body, {
   components: {
     types: {
@@ -69,7 +76,7 @@ const html = toHTML(body, {
               ? `<span class="font-sans text-overline font-bold uppercase tracking-wider text-olive-faint">${String(p.store)}</span>`
               : "";
             return [
-              `<a href="${String(p.affiliateUrl ?? "#")}" rel="sponsored nofollow noopener" target="_blank" data-ga-event="affiliate_click" data-ga-label="${String(p.name ?? "")}" class="group flex flex-col gap-3">`,
+              `<a href="${String(p.affiliateUrl ?? "#")}" rel="sponsored nofollow noopener" target="_blank" data-ga-event="affiliate_click" data-ga-label="${escAttr(String(p.name ?? ""))}" class="group flex flex-col gap-3">`,
               img,
               store,
               `<span class="font-serif text-olive transition-colors group-hover:text-gold">${String(p.name ?? "")}</span>`,
@@ -107,7 +114,7 @@ const html = toHTML(body, {
           rel ? ` rel="${rel}"` : "",
           isExternal ? ` target="_blank"` : "",
           value?.isAffiliate
-            ? ` data-ga-event="affiliate_click" data-ga-label="${children}"`
+            ? ` data-ga-event="affiliate_click" data-ga-label="${escAttr(children)}"`
             : "",
           `>${children}</a>`,
         ].join("");
