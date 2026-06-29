@@ -284,31 +284,34 @@ common.result_for · common.results_for · common.clear_search
 
 | Cambio                                                                                                             | Archivo                                      |
 | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| `src/types/gtag.d.ts` — declaración global `window.dataLayer` + función `gtag`                                     | `src/types/gtag.d.ts`                        |
-| `Analytics.astro` — init de Consent Mode v2 (denied por defecto) via `<script is:inline set:html>`                 | `src/components/Analytics.astro`             |
-| `CookieBanner.astro` — banner fixed bottom, carga gtag.js dinámicamente al aceptar                                 | `src/components/CookieBanner.astro`          |
-| `BaseLayout.astro` — `<Analytics />` como primer hijo de `<head>`, `<CookieBanner />` antes de `</body>`           | `src/layouts/BaseLayout.astro`               |
-| `FacebookComments.astro` — IntersectionObserver lazy-load, guard doble-inyección SDK                               | `src/components/blog/FacebookComments.astro` |
+| `src/types/gtag.d.ts` — global `window.dataLayer`, `gtag`, `window.FB`                                             | `src/types/gtag.d.ts`                        |
+| `Analytics.astro` — consent init + carga GTM (no gtag.js directo)                                                  | `src/components/Analytics.astro`             |
+| `CookieBanner.astro` — floating pill, glass effect, link política, persistente con View Transitions                | `src/components/CookieBanner.astro`          |
+| `BaseLayout.astro` — noscript GTM fallback tras `<body>`                                                           | `src/layouts/BaseLayout.astro`               |
+| `FacebookComments.astro` — lazy-load con IntersectionObserver; `FB.XFBML.parse()` en View Transitions              | `src/components/blog/FacebookComments.astro` |
 | `BlogPostLayout.astro` — pasa `url={canonical}` y `lang={lang}` a `<FacebookComments />`                           | `src/layouts/BlogPostLayout.astro`           |
 | `PostBody.astro` — `data-ga-event="affiliate_click"` en links + `productList`; facade YouTube dispara `video_play` | `src/components/blog/PostBody.astro`         |
-| `.env.example` — `PUBLIC_GA4_MEASUREMENT_ID` + `PUBLIC_FACEBOOK_PAGE_ID`                                           | `.env.example`                               |
-| Keys i18n: `cookie.banner.text/accept/reject`, `comments.label`                                                    | `src/i18n/ui.ts`                             |
+| `.env.example` — `PUBLIC_GTM_ID` + `PUBLIC_FACEBOOK_PAGE_ID`                                                       | `.env.example`                               |
+| Keys i18n: `cookie.banner.text/policy/accept/reject`, `comments.label`                                             | `src/i18n/ui.ts`                             |
 | `.prettierignore` — añadido `docs/superpowers/`                                                                    | `.prettierignore`                            |
+| `docs/cookie-policy.md` — contenido completo ES+EN para cargar en Sanity                                           | `docs/cookie-policy.md`                      |
 
 ### Decisiones clave (Stage 09)
 
-- **Consent Mode v2 enfoque A (privacy-first):** `analytics_storage: "denied"` por defecto. GA4 no se carga hasta que el usuario acepta. Estado en `localStorage` bajo la clave `cookie_consent` (`'granted'` | `'denied'` | null). El banner no reaparece tras decidir.
-- **`<script is:inline set:html={consentScript}>`** para el init de GA4 en `Analytics.astro` — workaround para un bug de Prettier que falla al parsear `...args` dentro de expresiones JSX en archivos `.astro`. El script se construye en frontmatter como string y se inyecta con `set:html`.
-- **`PUBLIC_GA4_MEASUREMENT_ID` vacío por defecto** — si la env var no está definida, `Analytics.astro` y `CookieBanner.astro` no renderizan nada. El banner solo aparece cuando hay un GA ID configurado.
-- **Facebook Page ID:** `61579741058238`. SDK lazy-loaded con `IntersectionObserver { rootMargin: "200px" }` — se carga cuando el usuario está a 200px del wrapper.
-- **View Transitions + GA4:** `CookieBanner` registra `document.addEventListener("astro:page-load", ...)` para re-disparar `page_view` en cada navegación SPA del `ClientRouter`.
-- **Seguridad XSS:** `escAttr()` (en frontmatter de `PostBody.astro`) escapa `&`, `"`, `<`, `>` antes de interpolar en atributos HTML generados por `@portabletext/to-html`.
-- **`aria-labelledby` en CookieBanner** — no `aria-label` para evitar duplicar el texto del `<p>` como string de accesibilidad.
+- **GTM en lugar de gtag.js directo** — se usa `PUBLIC_GTM_ID` (formato `GTM-XXXXXXX`). GTM se carga siempre en `<head>`; el Consent Mode v2 bloquea los tags internos hasta que el usuario acepta. No hay carga dinámica de scripts desde el banner — solo se llama `gtag('consent', 'update', ...)`.
+- **`<script is:inline set:html={script}>`** en `Analytics.astro` — workaround para un bug de Prettier que falla al parsear `...args` dentro de expresiones JSX en `.astro`. Los scripts se construyen como strings en frontmatter y se inyectan con `set:html`.
+- **`PUBLIC_GTM_ID` controla todo** — si la env var no está definida, `Analytics.astro` y `CookieBanner.astro` no renderizan nada.
+- **CookieBanner: floating pill con glass effect** — `bg-cream/[0.88] backdrop-blur-[10px]` (mismo que el navbar), `rounded-2xl`, `shadow-2xl`, centrado con `left-1/2 -translate-x-1/2`, max-w-2xl. No se adhiere al borde inferior.
+- **Persistencia en View Transitions** — patrón `init() + document.addEventListener("astro:page-load", init)`. El banner re-evalúa `localStorage` en cada navegación y se muestra si no hay decisión. Mismo patrón que `BlogFilterModals` y `ProductFilterModals`.
+- **Política de cookies** — URL reservada `/politica-de-cookies` (ES) y `/en/cookie-policy` (EN). La página se genera desde Sanity más adelante. El contenido completo está en `docs/cookie-policy.md`.
+- **Facebook Comments + View Transitions** — cuando el SDK ya está cargado (navegación entre posts), se llama `window.FB?.XFBML?.parse()` en lugar de inyectar el script de nuevo.
+- **Facebook Comments en localhost** — el SDK de Facebook requiere una URL pública. En desarrollo el widget no renderiza (expected). En producción (`esencia-magnetica.com`) funciona correctamente.
+- **Seguridad XSS** — `escAttr()` en `PostBody.astro` escapa `&`, `"`, `<`, `>` en atributos `data-ga-label` generados por `@portabletext/to-html`.
 
 ### Keys i18n nuevas (Stage 09)
 
 ```
-cookie.banner.text · cookie.banner.accept · cookie.banner.reject · comments.label
+cookie.banner.text · cookie.banner.policy · cookie.banner.accept · cookie.banner.reject · comments.label
 ```
 
 ### Próximo paso: Stage 10
