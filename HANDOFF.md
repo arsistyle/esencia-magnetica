@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-29 (actualizado)
-**Estado actual:** Stage 09 completo (Integrations) ✅ · Próximo: Stage 10
+**Estado actual:** Stage 10 completo (SEO & i18n Finalization) ✅ · Próximo: Stage 11
 
 ---
 
@@ -314,7 +314,41 @@ common.result_for · common.results_for · common.clear_search
 cookie.banner.text · cookie.banner.policy · cookie.banner.accept · cookie.banner.reject · comments.label
 ```
 
-### Próximo paso: Stage 10
+### Próximo paso: Stage 11
+
+---
+
+## Stage 10 — SEO & i18n Finalization (completado)
+
+### Archivos creados / modificados
+
+| Cambio                                                                                                                   | Archivo                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `resolveImageUrl` — `format`/`quality` params vía `ImageOpts`; fix bug `safeUrlFor(source.asset)`; `buildSrcSet()` nuevo | `src/lib/sanity.ts`                                                     |
+| 10 tests para los helpers de imagen                                                                                      | `src/lib/sanity.test.ts`                                                |
+| `buildArticleJsonLd`, `buildBreadcrumbJsonLd`, `buildBrandJsonLd` — builders JSON-LD puros                               | `src/lib/seo.ts`                                                        |
+| 15 tests para los tres builders                                                                                          | `src/lib/seo.test.ts`                                                   |
+| `sitemapPostsQuery` — todos los posts publicados con `_id`, `slug`, `language`, `_updatedAt`                             | `src/lib/queries.ts`                                                    |
+| Endpoint SSR `/sitemap.xml` — hreflang ES/EN, páginas estáticas + posts dinámicos                                        | `src/pages/sitemap.xml.ts`                                              |
+| `public/robots.txt` — `Allow: /` + referencia al sitemap                                                                 | `public/robots.txt`                                                     |
+| JSON-LD Article + BreadcrumbList vía `BlogPostLayout`                                                                    | `src/layouts/BlogPostLayout.astro`                                      |
+| JSON-LD Person + Organization refactorizado a `buildBrandJsonLd`; añade `logo` + `sameAs`                                | `src/layouts/BrandLayout.astro`                                         |
+| srcset `[400, 800]` WebP quality 80, `loading="lazy"`                                                                    | `src/components/blog/PostCard.astro`                                    |
+| srcset `[800, 1200, 1400]` WebP quality 85, `loading="eager"`                                                            | `src/components/blog/PostHero.astro`                                    |
+| srcset `[800, 1200]` WebP quality 85, `loading="eager"`                                                                  | `src/components/blog/FeaturedPost.astro`                                |
+| srcset `[240, 480]` WebP quality 80                                                                                      | `src/components/product/ProductCard.astro`                              |
+| srcset `[400, 600, 900]` WebP quality 85 — cadena manual `safeUrlFor` (imagen raw, no CoverImageLike)                    | `src/components/brand/BrandHero.astro`                                  |
+| `siteSettings.defaultSeo` como fallback de meta en home ES+EN                                                            | `src/pages/index.astro` · `src/pages/en/index.astro`                    |
+| `siteSettings.defaultSeo` añadido al `Promise.all` existente                                                             | `src/pages/blog/index.astro` · `src/pages/en/blog/index.astro`          |
+| `siteSettings.defaultSeo` añadido al `Promise.all` existente                                                             | `src/pages/productos/index.astro` · `src/pages/en/products/index.astro` |
+
+### Decisiones clave (Stage 10)
+
+- **Sanity CDN URL params** — optimización de imágenes via `?fm=webp&q=80&w=800` en el CDN de Sanity. No se necesita CDN externo (Cloudflare Images requiere plan Pro). El `projectId` en la URL es público por diseño (Sanity escribe requiere API token).
+- **`safeUrlFor(source.asset)`** — para un `CoverImageLike`, `source.asset` ES el objeto Sanity image `{ _type:"image", asset:{ _ref:"..." } }`. `safeUrlFor` lee `x.asset._ref`, por lo que hay que pasar `source.asset` (no `source`) para acceder al `_ref` correcto. Pasar `source` directamente retorna null.
+- **Sitemap SSR** — endpoint dinámico en lugar de estático. Los posts ES se matchean con sus pares EN por `_id.replace('__i18n_en', '')`. Posts sin traducción EN se emiten sin alternates.
+- **`BrandJsonLdParams.personName?: string`** — opcional; string vacío o `undefined` omite el nodo `Person` del `@graph`.
+- **`BrandHero` srcset manual** — `brand.heroPhoto` es un `image` raw de Sanity (no `CoverImageLike`), por lo que `buildSrcSet` no aplica. Se encadena `safeUrlFor(brand.heroPhoto)?.width(X).format('webp').quality(85).url()` directamente para cada breakpoint.
 
 ---
 
