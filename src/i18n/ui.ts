@@ -97,6 +97,11 @@ export const ui = {
     "brand.site.cta": "Explorar",
     "brand.cta.heading": "¿Lista para encontrar tu esencia?",
     "brand.cta.button": "Empezar por el blog",
+    "cookie.banner.text":
+      "Usamos cookies analíticas para mejorar tu experiencia.",
+    "cookie.banner.accept": "Aceptar",
+    "cookie.banner.reject": "Rechazar",
+    "comments.label": "Comentarios",
   },
   en: {
     "nav.home": "Home",
@@ -196,6 +201,11 @@ export const ui = {
     "brand.site.cta": "Explore",
     "brand.cta.heading": "Ready to find your essence?",
     "brand.cta.button": "Start with the blog",
+    "cookie.banner.text":
+      "We use analytics cookies to improve your experience.",
+    "cookie.banner.accept": "Accept",
+    "cookie.banner.reject": "Decline",
+    "comments.label": "Comments",
   },
 } as const;
 
