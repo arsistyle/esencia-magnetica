@@ -1,0 +1,57 @@
+---
+// src/components/home/HomeLatest.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import PostCard from "@/components/blog/PostCard.astro";
+
+interface Post {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  excerpt?: string;
+  publishedAt: string;
+  featured?: boolean;
+  coverImage?: unknown;
+  readTime?: number;
+  category?: { name: Record<string, string>; slug: { current: string } };
+}
+
+interface Props {
+  lang: Locale;
+  posts: Post[];
+  heading?: string | null;
+  ctaLabel?: string | null;
+}
+
+const { lang, posts, heading, ctaLabel } = Astro.props;
+const t = useTranslations(lang);
+
+const blogHref = lang === "es" ? "/blog" : "/en/blog";
+const sectionHeading = heading ?? t("home.latest.heading");
+const sectionCta = ctaLabel ?? t("home.latest.cta");
+---
+
+{
+  posts.length > 0 && (
+    <section class="[padding:var(--space-8)_var(--gutter)]">
+      <div class="mx-auto max-w-[var(--container)]">
+        <div class="mb-10 flex flex-wrap items-baseline justify-between gap-3">
+          <h2 class="text-h2 text-olive m-0 font-serif leading-tight font-semibold">
+            {sectionHeading}
+          </h2>
+          <a
+            href={blogHref}
+            class="text-gold hover:text-gold-deep text-small font-bold tracking-wide uppercase no-underline transition-colors"
+          >
+            {sectionCta} →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <PostCard post={post} lang={lang} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
