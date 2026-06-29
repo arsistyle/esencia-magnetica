@@ -1,0 +1,17 @@
+---
+// src/components/Analytics.astro
+const gaId = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID as string | undefined;
+
+const consentScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(...args) {
+  window.dataLayer.push(args);
+}
+gtag("consent", "default", {
+  analytics_storage: "denied",
+  ad_storage: "denied",
+});
+`;
+---
+
+{gaId && <script is:inline set:html={consentScript} />}
