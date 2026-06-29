@@ -13,7 +13,9 @@ import {
   postsFilteredQuery,
   postsCountQuery,
   blogCategoriesQuery,
+  siteSettingsQuery,
 } from "@/lib/queries";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import { POSTS_PER_PAGE } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
 import Badge from "@/components/ui/Badge.astro";
@@ -41,10 +43,11 @@ const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1"));
 const offset = (page - 1) * POSTS_PER_PAGE;
 const end = offset + POSTS_PER_PAGE;
 
-const [rawPosts, total, categories] = await Promise.all([
+const [rawPosts, total, categories, settings] = await Promise.all([
   sanityClient.fetch(postsFilteredQuery, { lang, categoria, q, offset, end }),
   sanityClient.fetch(postsCountQuery, { lang, categoria, q }),
   sanityClient.fetch(blogCategoriesQuery),
+  sanityClient.fetch(siteSettingsQuery),
 ]);
 
 const posts = rawPosts as PostItem[];
@@ -61,11 +64,22 @@ const gridPosts = featured
 const clearSearchUrl = categoria
   ? `/en/blog?categoria=${encodeURIComponent(categoria)}`
   : "/en/blog";
+
+const seoTitle = settings?.defaultSeo?.metaTitle ?? t("nav.blog");
+const seoDescription =
+  settings?.defaultSeo?.metaDescription ?? t("blog.description");
+const seoOgImage = settings?.defaultSeo?.ogImage
+  ? (resolveImageUrl(settings.defaultSeo.ogImage as CoverImageLike, {
+      width: 1200,
+      format: "webp",
+    }) ?? undefined)
+  : undefined;
 ---
 
 <BaseLayout
-  title={t("nav.blog")}
-  description={t("blog.description")}
+  title={seoTitle}
+  description={seoDescription}
+  ogImage={seoOgImage}
   lang={lang}
 >
   <div

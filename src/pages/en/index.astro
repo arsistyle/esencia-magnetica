@@ -3,9 +3,27 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import HomeHero from "@/components/home/HomeHero.astro";
 import MarqueeRow from "@/components/home/MarqueeRow.astro";
 import { ROW1_ITEMS, ROW2_ITEMS } from "@/lib/home/marqueeItems";
+import { sanityClient } from "sanity:client";
+import { siteSettingsQuery } from "@/lib/queries";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
+
+const settings = await sanityClient.fetch(siteSettingsQuery);
+const seoTitle = settings?.defaultSeo?.metaTitle ?? "Esencia Magnética";
+const seoDescription = settings?.defaultSeo?.metaDescription ?? "";
+const seoOgImage = settings?.defaultSeo?.ogImage
+  ? (resolveImageUrl(settings.defaultSeo.ogImage as CoverImageLike, {
+      width: 1200,
+      format: "webp",
+    }) ?? undefined)
+  : undefined;
 ---
 
-<BaseLayout title="Welcome" lang="en">
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  ogImage={seoOgImage}
+  lang="en"
+>
   <HomeHero lang="en" />
   <MarqueeRow direction="left" items={ROW1_ITEMS} />
   <MarqueeRow direction="right" items={ROW2_ITEMS} />

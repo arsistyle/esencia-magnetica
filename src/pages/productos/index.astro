@@ -15,7 +15,9 @@ import {
   productsFilteredByNameQuery,
   productsFilteredCountQuery,
   productCategoriesQuery,
+  siteSettingsQuery,
 } from "@/lib/queries";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import { PRODUCTS_PER_PAGE } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
 import type { Locale } from "@/types/index";
@@ -34,7 +36,7 @@ const end = offset + PRODUCTS_PER_PAGE;
 const activeQuery =
   orden === "nombre" ? productsFilteredByNameQuery : productsFilteredQuery;
 
-const [rawProducts, total, categories] = await Promise.all([
+const [rawProducts, total, categories, settings] = await Promise.all([
   sanityClient.fetch(activeQuery, { lang, categoria, tienda, q, offset, end }),
   sanityClient.fetch(productsFilteredCountQuery, {
     lang,
@@ -43,14 +45,26 @@ const [rawProducts, total, categories] = await Promise.all([
     q,
   }),
   sanityClient.fetch(productCategoriesQuery),
+  sanityClient.fetch(siteSettingsQuery),
 ]);
 
 const totalPages = Math.ceil((total ?? 0) / PRODUCTS_PER_PAGE);
+
+const seoTitle = settings?.defaultSeo?.metaTitle ?? t("nav.products");
+const seoDescription =
+  settings?.defaultSeo?.metaDescription ?? t("product.lead");
+const seoOgImage = settings?.defaultSeo?.ogImage
+  ? (resolveImageUrl(settings.defaultSeo.ogImage as CoverImageLike, {
+      width: 1200,
+      format: "webp",
+    }) ?? undefined)
+  : undefined;
 ---
 
 <BaseLayout
-  title={t("nav.products")}
-  description={t("product.lead")}
+  title={seoTitle}
+  description={seoDescription}
+  ogImage={seoOgImage}
   lang={lang}
 >
   <div
