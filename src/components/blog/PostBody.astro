@@ -69,7 +69,7 @@ const html = toHTML(body, {
               ? `<span class="font-sans text-overline font-bold uppercase tracking-wider text-olive-faint">${String(p.store)}</span>`
               : "";
             return [
-              `<a href="${String(p.affiliateUrl ?? "#")}" rel="sponsored nofollow noopener" target="_blank" class="group flex flex-col gap-3">`,
+              `<a href="${String(p.affiliateUrl ?? "#")}" rel="sponsored nofollow noopener" target="_blank" data-ga-event="affiliate_click" data-ga-label="${String(p.name ?? "")}" class="group flex flex-col gap-3">`,
               img,
               store,
               `<span class="font-serif text-olive transition-colors group-hover:text-gold">${String(p.name ?? "")}</span>`,
@@ -106,6 +106,9 @@ const html = toHTML(body, {
           `<a href="${href}"`,
           rel ? ` rel="${rel}"` : "",
           isExternal ? ` target="_blank"` : "",
+          value?.isAffiliate
+            ? ` data-ga-event="affiliate_click" data-ga-label="${children}"`
+            : "",
           `>${children}</a>`,
         ].join("");
       },
@@ -131,6 +134,9 @@ const html = toHTML(body, {
     el.addEventListener("click", () => {
       const videoId = el.dataset.vid;
       if (!videoId) return;
+      if (typeof gtag !== "undefined") {
+        gtag("event", "video_play", { video_id: videoId });
+      }
       const iframe = document.createElement("iframe");
       iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       iframe.allow = "autoplay; encrypted-media";
@@ -140,4 +146,16 @@ const html = toHTML(body, {
       el.replaceChildren(iframe);
     });
   });
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("[data-ga-event='affiliate_click']")
+    .forEach((el) => {
+      el.addEventListener("click", () => {
+        if (typeof gtag === "undefined") return;
+        gtag("event", "affiliate_click", {
+          link_url: el.href,
+          product_name: el.dataset.gaLabel ?? "",
+        });
+      });
+    });
 </script>

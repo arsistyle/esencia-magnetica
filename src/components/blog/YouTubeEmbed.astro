@@ -38,6 +38,9 @@ const thumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
     el.addEventListener("click", () => {
       const videoId = el.dataset.vid;
       if (!videoId) return;
+      if (typeof gtag !== "undefined") {
+        gtag("event", "video_play", { video_id: videoId });
+      }
       const iframe = document.createElement("iframe");
       iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       iframe.allow = "autoplay; encrypted-media";
