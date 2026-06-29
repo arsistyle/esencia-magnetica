@@ -10,9 +10,17 @@ interface Props {
 
 const { brand, intro } = Astro.props;
 
-const heroUrl = brand?.heroPhoto
-  ? (safeUrlFor(brand.heroPhoto)?.width(600).height(750).url() ?? null)
-  : null;
+// ponytail: brand.heroPhoto is a raw Sanity image (not CoverImageLike), so safeUrlFor + manual chain
+const b = brand?.heroPhoto ? safeUrlFor(brand.heroPhoto) : null;
+const heroUrl =
+  b?.width(600).height(750).format("webp").quality(85).url() ?? null;
+const heroSrcSet = b
+  ? [
+      `${b.width(400).format("webp").quality(85).url()} 400w`,
+      `${b.width(600).format("webp").quality(85).url()} 600w`,
+      `${b.width(900).format("webp").quality(85).url()} 900w`,
+    ].join(", ")
+  : "";
 ---
 
 <section
@@ -52,9 +60,13 @@ const heroUrl = brand?.heroPhoto
     heroUrl ? (
       <img
         src={heroUrl}
+        srcset={heroSrcSet || undefined}
+        sizes="(min-width: 1024px) 50vw, 100vw"
         alt={brand?.name ?? ""}
-        class="aspect-[4/5] w-full rounded-xl object-cover shadow-md"
+        width="600"
+        height="750"
         loading="eager"
+        class="aspect-[4/5] w-full rounded-xl object-cover shadow-md"
       />
     ) : (
       <div
