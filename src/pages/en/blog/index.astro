@@ -3,6 +3,7 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import BrandLayout from "@/layouts/BrandLayout.astro";
 import BlogFilterModals from "@/components/blog/BlogFilterModals.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import FeaturedPost from "@/components/blog/FeaturedPost.astro";
@@ -14,10 +15,11 @@ import {
   postsCountQuery,
   blogCategoriesQuery,
   siteSettingsQuery,
-  blogPageQuery,
+  fullPageQuery,
+  brandQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
-import { POSTS_PER_PAGE } from "@/lib/constants";
+import { POSTS_PER_PAGE, PAGE_SLUGS } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
 import Badge from "@/components/ui/Badge.astro";
 import { X } from "@lucide/astro";
@@ -41,9 +43,13 @@ const t = useTranslations(lang);
 const categoria = Astro.url.searchParams.get("categoria") ?? "";
 const q = Astro.url.searchParams.get("q") ?? "";
 
-// Fetch blog page config first to get postsPerPage
-const blogPage = await sanityClient.fetch(blogPageQuery, { lang });
-const bc = blogPage?.blogContent;
+// Fetch page doc first — need postsPerPage before computing offset/end
+const pageDoc = await sanityClient.fetch(fullPageQuery, {
+  lang,
+  slug: PAGE_SLUGS.BLOG,
+});
+const template = pageDoc?.template ?? "blog";
+const bc = pageDoc?.blogContent;
 const postsPerPage: number = bc?.settings?.postsPerPage ?? POSTS_PER_PAGE;
 const showFeatured: boolean = bc?.settings?.showFeatured ?? true;
 const blogHeroEnabled = bc?.hero?.enabled !== false;
@@ -52,15 +58,30 @@ const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1"));
 const offset = (page - 1) * postsPerPage;
 const end = offset + postsPerPage;
 
-const [rawPosts, total, categories, settings] = await Promise.all([
-  sanityClient.fetch(postsFilteredQuery, { lang, categoria, q, offset, end }),
-  sanityClient.fetch(postsCountQuery, { lang, categoria, q }),
-  sanityClient.fetch(blogCategoriesQuery),
+const [rawPosts, total, categories, settings, brand] = await Promise.all([
+  template !== "about"
+    ? sanityClient.fetch(postsFilteredQuery, {
+        lang,
+        categoria,
+        q,
+        offset,
+        end,
+      })
+    : Promise.resolve([]),
+  template !== "about"
+    ? sanityClient.fetch(postsCountQuery, { lang, categoria, q })
+    : Promise.resolve(0),
+  template !== "about"
+    ? sanityClient.fetch(blogCategoriesQuery)
+    : Promise.resolve([]),
   sanityClient.fetch(siteSettingsQuery),
+  template === "about"
+    ? sanityClient.fetch(brandQuery, { brandId: "brand-en" })
+    : Promise.resolve(null),
 ]);
 
 const posts = rawPosts as PostItem[];
-const totalPages = Math.ceil((total ?? 0) / postsPerPage);
+const totalPages = Math.ceil(((total as number) ?? 0) / postsPerPage);
 
 const featured =
   showFeatured && !categoria && !q && page === 1
@@ -85,84 +106,88 @@ const seoOgImage = settings?.defaultSeo?.ogImage
   : undefined;
 ---
 
-<BaseLayout
-  title={seoTitle}
-  description={seoDescription}
-  ogImage={seoOgImage}
-  lang={lang}
->
-  <div
-    class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"
-  >
-    <Breadcrumb
-      items={[{ label: t("nav.home"), href: "/en" }, { label: t("nav.blog") }]}
+{
+  template === "about" && (
+    <BrandLayout brand={brand} page={pageDoc} lang={lang} />
+  )
+}
+{
+  template !== "about" && (
+    <BaseLayout
+      title={seoTitle}
+      description={seoDescription}
+      ogImage={seoOgImage}
       lang={lang}
-      class="mb-2.5"
-    />
-    <header
-      class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6"
     >
-      <div class="max-w-[640px]">
-        <Badge tone="gold" class="mb-3">{t("nav.blog")}</Badge>
-        {
-          blogHeroEnabled && bc?.hero?.heading && (
-            <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
-              {bc.hero.heading}
-            </h1>
-          )
-        }
-        {
-          blogHeroEnabled && bc?.hero?.lead && (
-            <p class="text-lead text-olive-soft">{bc.hero.lead}</p>
-          )
-        }
-      </div>
-      <BlogFilterModals
-        categories={categories}
-        activeCategoria={categoria}
-        activeQ={q}
-        basePath="/en/blog"
-        lang={lang}
-        labels={{
-          search: t("common.search"),
-          filter: t("common.filter"),
-          placeholder: t("blog.search.placeholder"),
-          categories: t("blog.filter.categories"),
-          all: t("blog.all"),
-          clearAll: t("common.clear_all"),
-          confirm: t("common.confirm"),
-        }}
-      />
-    </header>
-    {
-      q && (
-        <div class="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p class="text-small text-olive-soft">
-            {(total as number) ?? 0}&nbsp;
-            {((total as number) ?? 0) === 1
-              ? t("common.result_for")
-              : t("common.results_for")}
-            &nbsp;<strong class="text-olive font-semibold">{q}</strong>
-          </p>
-          <a
-            href={clearSearchUrl}
-            class="text-olive-faint hover:text-olive inline-flex items-center gap-1 font-sans text-[12px] leading-none transition-colors"
-          >
-            <X class="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span>{t("common.clear_search")}</span>
-          </a>
+      <div class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]">
+        <Breadcrumb
+          items={[
+            { label: t("nav.home"), href: "/en" },
+            { label: t("nav.blog") },
+          ]}
+          lang={lang}
+          class="mb-2.5"
+        />
+        <header class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6">
+          <div class="max-w-[640px]">
+            <Badge tone="gold" class="mb-3">
+              {t("nav.blog")}
+            </Badge>
+            {blogHeroEnabled && bc?.hero?.heading && (
+              <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+                {bc.hero.heading}
+              </h1>
+            )}
+            {blogHeroEnabled && bc?.hero?.lead && (
+              <p class="text-lead text-olive-soft">{bc.hero.lead}</p>
+            )}
+          </div>
+          <BlogFilterModals
+            categories={categories}
+            activeCategoria={categoria}
+            activeQ={q}
+            basePath="/en/blog"
+            lang={lang}
+            labels={{
+              search: t("common.search"),
+              filter: t("common.filter"),
+              placeholder: t("blog.search.placeholder"),
+              categories: t("blog.filter.categories"),
+              all: t("blog.all"),
+              clearAll: t("common.clear_all"),
+              confirm: t("common.confirm"),
+            }}
+          />
+        </header>
+        {q && (
+          <div class="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p class="text-small text-olive-soft">
+              {(total as number) ?? 0}&nbsp;
+              {((total as number) ?? 0) === 1
+                ? t("common.result_for")
+                : t("common.results_for")}
+              &nbsp;<strong class="text-olive font-semibold">{q}</strong>
+            </p>
+            <a
+              href={clearSearchUrl}
+              class="text-olive-faint hover:text-olive inline-flex items-center gap-1 font-sans text-[12px] leading-none transition-colors"
+            >
+              <X class="h-3 w-3 shrink-0" aria-hidden="true" />
+              <span>{t("common.clear_search")}</span>
+            </a>
+          </div>
+        )}
+        <div class="flex flex-col gap-12">
+          {featured && <FeaturedPost post={featured} lang={lang} />}
+          <PostGrid posts={gridPosts} q={q} lang={lang} />
+          <BlogPagination
+            currentPage={page}
+            totalPages={totalPages}
+            currentUrl={Astro.url.toString()}
+            lang={lang}
+          />
         </div>
-      )
-    }
-    <div class="flex flex-col gap-12">
-      {featured && <FeaturedPost post={featured} lang={lang} />}
-      <PostGrid posts={gridPosts} q={q} lang={lang} />
-      <BlogPagination
-        currentPage={page}
-        totalPages={totalPages}
-        currentUrl={Astro.url.toString()}
-        lang={lang}
-      />
-    </div>
-  </div>
-</BaseLayout>
+      </div>
+    </BaseLayout>
+  )
+}

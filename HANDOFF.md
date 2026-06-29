@@ -1,7 +1,7 @@
 # HANDOFF — Esencia Magnética
 
 **Fecha:** 2026-06-29 (actualizado)
-**Estado actual:** Stage 10 completo (SEO & i18n Finalization) ✅ · Próximo: Stage 11
+**Estado actual:** Stage 10 completo ✅ · Sistema de plantillas parcialmente implementado ⚠️ · **Próximo: refactorizar a arquitectura `[slug].astro` antes de Stage 11**
 
 ---
 
@@ -481,6 +481,90 @@ post.play · blog.headline · blog.lead · blog.shop · blog.shop.subtitle
 | MarqueeRow organism (independiente) | `src/components/home/MarqueeRow.astro`     |
 | Items placeholder del marquee       | `src/lib/home/marqueeItems.ts`             |
 | Home ES + EN                        | `src/pages/index.astro` + `en/index.astro` |
+
+---
+
+## ⚠️ Próximo paso obligatorio: Refactorizar a arquitectura `[slug].astro`
+
+**No empezar Stage 11 hasta completar este refactor.**
+
+### Contexto
+
+La dueña del proyecto pidió un sistema de plantillas estilo WordPress desde el inicio:
+
+> "Si a productos no le asigno una plantilla, debería cargar una default. Si yo quiero mostrar la plantilla de Marca para el home debería funcionar, tal como lo hace WordPress."
+
+La implementación actual **no cumple esto**. Las rutas están hardcodeadas en Astro (`/blog`, `/productos`, `/marca`) y cada una tiene su propia lógica. Esto impide que el CMS controle libremente qué URL existe y con qué plantilla.
+
+### Arquitectura correcta (pendiente de implementar)
+
+```
+src/
+  templates/
+    home.astro      ← recibe pageDoc + data, renderiza layout de home
+    blog.astro      ← recibe pageDoc + posts/categorías, renderiza listing
+    products.astro  ← recibe pageDoc + productos/categorías, renderiza listing
+    about.astro     ← recibe pageDoc + brand, renderiza página de Marca
+  pages/
+    [slug].astro    ← única ruta dinámica: lee slug → Sanity → template → renderiza
+    en/
+      [slug].astro  ← par EN de la misma ruta
+```
+
+### Cómo funciona
+
+1. El usuario visita cualquier URL (p.ej. `/productos`).
+2. `[slug].astro` extrae el slug de `Astro.params.slug` (o `"home"` en la raíz, ver nota).
+3. Hace fetch a Sanity: `fullPageQuery` con `{ slug, lang }`.
+4. Si no hay documento → `return new Response(null, { status: 404 })`.
+5. Lee `pageDoc.template`.
+6. Según la plantilla, hace fetch adicional (posts, productos, brand…).
+7. Renderiza el componente de `src/templates/` correspondiente.
+
+**El menú y las URLs son 100% controladas desde Sanity** — el editor crea o elimina páginas en Studio, asigna la plantilla que quiera, y la URL resulta del `slug` del documento. No hay código que hardcodee `/blog`, `/productos`, etc.
+
+### Nota sobre la raíz (`/`)
+
+La ruta raíz no tiene slug. Opciones:
+
+- Usar `src/pages/index.astro` por separado que hace fetch con `slug = "home"`.
+- O usar un `[...slug].astro` catch-all que mapee `""` → `"home"`.
+
+La opción más simple: mantener `index.astro` como wrapper que llama a la misma lógica con `slug = PAGE_SLUGS.HOME`.
+
+### Estado actual del código (sesión 2026-06-29)
+
+Se implementó una versión intermedia que **no es la arquitectura final**:
+
+| Archivo                                                       | Estado                                                                               |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/pages/index.astro` + `en/index.astro`                    | Usa `fullPageQuery`; soporta switch a template `about`                               |
+| `src/pages/blog/index.astro` + `en/blog/index.astro`          | Usa `fullPageQuery`; soporta switch a template `about`                               |
+| `src/pages/productos/index.astro` + `en/products/index.astro` | Usa `fullPageQuery`; 404 si no hay doc en Sanity; soporta switch a `about`           |
+| `src/pages/marca/index.astro` + `en/brand/index.astro`        | Usa `fullPageQuery`; siempre renderiza `BrandLayout`                                 |
+| `src/lib/queries.ts`                                          | Tiene `fullPageQuery` (query universal con todos los campos de contenido)            |
+| `src/lib/templateRouting.ts`                                  | **Eliminado** — era la implementación basada en `Astro.rewrite()`, que fue rechazada |
+| `src/lib/constants.ts`                                        | Tiene `PAGE_SLUGS` (conservar); `TEMPLATE_URLS` eliminado                            |
+
+**Problema con la implementación actual:** las rutas siguen hardcodeadas. Si el editor quiere crear una página nueva en Sanity (p.ej. `/tips`), no aparecerá en el sitio. El sistema de plantillas solo funciona para las 4 rutas existentes.
+
+### Pasos del refactor
+
+1. **Crear `src/templates/`** con un componente `.astro` por plantilla. Cada template recibe como props los datos ya fetcheados (no hace fetch propio).
+2. **Crear `src/pages/[slug].astro`** (ES) y `src/pages/en/[slug].astro` (EN):
+   - Lee `Astro.params.slug`.
+   - Fetch `fullPageQuery`.
+   - Si `!pageDoc` → 404.
+   - Según `pageDoc.template`, fetch datos adicionales.
+   - Monta el template correspondiente de `src/templates/`.
+3. **Actualizar `src/pages/index.astro`** para que use el mismo patrón pero con `slug = PAGE_SLUGS.HOME` hardcodeado (la raíz no puede ser `[slug].astro`).
+4. **Eliminar** `src/pages/blog/index.astro`, `src/pages/productos/index.astro`, `src/pages/marca/index.astro` (y sus pares EN) — sus URLs ahora las controla Sanity.
+5. **Verificar** que las URLs del menú en Sanity coincidan con los slugs de los documentos page.
+
+### Queries disponibles
+
+- `fullPageQuery` en `src/lib/queries.ts` — ya retorna todos los campos de contenido (`homeContent`, `blogContent`, `productsContent`, `aboutContent`, `seo`). Úsala en `[slug].astro`.
+- `PAGE_SLUGS` en `src/lib/constants.ts` — slugs canónicos para `index.astro`.
 
 ---
 

@@ -3,14 +3,15 @@
 export const prerender = false;
 
 import { sanityClient } from "sanity:client";
-import { brandQuery, aboutPageQuery } from "@/lib/queries";
+import { brandQuery, fullPageQuery } from "@/lib/queries";
 import BrandLayout from "@/layouts/BrandLayout.astro";
+import { PAGE_SLUGS } from "@/lib/constants";
 import type { Locale } from "@/types/index";
 
 const lang: Locale = "en";
 const [brand, page] = await Promise.all([
   sanityClient.fetch(brandQuery, { brandId: "brand-en" }),
-  sanityClient.fetch(aboutPageQuery, { lang }),
+  sanityClient.fetch(fullPageQuery, { lang, slug: PAGE_SLUGS.BRAND }),
 ]);
 ---
 

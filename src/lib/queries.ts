@@ -66,19 +66,36 @@ export const authorsQuery = defineQuery(`
   }
 `);
 
-export const pageBySlugQuery = defineQuery(`
-  *[_type == "page" && slug.current == $slug && language == $lang][0]{
+// Universal page query: returns ALL content fields for any template.
+// Routes fetch by slug + lang, then branch on the returned `template` field
+// to decide which content to use and which layout to render.
+export const fullPageQuery = defineQuery(`
+  *[_type == "page" && slug.current == $slug && language == $lang][0] {
     _id,
-    title,
-    slug,
     template,
-    hero{
-      heading,
-      subheading,
-      image,
-      cta
+    homeContent {
+      hero { enabled, tagline, heading, lead, primaryCta, secondaryCta },
+      gallery { enabled, "images": images[]{ "url": asset->url } },
+      latestPosts { enabled, heading, ctaLabel },
+      shopLook {
+        enabled, heading, lead, ctaLabel,
+        "products": products[]->{_id, name, affiliateUrl, image}
+      }
     },
-    body,
+    blogContent {
+      hero { enabled, heading, lead },
+      settings { postsPerPage, showFeatured }
+    },
+    productsContent {
+      hero { enabled, heading, lead }
+    },
+    aboutContent {
+      intro,
+      history { enabled, tag, title, photo { asset, hotspot, crop }, body },
+      philosophy { enabled, chip, title, description, pillars[] { title, desc } },
+      whatYouFind { enabled, chip, title, cards[] { tag, title, description, url } },
+      blogCta { enabled, title, buttonText, buttonUrl }
+    },
     seo
   }
 `);
@@ -131,10 +148,11 @@ export const productsFilteredCountQuery = defineQuery(`
   ])
 `);
 
-// Página /marca o /en/brand — template 'about' por locale.
-// Retorna null si el documento no existe todavía (brand-en pendiente de crear).
+// Página /marca o /en/brand — lookup by slug.current == $slug.
+// template field is returned so the route can rewrite if a different template is assigned.
 export const aboutPageQuery = defineQuery(`
-  *[_type == "page" && template == "about" && language == $lang][0] {
+  *[_type == "page" && slug.current == $slug && language == $lang][0] {
+    template,
     title,
     aboutContent {
       intro,
@@ -156,9 +174,11 @@ export const sitemapPostsQuery = defineQuery(`
   }
 `);
 
-// Home page content config
+// Home page content config — lookup by slug.current == $slug.
+// template is projected so the route can rewrite to another URL when needed.
 export const homePageQuery = defineQuery(`
-  *[_type == "page" && template == "home" && language == $lang][0] {
+  *[_type == "page" && slug.current == $slug && language == $lang][0] {
+    template,
     homeContent {
       hero { enabled, tagline, heading, lead, primaryCta, secondaryCta },
       gallery {
@@ -192,9 +212,10 @@ export const homeProductsQuery = defineQuery(`
   }
 `);
 
-// Blog listing page content config
+// Blog listing page content config — lookup by slug.current == $slug.
 export const blogPageQuery = defineQuery(`
-  *[_type == "page" && template == "blog" && language == $lang][0] {
+  *[_type == "page" && slug.current == $slug && language == $lang][0] {
+    template,
     blogContent {
       hero { enabled, heading, lead },
       settings { postsPerPage, showFeatured }
@@ -202,9 +223,10 @@ export const blogPageQuery = defineQuery(`
   }
 `);
 
-// Products listing page content config
+// Products listing page content config — lookup by slug.current == $slug.
 export const productsPageQuery = defineQuery(`
-  *[_type == "page" && template == "products" && language == $lang][0] {
+  *[_type == "page" && slug.current == $slug && language == $lang][0] {
+    template,
     productsContent {
       hero { enabled, heading, lead }
     }

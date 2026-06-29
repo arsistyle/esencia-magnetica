@@ -1,6 +1,16 @@
 import type { UiKey } from "@/i18n/ui";
 import type { Locale } from "@/types/index";
 
+// Canonical slugs used to look up page documents in Sanity.
+// Each page document must have slug.current matching one of these values.
+// The `template` field in Sanity then controls how the page is rendered.
+export const PAGE_SLUGS = {
+  HOME: "home",
+  BLOG: "blog",
+  PRODUCTS: "products",
+  BRAND: "brand",
+} as const;
+
 export const LOCALES = ["es", "en"] as const satisfies Locale[];
 
 export const NAV_ITEMS = [

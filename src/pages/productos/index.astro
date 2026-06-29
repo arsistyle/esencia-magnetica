@@ -3,6 +3,7 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import BrandLayout from "@/layouts/BrandLayout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Badge from "@/components/ui/Badge.astro";
 import ProductFilterModals from "@/components/product/ProductFilterModals.astro";
@@ -16,10 +17,11 @@ import {
   productsFilteredCountQuery,
   productCategoriesQuery,
   siteSettingsQuery,
-  productsPageQuery,
+  fullPageQuery,
+  brandQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
-import { PRODUCTS_PER_PAGE } from "@/lib/constants";
+import { PRODUCTS_PER_PAGE, PAGE_SLUGS } from "@/lib/constants";
 import { useTranslations } from "@/i18n";
 import type { Locale } from "@/types/index";
 
@@ -37,7 +39,8 @@ const end = offset + PRODUCTS_PER_PAGE;
 const activeQuery =
   orden === "nombre" ? productsFilteredByNameQuery : productsFilteredQuery;
 
-const [rawProducts, total, categories, settings, pageData] = await Promise.all([
+// Fetch page doc in parallel with product data — always need products for the default template
+const [rawProducts, total, categories, settings, pageDoc] = await Promise.all([
   sanityClient.fetch(activeQuery, { lang, categoria, tienda, q, offset, end }),
   sanityClient.fetch(productsFilteredCountQuery, {
     lang,
@@ -47,15 +50,19 @@ const [rawProducts, total, categories, settings, pageData] = await Promise.all([
   }),
   sanityClient.fetch(productCategoriesQuery),
   sanityClient.fetch(siteSettingsQuery),
-  sanityClient.fetch(productsPageQuery, { lang }),
+  sanityClient.fetch(fullPageQuery, { lang, slug: PAGE_SLUGS.PRODUCTS }),
 ]);
 
-if (!pageData)
-  return new Response(null, { status: 404, statusText: "Not Found" });
+if (!pageDoc) return new Response(null, { status: 404 });
 
-const ph = pageData?.productsContent?.hero;
+const template = pageDoc.template ?? "products";
+const brand =
+  template === "about"
+    ? await sanityClient.fetch(brandQuery, { brandId: "brand-es" })
+    : null;
 
-const totalPages = Math.ceil((total ?? 0) / PRODUCTS_PER_PAGE);
+const ph = pageDoc?.productsContent?.hero;
+const totalPages = Math.ceil(((total ?? 0) as number) / PRODUCTS_PER_PAGE);
 
 const seoTitle = settings?.defaultSeo?.metaTitle ?? t("nav.products");
 const seoDescription =
@@ -68,84 +75,83 @@ const seoOgImage = settings?.defaultSeo?.ogImage
   : undefined;
 ---
 
-<BaseLayout
-  title={seoTitle}
-  description={seoDescription}
-  ogImage={seoOgImage}
-  lang={lang}
->
-  <div
-    class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]"
-  >
-    <Breadcrumb
-      items={[
-        { label: t("nav.home"), href: "/" },
-        { label: t("nav.products") },
-      ]}
+{
+  template === "about" && (
+    <BrandLayout brand={brand} page={pageDoc} lang={lang} />
+  )
+}
+{
+  template !== "about" && (
+    <BaseLayout
+      title={seoTitle}
+      description={seoDescription}
+      ogImage={seoOgImage}
       lang={lang}
-      class="mb-2.5"
-    />
-    <header
-      class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6"
     >
-      {
-        ph?.enabled !== false && (
-          <div class="max-w-[640px]">
-            <Badge tone="gold" class="mb-3">
-              {t("nav.products")}
-            </Badge>
-            {ph?.heading && (
-              <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
-                {ph.heading}
-              </h1>
-            )}
-            {ph?.lead && <p class="text-lead text-olive-soft">{ph.lead}</p>}
-          </div>
-        )
-      }
-      <ProductFilterModals
-        categories={categories}
-        activeCategoria={categoria}
-        activeTienda={tienda}
-        activeQ={q}
-        activeOrden={orden}
-        basePath="/productos"
-        lang={lang}
-        labels={{
-          search: t("common.search"),
-          filter: t("common.filter"),
-          placeholder: t("blog.search.placeholder"),
-          categories: t("product.filter.categories"),
-          store: t("product.filter.store"),
-          allStores: t("product.filter.all_stores"),
-          all: t("blog.all"),
-          clearAll: t("common.clear_all"),
-          confirm: t("common.confirm"),
-        }}
-      />
-    </header>
-
-    <ProductResultsBar
-      total={total ?? 0}
-      sort={orden}
-      basePath="/productos"
-      activeCategoria={categoria}
-      activeTienda={tienda}
-      activeQ={q}
-      lang={lang}
-    />
-
-    <ProductGrid products={rawProducts ?? []} lang={lang} />
-
-    <BlogPagination
-      currentPage={page}
-      totalPages={totalPages}
-      currentUrl={Astro.url.toString()}
-      lang={lang}
-    />
-
-    <p class="text-olive-faint mt-10 text-center text-[13px]">
-      {t("product.disclosure")}
-    </p>
-  </div>
-</BaseLayout>
+      <div class="mx-auto max-w-[var(--container)] [padding:var(--space-8)_var(--gutter)_var(--space-9)]">
+        <Breadcrumb
+          items={[
+            { label: t("nav.home"), href: "/" },
+            { label: t("nav.products") },
+          ]}
+          lang={lang}
+          class="mb-2.5"
+        />
+        <header class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6">
+          {ph?.enabled !== false && (
+            <div class="max-w-[640px]">
+              <Badge tone="gold" class="mb-3">
+                {t("nav.products")}
+              </Badge>
+              {ph?.heading && (
+                <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+                  {ph.heading}
+                </h1>
+              )}
+              {ph?.lead && <p class="text-lead text-olive-soft">{ph.lead}</p>}
+            </div>
+          )}
+          <ProductFilterModals
+            categories={categories}
+            activeCategoria={categoria}
+            activeTienda={tienda}
+            activeQ={q}
+            activeOrden={orden}
+            basePath="/productos"
+            lang={lang}
+            labels={{
+              search: t("common.search"),
+              filter: t("common.filter"),
+              placeholder: t("blog.search.placeholder"),
+              categories: t("product.filter.categories"),
+              store: t("product.filter.store"),
+              allStores: t("product.filter.all_stores"),
+              all: t("blog.all"),
+              clearAll: t("common.clear_all"),
+              confirm: t("common.confirm"),
+            }}
+          />
+        </header>
+        <ProductResultsBar
+          total={total ?? 0}
+          sort={orden}
+          basePath="/productos"
+          activeCategoria={categoria}
+          activeTienda={tienda}
+          activeQ={q}
+          lang={lang}
+        />
+        <ProductGrid products={rawProducts ?? []} lang={lang} />
+        <BlogPagination
+          currentPage={page}
+          totalPages={totalPages}
+          currentUrl={Astro.url.toString()}
+          lang={lang}
+        />
+        <p class="text-olive-faint mt-10 text-center text-[13px]">
+          {t("product.disclosure")}
+        </p>
+      </div>
+    </BaseLayout>
+  )
+}

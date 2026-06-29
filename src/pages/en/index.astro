@@ -1,5 +1,8 @@
 ---
+export const prerender = false;
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import BrandLayout from "@/layouts/BrandLayout.astro";
 import HomeHero from "@/components/home/HomeHero.astro";
 import MarqueeRow from "@/components/home/MarqueeRow.astro";
 import HomeLatest from "@/components/home/HomeLatest.astro";
@@ -12,22 +15,28 @@ import {
 import { sanityClient } from "sanity:client";
 import {
   siteSettingsQuery,
-  homePageQuery,
+  fullPageQuery,
   homePostsQuery,
+  brandQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
+import { PAGE_SLUGS } from "@/lib/constants";
 
 const lang = "en" as const;
 
-const [settings, pageData, posts] = await Promise.all([
+const [settings, pageDoc, posts] = await Promise.all([
   sanityClient.fetch(siteSettingsQuery),
-  sanityClient.fetch(homePageQuery, { lang }),
+  sanityClient.fetch(fullPageQuery, { lang, slug: PAGE_SLUGS.HOME }),
   sanityClient.fetch(homePostsQuery, { lang }),
 ]);
 
-const hc = pageData?.homeContent;
+const template = pageDoc?.template ?? "home";
+const brand =
+  template === "about"
+    ? await sanityClient.fetch(brandQuery, { brandId: "brand-en" })
+    : null;
 
-// Build marquee rows from Sanity images, or fall back to static items
+const hc = pageDoc?.homeContent;
 const galleryImages =
   hc?.gallery?.enabled !== false && hc?.gallery?.images?.length
     ? (hc.gallery.images as SanityGalleryImage[])
@@ -48,40 +57,43 @@ const seoOgImage = settings?.defaultSeo?.ogImage
   : undefined;
 ---
 
-<BaseLayout
-  title={seoTitle}
-  description={seoDescription}
-  ogImage={seoOgImage}
-  lang="en"
->
-  <HomeHero lang="en" hero={hc?.hero} />
-  {
-    hc?.gallery?.enabled !== false && (
-      <>
-        <MarqueeRow direction="left" items={row1Items} />
-        <MarqueeRow direction="right" items={row2Items} />
-      </>
-    )
-  }
-  {
-    (!hc?.latestPosts || hc.latestPosts.enabled !== false) && (
-      <HomeLatest
-        lang="en"
-        posts={posts ?? []}
-        heading={hc?.latestPosts?.heading}
-        ctaLabel={hc?.latestPosts?.ctaLabel}
-      />
-    )
-  }
-  {
-    (!hc?.shopLook || hc.shopLook.enabled !== false) && (
-      <HomeShopLook
-        lang="en"
-        products={hc?.shopLook?.products ?? []}
-        heading={hc?.shopLook?.heading}
-        lead={hc?.shopLook?.lead}
-        ctaLabel={hc?.shopLook?.ctaLabel}
-      />
-    )
-  }
-</BaseLayout>
+{
+  template === "about" && (
+    <BrandLayout brand={brand} page={pageDoc} lang={lang} />
+  )
+}
+{
+  template !== "about" && (
+    <BaseLayout
+      title={seoTitle}
+      description={seoDescription}
+      ogImage={seoOgImage}
+      lang="en"
+    >
+      <HomeHero lang="en" hero={hc?.hero} />
+      {hc?.gallery?.enabled !== false && (
+        <>
+          <MarqueeRow direction="left" items={row1Items} />
+          <MarqueeRow direction="right" items={row2Items} />
+        </>
+      )}
+      {(!hc?.latestPosts || hc.latestPosts.enabled !== false) && (
+        <HomeLatest
+          lang="en"
+          posts={posts ?? []}
+          heading={hc?.latestPosts?.heading}
+          ctaLabel={hc?.latestPosts?.ctaLabel}
+        />
+      )}
+      {(!hc?.shopLook || hc.shopLook.enabled !== false) && (
+        <HomeShopLook
+          lang="en"
+          products={hc?.shopLook?.products ?? []}
+          heading={hc?.shopLook?.heading}
+          lead={hc?.shopLook?.lead}
+          ctaLabel={hc?.shopLook?.ctaLabel}
+        />
+      )}
+    </BaseLayout>
+  )
+}
