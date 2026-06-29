@@ -65,6 +65,11 @@ describe("buildBreadcrumbJsonLd", () => {
     { name: "Mi Post", url: "https://esencia-magnetica.com/blog/mi-post" },
   ];
 
+  it("returns an empty itemListElement for empty input", () => {
+    const json = JSON.parse(buildBreadcrumbJsonLd([]));
+    expect(json.itemListElement).toHaveLength(0);
+  });
+
   it("produces a valid BreadcrumbList schema", () => {
     const json = JSON.parse(buildBreadcrumbJsonLd(items));
     expect(json["@context"]).toBe("https://schema.org");

@@ -40,7 +40,7 @@ export function buildBreadcrumbJsonLd(
 }
 
 export interface BrandJsonLdParams {
-  personName: string;
+  personName?: string;
   siteUrl: string;
   brandUrl: string;
   heroUrl?: string | null;
