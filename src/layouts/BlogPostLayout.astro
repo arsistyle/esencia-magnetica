@@ -104,5 +104,5 @@ const products = (post.body ?? [])
     </div>
   </div>
   <RelatedProducts products={products} lang={lang} />
-  <FacebookComments />
+  <FacebookComments url={canonical} lang={lang} />
 </BaseLayout>

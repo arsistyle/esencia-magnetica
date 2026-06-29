@@ -1,6 +1,52 @@
 ---
 // src/components/blog/FacebookComments.astro
-// Stage 09: Facebook Comments SDK
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+
+interface Props {
+  url: string;
+  numPosts?: number;
+  lang?: Locale;
+}
+
+const { url, numPosts = 5, lang = "es" } = Astro.props;
+const t = useTranslations(lang);
+const sdkLocale = lang === "en" ? "en_US" : "es_ES";
+const sdkSrc = `https://connect.facebook.net/${sdkLocale}/sdk.js#xfbml=1&version=v21.0`;
 ---
 
-<!-- Stage 09: Facebook Comments -->
+<section
+  class="mx-auto max-w-[var(--container)] px-[var(--gutter)] py-[var(--space-8)]"
+  aria-label={t("comments.label")}
+>
+  <div id="fb-root"></div>
+  <div id="fb-comments-wrapper" data-sdk-src={sdkSrc}>
+    <div
+      class="fb-comments"
+      data-href={url}
+      data-numposts={numPosts}
+      data-width="100%"
+    >
+    </div>
+  </div>
+</section>
+
+<script>
+  const wrapper = document.getElementById("fb-comments-wrapper");
+  if (wrapper) {
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        if (!entries[0].isIntersecting) return;
+        obs.disconnect();
+        const src = wrapper.dataset.sdkSrc ?? "";
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.defer = true;
+        document.body.appendChild(script);
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(wrapper);
+  }
+</script>
