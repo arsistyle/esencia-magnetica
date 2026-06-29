@@ -38,11 +38,13 @@ const sdkSrc = `https://connect.facebook.net/${sdkLocale}/sdk.js#xfbml=1&version
       (entries, obs) => {
         if (!entries[0].isIntersecting) return;
         obs.disconnect();
-        const src = wrapper.dataset.sdkSrc ?? "";
+        const src = wrapper.dataset.sdkSrc;
+        if (!src) return;
+        if (document.querySelector('script[src*="connect.facebook.net"]'))
+          return;
         const script = document.createElement("script");
         script.src = src;
         script.async = true;
-        script.defer = true;
         document.body.appendChild(script);
       },
       { rootMargin: "200px" },
