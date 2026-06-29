@@ -16,6 +16,7 @@ import {
   productsFilteredCountQuery,
   productCategoriesQuery,
   siteSettingsQuery,
+  productsPageQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import { PRODUCTS_PER_PAGE } from "@/lib/constants";
@@ -36,7 +37,7 @@ const end = offset + PRODUCTS_PER_PAGE;
 const activeQuery =
   orden === "nombre" ? productsFilteredByNameQuery : productsFilteredQuery;
 
-const [rawProducts, total, categories, settings] = await Promise.all([
+const [rawProducts, total, categories, settings, pageData] = await Promise.all([
   sanityClient.fetch(activeQuery, { lang, categoria, tienda, q, offset, end }),
   sanityClient.fetch(productsFilteredCountQuery, {
     lang,
@@ -46,7 +47,10 @@ const [rawProducts, total, categories, settings] = await Promise.all([
   }),
   sanityClient.fetch(productCategoriesQuery),
   sanityClient.fetch(siteSettingsQuery),
+  sanityClient.fetch(productsPageQuery, { lang }),
 ]);
+
+const ph = pageData?.productsContent?.hero;
 
 const totalPages = Math.ceil((total ?? 0) / PRODUCTS_PER_PAGE);
 
@@ -81,15 +85,21 @@ const seoOgImage = settings?.defaultSeo?.ogImage
     <header
       class="border-line mb-7 flex flex-wrap items-end justify-between gap-6 border-b pb-6"
     >
-      <div class="max-w-[640px]">
-        <Badge tone="gold" class="mb-3">{t("nav.products")}</Badge>
-        <h1
-          class="text-h1 text-olive my-3 font-serif leading-tight font-semibold"
-        >
-          {t("product.headline")}
-        </h1>
-        <p class="text-lead text-olive-soft">{t("product.lead")}</p>
-      </div>
+      {
+        ph?.enabled !== false && (
+          <div class="max-w-[640px]">
+            <Badge tone="gold" class="mb-3">
+              {t("nav.products")}
+            </Badge>
+            <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+              {ph?.heading ?? t("product.headline")}
+            </h1>
+            <p class="text-lead text-olive-soft">
+              {ph?.lead ?? t("product.lead")}
+            </p>
+          </div>
+        )
+      }
       <ProductFilterModals
         categories={categories}
         activeCategoria={categoria}
