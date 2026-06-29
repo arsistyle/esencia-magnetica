@@ -26,6 +26,13 @@ export const ui = {
       "Moda práctica, looks reales y consejos accionables para mujeres que saben lo que quieren.",
     "home.cta.blog": "Ir al blog",
     "home.cta.catalog": "Ir al catálogo",
+    "home.latest.heading": "Lo último",
+    "home.latest.cta": "Ver todo",
+    "home.shop.badge": "Shop el look",
+    "home.shop.heading": "Las piezas favoritas de esta semana",
+    "home.shop.lead":
+      "Selección curada con enlaces directos. Compra lo que ves, sin buscar.",
+    "home.shop.cta": "Ir al catálogo",
     "blog.description":
       "Moda, estilo y consejos para mujeres que saben lo que quieren.",
     "blog.all": "Todo",
@@ -131,6 +138,13 @@ export const ui = {
       "Practical fashion, real looks and actionable advice for women who know what they want.",
     "home.cta.blog": "Go to the blog",
     "home.cta.catalog": "Go to the catalogue",
+    "home.latest.heading": "Latest",
+    "home.latest.cta": "View all",
+    "home.shop.badge": "Shop the look",
+    "home.shop.heading": "This week's favourite pieces",
+    "home.shop.lead":
+      "A curated selection with direct links. Shop what you see — no searching.",
+    "home.shop.cta": "Go to catalogue",
     "blog.description":
       "Fashion, style and tips for women who know what they want.",
     "blog.all": "All",
