@@ -1,0 +1,95 @@
+---
+// src/components/home/HomeShopLook.astro
+import type { Locale } from "@/types/index";
+import { useTranslations } from "@/i18n";
+import Badge from "@/components/ui/Badge.astro";
+import Button from "@/components/ui/Button.astro";
+import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
+
+interface Product {
+  _id: string;
+  name: string;
+  affiliateUrl?: string;
+  image?: unknown;
+}
+
+interface Props {
+  lang: Locale;
+  products: Product[];
+  heading?: string | null;
+  lead?: string | null;
+  ctaLabel?: string | null;
+}
+
+const { lang, products, heading, lead, ctaLabel } = Astro.props;
+const t = useTranslations(lang);
+
+const catalogHref = lang === "es" ? "/productos" : "/en/products";
+const sectionHeading = heading ?? t("home.shop.heading");
+const sectionLead = lead ?? t("home.shop.lead");
+const sectionCta = ctaLabel ?? t("home.shop.cta");
+
+const GRADIENTS = [
+  "linear-gradient(135deg, var(--color-rose-nude), var(--color-cream))",
+  "linear-gradient(135deg, var(--color-cream-deep), var(--color-gold-soft))",
+];
+
+function productImageUrl(product: Product): string | null {
+  if (!product.image) return null;
+  return (
+    resolveImageUrl(product.image as CoverImageLike, {
+      width: 480,
+      format: "webp",
+    }) ?? null
+  );
+}
+---
+
+<section class="bg-lavender [padding:var(--space-8)_var(--gutter)]">
+  <div
+    class="mx-auto grid max-w-[var(--container)] items-center gap-16 lg:grid-cols-2"
+  >
+    <!-- Copy -->
+    <div>
+      <Badge tone="gold">{t("home.shop.badge")}</Badge>
+      <h2
+        class="text-h2 text-olive my-6 font-serif leading-tight font-semibold"
+      >
+        {sectionHeading}
+      </h2>
+      <p class="text-olive-soft text-lead mb-8 leading-normal">
+        {sectionLead}
+      </p>
+      <Button href={catalogHref} variant="warm">{sectionCta}</Button>
+    </div>
+
+    <!-- Product images grid -->
+    <div class="grid grid-cols-2 gap-6">
+      {
+        [0, 1].map((i) => {
+          const product = products[i];
+          const imgUrl = product ? productImageUrl(product) : null;
+          const bg = imgUrl ? undefined : GRADIENTS[i];
+          return (
+            <div
+              class:list={[
+                "overflow-hidden rounded-lg shadow-sm",
+                i === 1 && "mt-8",
+              ]}
+              style={`aspect-ratio: 4/5${bg ? `; background: ${bg}` : ""}`}
+            >
+              {imgUrl && (
+                <img
+                  src={imgUrl}
+                  alt={product?.name ?? ""}
+                  class="block h-full w-full object-cover"
+                  loading="lazy"
+                />
+              )}
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
