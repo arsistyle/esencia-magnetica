@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://esencia-magnetica.com/sitemap.xml
