@@ -40,8 +40,11 @@ const sdkSrc = `https://connect.facebook.net/${sdkLocale}/sdk.js#xfbml=1&version
         obs.disconnect();
         const src = wrapper.dataset.sdkSrc;
         if (!src) return;
-        if (document.querySelector('script[src*="connect.facebook.net"]'))
+        if (document.querySelector('script[src*="connect.facebook.net"]')) {
+          // SDK already loaded (View Transitions nav) — re-parse new XFBML
+          window.FB?.XFBML?.parse();
           return;
+        }
         const script = document.createElement("script");
         script.src = src;
         script.async = true;

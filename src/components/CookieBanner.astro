@@ -9,16 +9,15 @@ interface Props {
 
 const { lang = "es" } = Astro.props;
 const t = useTranslations(lang);
-const gaId = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID as string | undefined;
+const gtmId = import.meta.env.PUBLIC_GTM_ID as string | undefined;
 ---
 
 {
-  gaId && (
+  gtmId && (
     <div
       id="cookie-banner"
       role="dialog"
       aria-labelledby="cookie-banner-text"
-      data-ga-id={gaId}
       class="bg-olive fixed right-0 bottom-0 left-0 z-50 flex flex-wrap items-center justify-between gap-4 px-6 py-4 shadow-lg"
       style="display:none"
     >
@@ -46,28 +45,17 @@ const gaId = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID as string | undefined;
 <script>
   const CONSENT_KEY = "cookie_consent";
   const banner = document.getElementById("cookie-banner") as HTMLElement | null;
-  const gaId = banner?.dataset.gaId;
 
-  function loadGtag() {
-    if (!gaId) return;
-    if (document.querySelector('script[src*="googletagmanager"]')) return;
-    const s = document.createElement("script");
-    s.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-    s.async = true;
-    document.head.appendChild(s);
-    s.onload = () => {
-      gtag("consent", "update", { analytics_storage: "granted" });
-      gtag("config", gaId);
-      // Re-fire pageview on each View Transitions navigation
-      document.addEventListener("astro:page-load", () => {
-        gtag("event", "page_view", { page_location: window.location.href });
-      });
-    };
+  function grantConsent() {
+    gtag("consent", "update", { analytics_storage: "granted" });
+    document.addEventListener("astro:page-load", () => {
+      gtag("event", "page_view", { page_location: window.location.href });
+    });
   }
 
   const stored = localStorage.getItem(CONSENT_KEY);
   if (stored === "granted") {
-    loadGtag();
+    grantConsent();
   } else if (!stored && banner) {
     banner.style.display = "flex";
   }
@@ -75,7 +63,7 @@ const gaId = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID as string | undefined;
   document.getElementById("cookie-accept")?.addEventListener("click", () => {
     localStorage.setItem(CONSENT_KEY, "granted");
     if (banner) banner.style.display = "none";
-    loadGtag();
+    grantConsent();
   });
 
   document.getElementById("cookie-reject")?.addEventListener("click", () => {

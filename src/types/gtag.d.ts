@@ -2,6 +2,7 @@
 declare global {
   interface Window {
     dataLayer: unknown[];
+    FB?: { XFBML?: { parse: () => void } };
   }
   function gtag(...args: unknown[]): void;
 }
