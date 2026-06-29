@@ -9,6 +9,8 @@ import Analytics from "@/components/Analytics.astro";
 import CookieBanner from "@/components/CookieBanner.astro";
 import { useTranslations, getLocalizedUrl } from "@/i18n";
 import type { Locale } from "@/types/index";
+import { sanityClient } from "sanity:client";
+import { siteNavQuery } from "@/lib/queries";
 
 interface Props {
   title: string;
@@ -41,6 +43,11 @@ const {
 
 const t = useTranslations(lang);
 const currentPath = Astro.url.pathname;
+
+const siteNav = await sanityClient.fetch(siteNavQuery, {
+  brandId: `brand-${lang}`,
+  locale: lang,
+});
 
 const esPath =
   alternates?.es ??
@@ -104,11 +111,17 @@ const gtmId = import.meta.env.PUBLIC_GTM_ID as string | undefined;
     >
       {t("common.skip")}
     </a>
-    <Navbar lang={lang} currentPath={currentPath} />
+    <Navbar
+      lang={lang}
+      currentPath={currentPath}
+      logoUrl={siteNav?.logo}
+      headerNavItems={siteNav?.headerMenu}
+      mobileNavItems={siteNav?.mobileMenu}
+    />
     <main id="main-content">
       <slot />
     </main>
-    <Footer lang={lang} />
+    <Footer lang={lang} footerNavItems={siteNav?.footerMenu} />
     <CookieBanner lang={lang} />
   </body>
 </html>

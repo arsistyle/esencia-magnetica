@@ -5,3 +5,9 @@ export interface SeoMeta {
   description: string;
   ogImage?: string;
 }
+
+export interface NavMenuItem {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+}

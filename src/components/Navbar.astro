@@ -1,6 +1,6 @@
 ---
 // src/components/Navbar.astro
-import type { Locale } from "@/types/index";
+import type { Locale, NavMenuItem } from "@/types/index";
 import { useTranslations, getLocalizedUrl } from "@/i18n";
 import { NAV_ITEMS } from "@/lib/constants";
 import type { UiKey } from "@/i18n/ui";
@@ -9,9 +9,13 @@ import { Menu, X } from "@lucide/astro";
 interface Props {
   lang: Locale;
   currentPath: string;
+  logoUrl?: string | null;
+  headerNavItems?: NavMenuItem[] | null;
+  mobileNavItems?: NavMenuItem[] | null;
 }
 
-const { lang, currentPath } = Astro.props;
+const { lang, currentPath, logoUrl, headerNavItems, mobileNavItems } =
+  Astro.props;
 const t = useTranslations(lang);
 
 const logoHref = lang === "es" ? "/" : "/en";
@@ -27,6 +31,40 @@ function isActive(esHref: string): boolean {
   if (esHref === "/") return currentPath === href;
   return currentPath === href || currentPath.startsWith(href + "/");
 }
+
+function isSanityItemActive(href: string, isExternal?: boolean): boolean {
+  if (isExternal) return false;
+  if (href === "/" || href === "/en") return currentPath === href;
+  return currentPath === href || currentPath.startsWith(href + "/");
+}
+
+const desktopItems = headerNavItems?.length
+  ? headerNavItems.map((item) => ({
+      label: item.label,
+      href: item.href,
+      active: isSanityItemActive(item.href, item.isExternal),
+      isExternal: item.isExternal ?? false,
+    }))
+  : NAV_ITEMS.map((item) => ({
+      label: t(item.labelKey as UiKey),
+      href: navHref(item.href),
+      active: isActive(item.href),
+      isExternal: false,
+    }));
+
+const mobileItems = mobileNavItems?.length
+  ? mobileNavItems.map((item) => ({
+      label: item.label,
+      href: item.href,
+      active: isSanityItemActive(item.href, item.isExternal),
+      isExternal: item.isExternal ?? false,
+    }))
+  : NAV_ITEMS.map((item) => ({
+      label: t(item.labelKey as UiKey),
+      href: navHref(item.href),
+      active: isActive(item.href),
+      isExternal: false,
+    }));
 ---
 
 <header
@@ -36,12 +74,19 @@ function isActive(esHref: string): boolean {
   <div
     class="flex items-center justify-between gap-8 [padding:18px_var(--gutter)]"
   >
-    <!-- Wordmark -->
+    <!-- Logo or wordmark -->
     <a
       href={logoHref}
       class="font-script text-gold text-[30px] leading-none whitespace-nowrap no-underline"
+      aria-label="Esencia Magnética"
     >
-      Esencia Magnética
+      {
+        logoUrl ? (
+          <img src={logoUrl} alt="Esencia Magnética" class="h-9 w-auto" />
+        ) : (
+          "Esencia Magnética"
+        )
+      }
     </a>
 
     <!-- Desktop nav links -->
@@ -50,24 +95,23 @@ function isActive(esHref: string): boolean {
       aria-label={t("nav.aria")}
     >
       {
-        NAV_ITEMS.map((item) => {
-          const href = navHref(item.href);
-          const active = isActive(item.href);
-          return (
-            <a
-              href={href}
-              class:list={[
-                "duration-base ease-soft border-b-2 pb-[3px] font-sans text-[14px] tracking-[0.06em] uppercase no-underline transition-colors",
-                active
-                  ? "text-olive border-gold font-bold"
-                  : "text-olive-soft hover:text-olive border-transparent font-normal",
-              ]}
-              aria-current={active ? "page" : undefined}
-            >
-              {t(item.labelKey as UiKey)}
-            </a>
-          );
-        })
+        desktopItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "duration-base ease-soft border-b-2 pb-[3px] font-sans text-[14px] tracking-[0.06em] uppercase no-underline transition-colors",
+              item.active
+                ? "text-olive border-gold font-bold"
+                : "text-olive-soft hover:text-olive border-transparent font-normal",
+            ]}
+            aria-current={item.active ? "page" : undefined}
+            {...(item.isExternal
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            {item.label}
+          </a>
+        ))
       }
     </nav>
 
@@ -129,22 +173,21 @@ function isActive(esHref: string): boolean {
   >
     <div class="flex flex-col gap-1 [padding:1rem_var(--gutter)]">
       {
-        NAV_ITEMS.map((item) => {
-          const href = navHref(item.href);
-          const active = isActive(item.href);
-          return (
-            <a
-              href={href}
-              class:list={[
-                "border-line border-b py-3 font-sans text-[14px] tracking-[0.06em] uppercase no-underline last:border-0",
-                active ? "text-gold font-bold" : "text-olive",
-              ]}
-              aria-current={active ? "page" : undefined}
-            >
-              {t(item.labelKey as UiKey)}
-            </a>
-          );
-        })
+        mobileItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "border-line border-b py-3 font-sans text-[14px] tracking-[0.06em] uppercase no-underline last:border-0",
+              item.active ? "text-gold font-bold" : "text-olive",
+            ]}
+            aria-current={item.active ? "page" : undefined}
+            {...(item.isExternal
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            {item.label}
+          </a>
+        ))
       }
     </div>
   </div>

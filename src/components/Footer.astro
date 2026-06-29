@@ -1,21 +1,29 @@
 ---
 // src/components/Footer.astro
-import type { Locale } from "@/types/index";
+import type { Locale, NavMenuItem } from "@/types/index";
 import { useTranslations, getLocalizedUrl } from "@/i18n";
 import { NAV_ITEMS, SOCIAL_LINKS } from "@/lib/constants";
 import type { UiKey } from "@/i18n/ui";
 
 interface Props {
   lang: Locale;
+  footerNavItems?: NavMenuItem[] | null;
 }
 
-const { lang } = Astro.props;
+const { lang, footerNavItems } = Astro.props;
 const t = useTranslations(lang);
 
-const navLinks = NAV_ITEMS.map((item) => ({
-  label: t(item.labelKey as UiKey),
-  href: lang === "es" ? item.href : getLocalizedUrl("en", item.href),
-}));
+const navLinks = footerNavItems?.length
+  ? footerNavItems.map((item) => ({
+      label: item.label,
+      href: item.href,
+      isExternal: item.isExternal ?? false,
+    }))
+  : NAV_ITEMS.map((item) => ({
+      label: t(item.labelKey as UiKey),
+      href: lang === "es" ? item.href : getLocalizedUrl("en", item.href),
+      isExternal: false,
+    }));
 ---
 
 <footer
@@ -42,10 +50,13 @@ const navLinks = NAV_ITEMS.map((item) => ({
           {t("footer.explore")}
         </span>
         {
-          navLinks.map(({ label, href }) => (
+          navLinks.map(({ label, href, isExternal }) => (
             <a
               href={href}
               class="text-cream text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+              {...(isExternal
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
             >
               {label}
             </a>
