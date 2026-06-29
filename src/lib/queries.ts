@@ -146,3 +146,12 @@ export const aboutPageQuery = defineQuery(`
     seo
   }
 `);
+
+export const sitemapPostsQuery = defineQuery(`
+  *[_type == "post" && !(_id in path("drafts.**"))] {
+    _id,
+    "slug": slug.current,
+    language,
+    _updatedAt
+  }
+`);
