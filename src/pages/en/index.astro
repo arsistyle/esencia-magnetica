@@ -2,12 +2,44 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HomeHero from "@/components/home/HomeHero.astro";
 import MarqueeRow from "@/components/home/MarqueeRow.astro";
+import HomeLatest from "@/components/home/HomeLatest.astro";
+import HomeShopLook from "@/components/home/HomeShopLook.astro";
 import { ROW1_ITEMS, ROW2_ITEMS } from "@/lib/home/marqueeItems";
+import {
+  buildMarqueeRows,
+  type SanityGalleryImage,
+} from "@/lib/home/galleryViewModel";
 import { sanityClient } from "sanity:client";
-import { siteSettingsQuery } from "@/lib/queries";
+import {
+  siteSettingsQuery,
+  homePageQuery,
+  homePostsQuery,
+  homeProductsQuery,
+} from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 
-const settings = await sanityClient.fetch(siteSettingsQuery);
+const lang = "en" as const;
+
+const [settings, pageData, posts, products] = await Promise.all([
+  sanityClient.fetch(siteSettingsQuery),
+  sanityClient.fetch(homePageQuery, { lang }),
+  sanityClient.fetch(homePostsQuery, { lang }),
+  sanityClient.fetch(homeProductsQuery, { lang }),
+]);
+
+const hc = pageData?.homeContent;
+
+// Build marquee rows from Sanity images, or fall back to static items
+const galleryImages =
+  hc?.gallery?.enabled !== false && hc?.gallery?.images?.length
+    ? (hc.gallery.images as SanityGalleryImage[])
+    : null;
+const [row1Items, row2Items] = buildMarqueeRows(
+  galleryImages,
+  ROW1_ITEMS,
+  ROW2_ITEMS,
+);
+
 const seoTitle = settings?.defaultSeo?.metaTitle ?? "Esencia Magnética";
 const seoDescription = settings?.defaultSeo?.metaDescription ?? "";
 const seoOgImage = settings?.defaultSeo?.ogImage
@@ -24,7 +56,34 @@ const seoOgImage = settings?.defaultSeo?.ogImage
   ogImage={seoOgImage}
   lang="en"
 >
-  <HomeHero lang="en" />
-  <MarqueeRow direction="left" items={ROW1_ITEMS} />
-  <MarqueeRow direction="right" items={ROW2_ITEMS} />
+  <HomeHero lang="en" hero={hc?.hero} />
+  {
+    hc?.gallery?.enabled !== false && (
+      <>
+        <MarqueeRow direction="left" items={row1Items} />
+        <MarqueeRow direction="right" items={row2Items} />
+      </>
+    )
+  }
+  {
+    (!hc?.latestPosts || hc.latestPosts.enabled !== false) && (
+      <HomeLatest
+        lang="en"
+        posts={posts ?? []}
+        heading={hc?.latestPosts?.heading}
+        ctaLabel={hc?.latestPosts?.ctaLabel}
+      />
+    )
+  }
+  {
+    (!hc?.shopLook || hc.shopLook.enabled !== false) && (
+      <HomeShopLook
+        lang="en"
+        products={products ?? []}
+        heading={hc?.shopLook?.heading}
+        lead={hc?.shopLook?.lead}
+        ctaLabel={hc?.shopLook?.ctaLabel}
+      />
+    )
+  }
 </BaseLayout>
