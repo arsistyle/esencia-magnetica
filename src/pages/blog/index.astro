@@ -14,6 +14,7 @@ import {
   postsCountQuery,
   blogCategoriesQuery,
   siteSettingsQuery,
+  blogPageQuery,
 } from "@/lib/queries";
 import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
 import { POSTS_PER_PAGE } from "@/lib/constants";
@@ -39,9 +40,19 @@ const t = useTranslations(lang);
 
 const categoria = Astro.url.searchParams.get("categoria") ?? "";
 const q = Astro.url.searchParams.get("q") ?? "";
+
+// Fetch blog page config first to get postsPerPage
+const blogPage = await sanityClient.fetch(blogPageQuery, { lang });
+const bc = blogPage?.blogContent;
+const postsPerPage: number = bc?.settings?.postsPerPage ?? POSTS_PER_PAGE;
+const showFeatured: boolean = bc?.settings?.showFeatured ?? true;
+const blogHeroEnabled = bc?.hero?.enabled !== false;
+const blogHeroHeading = bc?.hero?.heading ?? t("blog.headline");
+const blogHeroLead = bc?.hero?.lead ?? t("blog.lead");
+
 const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1"));
-const offset = (page - 1) * POSTS_PER_PAGE;
-const end = offset + POSTS_PER_PAGE;
+const offset = (page - 1) * postsPerPage;
+const end = offset + postsPerPage;
 
 const [rawPosts, total, categories, settings] = await Promise.all([
   sanityClient.fetch(postsFilteredQuery, { lang, categoria, q, offset, end }),
@@ -51,10 +62,10 @@ const [rawPosts, total, categories, settings] = await Promise.all([
 ]);
 
 const posts = rawPosts as PostItem[];
-const totalPages = Math.ceil((total ?? 0) / POSTS_PER_PAGE);
+const totalPages = Math.ceil((total ?? 0) / postsPerPage);
 
 const featured =
-  !categoria && !q && page === 1
+  showFeatured && !categoria && !q && page === 1
     ? (posts.find((p) => p.featured) ?? null)
     : null;
 const gridPosts = featured
@@ -95,14 +106,16 @@ const seoOgImage = settings?.defaultSeo?.ogImage
     >
       <div class="max-w-[640px]">
         <Badge tone="gold" class="mb-3">{t("nav.blog")}</Badge>
-        <h1
-          class="text-h1 text-olive my-3 font-serif leading-tight font-semibold"
-        >
-          {t("blog.headline")}
-        </h1>
-        <p class="text-lead text-olive-soft">
-          {t("blog.lead")}
-        </p>
+        {
+          blogHeroEnabled && (
+            <>
+              <h1 class="text-h1 text-olive my-3 font-serif leading-tight font-semibold">
+                {blogHeroHeading}
+              </h1>
+              <p class="text-lead text-olive-soft">{blogHeroLead}</p>
+            </>
+          )
+        }
       </div>
       <BlogFilterModals
         categories={categories}
