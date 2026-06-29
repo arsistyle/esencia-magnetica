@@ -39,7 +39,7 @@ export function resolveImageUrl(
 ): string | null {
   if (!source) return null;
   if (source.externalUrl) return source.externalUrl;
-  const b = safeUrlFor(source);
+  const b = safeUrlFor(source.asset);
   if (!b) return null;
   let img = b;
   if (opts.width && opts.height)
