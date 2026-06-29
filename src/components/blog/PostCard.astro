@@ -2,7 +2,11 @@
 // src/components/blog/PostCard.astro
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
-import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
+import {
+  resolveImageUrl,
+  buildSrcSet,
+  type CoverImageLike,
+} from "@/lib/sanity";
 import { formatPostDate } from "@/lib/blog/postViewModel";
 
 interface Props {
@@ -25,9 +29,15 @@ const href =
   lang === "es"
     ? `/blog/${post.slug.current}`
     : `/en/blog/${post.slug.current}`;
-const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
-  width: 600,
-  height: 338,
+const coverImage = post.coverImage as CoverImageLike;
+const imgSrc = resolveImageUrl(coverImage, {
+  width: 800,
+  format: "webp",
+  quality: 80,
+});
+const imgSrcSet = buildSrcSet(coverImage, [400, 800], {
+  format: "webp",
+  quality: 80,
 });
 const date = formatPostDate(post.publishedAt, lang);
 const mins = Math.max(1, post.readTime ?? 1);
@@ -45,7 +55,11 @@ const categoryName =
     imgSrc ? (
       <img
         src={imgSrc}
-        alt={post.title}
+        srcset={imgSrcSet || undefined}
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        alt={coverImage?.alt ?? post.title}
+        width="800"
+        height="450"
         loading="lazy"
         transition:name={`post-image-${post.slug.current}`}
         class="aspect-video w-full rounded-t-lg object-cover"

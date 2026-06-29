@@ -2,7 +2,11 @@
 // src/components/blog/PostHero.astro
 import type { Locale } from "@/types/index";
 import { useTranslations } from "@/i18n";
-import { resolveImageUrl, type CoverImageLike } from "@/lib/sanity";
+import {
+  resolveImageUrl,
+  buildSrcSet,
+  type CoverImageLike,
+} from "@/lib/sanity";
 import Badge from "@/components/ui/Badge.astro";
 import { formatPostDate, readingTime } from "@/lib/blog/postViewModel";
 
@@ -27,9 +31,15 @@ interface Props {
 const { post, lang } = Astro.props;
 const t = useTranslations(lang);
 const blogPath = lang === "en" ? "/en/blog" : "/blog";
-const imgSrc = resolveImageUrl(post.coverImage as CoverImageLike, {
+const coverImage = post.coverImage as CoverImageLike;
+const imgSrc = resolveImageUrl(coverImage, {
   width: 1400,
-  height: 787,
+  format: "webp",
+  quality: 85,
+});
+const imgSrcSet = buildSrcSet(coverImage, [800, 1200, 1400], {
+  format: "webp",
+  quality: 85,
 });
 const date = formatPostDate(post.publishedAt, lang);
 const mins = post.body ? readingTime(post.body) : null;
@@ -104,7 +114,11 @@ const authorNames = post.authors?.map((a) => a.name).join(", ") ?? "";
     <div class="mx-auto mt-8 max-w-[var(--container)] px-[var(--gutter)]">
       <img
         src={imgSrc}
-        alt={post.title}
+        srcset={imgSrcSet || undefined}
+        sizes="(min-width: 1280px) 1280px, 100vw"
+        alt={coverImage?.alt ?? post.title}
+        width="1400"
+        height="787"
         loading="eager"
         transition:name={`post-image-${post.slug?.current ?? ""}`}
         class="aspect-video w-full rounded-xl object-cover shadow-md"
